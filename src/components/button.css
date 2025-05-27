@@ -1,0 +1,15 @@
+button {
+  font-size: 14px;
+  font-weight: 100;
+}
+
+.btn-main {
+  background-color: #9dafff;
+  padding: 12px 25px;
+  border-radius: 5px;
+  color: white;
+}
+
+.btn-plain {
+  padding: 5px 10px;
+}

@@ -1,0 +1,23 @@
+.main-navigation {
+  min-height: 40px;
+  width: 100vw;
+  background-color: antiquewhite;
+  display: flex;
+  padding: 0px 10px;
+}
+
+.mobile-menu-button {
+  display: flex;
+  align-items: center;
+}
+
+@media (min-width: 900px) {
+  .main-navigation {
+    height: 100vh;
+    width: 60px;
+  }
+
+  .mobile-menu-button {
+    display: none;
+  }
+}

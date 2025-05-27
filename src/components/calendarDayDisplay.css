@@ -1,0 +1,32 @@
+.calendar-day-display {
+  width: 1500px;
+  min-height: 70px;
+  position: sticky;
+  top: 0;
+  display: flex;
+  z-index: 11;
+  background-color: white;
+  display: grid;
+  grid-template-columns: repeat(7, 200px);
+  padding-left: 60px;
+  place-items: center;
+}
+
+.date-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.date-container h3 {
+  font-weight: 500;
+}
+
+@media (min-width: 900px) {
+  .calendar-day-display {
+    padding-left: 85px;
+    min-height: 100px;
+  }
+}

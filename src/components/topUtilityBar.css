@@ -1,0 +1,35 @@
+.top-utility-bar {
+  width: 100%;
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 5px;
+}
+
+.back-button,
+.next-button {
+  font-size: 23px;
+  width: 22px;
+  height: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.button-container {
+  display: flex;
+  gap: 15px;
+  padding: 0 10px;
+}
+
+.top-utility-bar p {
+  min-width: 85px;
+  text-align: center;
+}
+
+@media (min-width: 900px) {
+  .top-utility-bar {
+    height: 70px;
+  }
+}
