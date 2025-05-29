@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect, type ReactNode } from "react";
-import CalendarTimeline from "./calendarTimeline";
+import { useRef, useEffect } from "react";
+import CalendarTimeline from "./calendar/calendarTimeline";
 import "./scrollerWrapper.css";
 
 function ScrollerWrapper() {

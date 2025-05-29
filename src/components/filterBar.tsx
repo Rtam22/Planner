@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Calendar from "./calendar";
+import Calendar from "./calendar/calendar";
 import "./filterBar.css";
 
 type filterBarProps = {
