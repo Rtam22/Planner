@@ -1,12 +1,19 @@
 import "./topUtilityBar.css";
 import Button from "./button";
 import { getMonthName, addSixToDays } from "../utils/dateUtils";
+import { useState } from "react";
+
 type filterBarProps = {
   selectedDate: Date;
   handleSelectDate: (newDate: Date) => void;
+  handleShowModal: (modal: string) => void;
 };
 
-function TopUtilityBar({ selectedDate, handleSelectDate }: filterBarProps) {
+function TopUtilityBar({
+  selectedDate,
+  handleSelectDate,
+  handleShowModal,
+}: filterBarProps) {
   function handleDateChange(e: React.MouseEvent<HTMLDivElement>) {
     const button = e.currentTarget.textContent;
     console.log(button);
@@ -37,7 +44,9 @@ function TopUtilityBar({ selectedDate, handleSelectDate }: filterBarProps) {
         </Button>
       </div>
       <div className="button-container">
-        <Button type="btn-main">Create Task</Button>
+        <Button type="btn-main" onClick={() => handleShowModal("createTask")}>
+          Create Task
+        </Button>
         <Button type="btn-plain">To Plan</Button>
       </div>
     </div>
