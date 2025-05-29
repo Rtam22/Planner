@@ -4,12 +4,21 @@ button {
 }
 
 .btn-main {
-  background-color: #9dafff;
+  background-color: #506ffc;
   padding: 12px 25px;
   border-radius: 5px;
   color: white;
 }
 
+.btn-main:hover {
+  background-color: #637ffb;
+}
+
 .btn-plain {
   padding: 5px 10px;
+}
+
+.btn-ext:hover {
+  background-color: rgb(227, 29, 29);
+  color: white;
 }
