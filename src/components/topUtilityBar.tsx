@@ -1,7 +1,6 @@
 import "./topUtilityBar.css";
 import Button from "./button";
 import { getMonthName, addSixToDays } from "../utils/dateUtils";
-import { useState } from "react";
 
 type filterBarProps = {
   selectedDate: Date;

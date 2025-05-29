@@ -1,9 +1,12 @@
 import "./App.css";
 import CalendarPage from "./pages/calendarPage";
+import { TasksProvider } from "./context/taskContext";
 function App() {
   return (
     <>
-      <CalendarPage />
+      <TasksProvider>
+        <CalendarPage />
+      </TasksProvider>
     </>
   );
 }

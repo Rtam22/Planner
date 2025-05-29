@@ -1,6 +1,8 @@
 import { useState } from "react";
 import "./createTaskModal.css";
 import Button from "./button";
+import { useTasksContext } from "../context/taskContext";
+import { v4 as uuidv4 } from "uuid";
 
 type createTaskModal = {
   showCreateModal: boolean;
@@ -10,17 +12,29 @@ function CreateTaskModal({
   handleShowModal,
   showCreateModal,
 }: createTaskModal) {
-  const [title, setTitle] = useState<string>();
-  const [description, setDscription] = useState<string>();
-  const [tag, setTag] = useState<string>();
-  const [date, setDate] = useState<string>();
-  const [startTime, setStartTime] = useState<string>();
-  const [endTime, setEndTime] = useState<string>();
-  const [repeat, setRepeat] = useState<string>();
+  const [title, setTitle] = useState<string>("");
+  const [description, setDscription] = useState<string>("");
+  const [tag, setTag] = useState<string>("");
+  const [date, setDate] = useState<string>("");
+  const [startTime, setStartTime] = useState<string>("");
+  const [endTime, setEndTime] = useState<string>("");
+  const [repeat, setRepeat] = useState<string>("");
+
+  const { tasks, addTask } = useTasksContext();
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    console.log("dsa");
+    const newTask = {
+      id: uuidv4(),
+      title: title,
+      description: description,
+      tag: tag,
+      date: new Date(),
+      startTime: startTime,
+      endTime: endTime,
+      repeat: repeat,
+    };
+    addTask(newTask);
   }
 
   return (
