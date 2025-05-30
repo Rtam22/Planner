@@ -1,12 +1,14 @@
 import { useRef, useEffect } from "react";
-import CalendarTimeline from "./calendar/calendarTimeline";
 import "./scrollerWrapper.css";
 
-function ScrollerWrapper() {
-  const timelineRef = useRef<HTMLDivElement>(null);
+type ScrollerWrapperProps = {
+  children: React.ReactNode;
+  timelineRef: React.RefObject<HTMLDivElement | null>;
+};
 
+function ScrollerWrapper({ children, timelineRef }: ScrollerWrapperProps) {
   useEffect(() => {
-    const timeline = timelineRef.current;
+    const timeline = timelineRef?.current;
     let isDragging = false;
     let startX: number;
     let startY: number;
@@ -48,11 +50,7 @@ function ScrollerWrapper() {
     };
   }, []);
 
-  return (
-    <div className="Scroller-wrapper">
-      <CalendarTimeline timelineRef={timelineRef} />
-    </div>
-  );
+  return <div className="Scroller-wrapper">{children}</div>;
 }
 
 export default ScrollerWrapper;
