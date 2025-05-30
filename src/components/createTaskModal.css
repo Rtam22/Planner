@@ -31,3 +31,7 @@
   height: 10px;
   background-color: rgb(255, 115, 115);
 }
+
+.create-task-modal .btn-main {
+  margin-top: 15px;
+}
