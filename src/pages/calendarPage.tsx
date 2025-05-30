@@ -1,14 +1,27 @@
 import "./calendarPage.css";
 import MainNavigation from "../components/navigation/mainNavigation";
 import TopUtilityBar from "../components/topUtilityBar";
-import ScrollerWrapper from "../components/scrollerWrapper";
 import FilterBar from "../components/filterBar";
 import { useState } from "react";
 import CreateTaskModal from "../components/createTaskModal";
+import CalendarTimeline from "../components/calendar/calendarTimeline";
+import type { CalendarDayProps } from "../components/calendar/calendarDay";
 
 function CalendarPage() {
   const [selectedDate, setselectedDate] = useState(new Date());
   const [showCreateModal, setShowCreateModal] = useState<boolean>(false);
+
+  const dayNames = ["Mon", "Tues", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const dates: CalendarDayProps[] = [];
+  let dateForDisplay = new Date(selectedDate);
+
+  for (let i = 0; i < 7; i++) {
+    dates.push({
+      day: dayNames[dateForDisplay.getDay()],
+      dayDate: dateForDisplay.getDate(),
+    });
+    dateForDisplay.setDate(dateForDisplay.getDate() + 1);
+  }
 
   function handleSelectDate(newDate: Date) {
     setselectedDate(newDate);
@@ -37,7 +50,7 @@ function CalendarPage() {
           handleShowModal={handleShowModal}
         />
         <div className="divider">
-          <ScrollerWrapper />
+          <CalendarTimeline dates={dates} />
         </div>
       </div>
     </div>

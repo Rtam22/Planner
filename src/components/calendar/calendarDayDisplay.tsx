@@ -1,36 +1,17 @@
 import "./calendarDayDisplay.css";
+import CalendarDay from "./calendarDay";
+import type { CalendarDayProps } from "./calendarDay";
 
-function CalendarDayDisplay() {
+type CalendarDayDisplayProps = {
+  dates: CalendarDayProps[];
+};
+
+function CalendarDayDisplay({ dates }: CalendarDayDisplayProps) {
   return (
     <div className="calendar-day-display">
-      <div className="date-container">
-        <h3>dsa</h3>
-        <p>12</p>
-      </div>
-      <div className="date-container">
-        <h3>dsa</h3>
-        <p>12</p>
-      </div>
-      <div className="date-container">
-        <h3>dsa</h3>
-        <p>12</p>
-      </div>
-      <div className="date-container">
-        <h3>dsa</h3>
-        <p>12</p>
-      </div>
-      <div className="date-container">
-        <h3>dsa</h3>
-        <p>12</p>
-      </div>
-      <div className="date-container">
-        <h3>dsa</h3>
-        <p>12</p>
-      </div>
-      <div className="date-container">
-        <h3>dsa</h3>
-        <p>12</p>
-      </div>
+      {dates.map((date) => (
+        <CalendarDay day={date.day} dayDate={date.dayDate} />
+      ))}
     </div>
   );
 }
