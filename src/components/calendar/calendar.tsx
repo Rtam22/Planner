@@ -28,7 +28,7 @@ function Calendar({ selectedDate, handleSelectDate }: calendarProps) {
 
   function handleDateChange(e: React.MouseEvent<HTMLDivElement>) {
     const button = e.currentTarget.textContent;
-    const newDate = new Date(dateView);
+    const newDate = new Date(dateView.getFullYear(), dateView.getMonth(), 1);
 
     if (button === "‹") {
       newDate.setMonth(dateView.getMonth() - 1);

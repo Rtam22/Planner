@@ -10,15 +10,15 @@ type calendarTaskCardProps = {
 function CalendarTaskCard({ title, onClick, task }: calendarTaskCardProps) {
   const [startHours, startMinutes] = task.startTime.split(":").map(Number);
   const [endHours, endMinutes] = task.endTime.split(":").map(Number);
-  const startingTime = 360;
+  const startingTime = 420;
   function calculateLength() {
-    const startTotalMinutes = startHours * 60 + startMinutes;
-    const endTotalMinutes = endHours * 60 + endMinutes;
+    const startTotalMinutes = startHours * 70 + startMinutes;
+    const endTotalMinutes = endHours * 70 + endMinutes;
     return Math.abs(endTotalMinutes - startTotalMinutes);
   }
 
   function calculateStartingPosition() {
-    const startingPosition = startHours * 60 + startMinutes - startingTime;
+    const startingPosition = startHours * 70 + startMinutes - startingTime;
     return startingPosition;
   }
 

@@ -18,15 +18,18 @@ function CalendarTimeline({
   selectedDate,
 }: CalendarTimelineProps) {
   const timelineRef = useRef<HTMLDivElement | null>(null);
-  const timeStamps = [""];
+  const timeStamps = [];
   let date = new Date(selectedDate);
   date.setDate(date.getDate() - 1);
 
-  for (let i = 6; i < 30; i++) {
-    const hour = i % 24;
-    const padded = String(hour).padStart(2, "0");
-    timeStamps.push(`${padded}:00`);
+  for (let i = 5; i < 31; i++) {
+    const hour24 = i % 24;
+    const hour12 = hour24 % 12 === 0 ? 12 : hour24 % 12;
+    const period = hour24 < 12 ? "am" : "pm";
+
+    timeStamps.push({ hour: hour12, period });
   }
+
   function onCLick() {
     console.log("dsadsa");
   }
@@ -46,7 +49,10 @@ function CalendarTimeline({
         <div className="horizontal">
           <div className="time-cells">
             {timeStamps.map((time, index) => (
-              <p key={index}>{time}</p>
+              <div className="time-container">
+                <p key={index}>{time.hour}</p>
+                <p>{time.period}</p>
+              </div>
             ))}
           </div>
           <div className="cell-container">
