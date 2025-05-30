@@ -8,25 +8,15 @@
   background-color: white;
   display: grid;
   grid-template-columns: repeat(7, 200px);
-  padding-left: 60px;
+  padding-left: 55px;
   place-items: center;
-}
-
-.date-container {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.date-container h3 {
-  font-weight: 500;
 }
 
 @media (min-width: 900px) {
   .calendar-day-display {
-    padding-left: 85px;
+    padding-left: 65px;
+    grid-template-columns: repeat(7, 250px);
+    width: 1800px;
     min-height: 100px;
   }
 }

@@ -1,14 +1,37 @@
-import type { MouseEventHandler } from "react";
+import type { Task } from "../types/taskTypes";
 import "./calendarTaskCard.css";
 
 type calendarTaskCardProps = {
   title: string;
   onClick: () => void;
+  task: Task;
 };
 
-function CalendarTaskCard({ title, onClick }: calendarTaskCardProps) {
+function CalendarTaskCard({ title, onClick, task }: calendarTaskCardProps) {
+  const [startHours, startMinutes] = task.startTime.split(":").map(Number);
+  const [endHours, endMinutes] = task.endTime.split(":").map(Number);
+  const startingTime = 360;
+  function calculateLength() {
+    const startTotalMinutes = startHours * 60 + startMinutes;
+    const endTotalMinutes = endHours * 60 + endMinutes;
+    return Math.abs(endTotalMinutes - startTotalMinutes);
+  }
+
+  function calculateStartingPosition() {
+    const startingPosition = startHours * 60 + startMinutes - startingTime;
+    return startingPosition;
+  }
+
   return (
-    <div onClick={onClick} className="calendar-task-card">
+    <div
+      onClick={onClick}
+      className="calendar-task-card"
+      style={{
+        top: calculateStartingPosition(),
+        height: `${calculateLength()}px`,
+        backgroundColor: task.tag?.color,
+      }}
+    >
       <p>{title}</p>
     </div>
   );

@@ -4,22 +4,41 @@ import "./calendarTimeline.css";
 import { useRef, type RefObject } from "react";
 import type { CalendarDayProps } from "./calendarDay";
 import ScrollerWrapper from "../scrollerWrapper";
+import type { Task } from "../types/taskTypes";
 
 type CalendarTimelineProps = {
   dates: CalendarDayProps[];
+  tasks: Task[];
+  selectedDate: Date;
 };
 
-function CalendarTimeline({ dates }: CalendarTimelineProps) {
+function CalendarTimeline({
+  dates,
+  tasks,
+  selectedDate,
+}: CalendarTimelineProps) {
   const timelineRef = useRef<HTMLDivElement | null>(null);
   const timeStamps = [""];
-  for (let i = 0; i < 25; i++) {
-    const hour = String(i).padStart(2, "0");
-    timeStamps.push(`${hour}:00`);
-  }
+  let date = new Date(selectedDate);
+  date.setDate(date.getDate() - 1);
 
+  for (let i = 6; i < 30; i++) {
+    const hour = i % 24;
+    const padded = String(hour).padStart(2, "0");
+    timeStamps.push(`${padded}:00`);
+  }
   function onCLick() {
     console.log("dsadsa");
   }
+
+  function compareDate(taskDate: Date, date: Date) {
+    return (
+      taskDate.getDate() === date.getDate() &&
+      taskDate.getMonth() === date.getMonth() &&
+      taskDate.getFullYear() === date.getFullYear()
+    );
+  }
+
   return (
     <ScrollerWrapper timelineRef={timelineRef}>
       <div ref={timelineRef} className="calendar-timeline">
@@ -31,14 +50,29 @@ function CalendarTimeline({ dates }: CalendarTimelineProps) {
             ))}
           </div>
           <div className="cell-container">
-            {Array.from({ length: 7 }).map((_, index) => (
-              <div key={index} className="cell-column">
-                <CalendarTaskCard onClick={onCLick} title="dsadsa" />
-                {Array.from({ length: 24 }).map((_, index) => (
-                  <div key={index} className="cell"></div>
-                ))}
-              </div>
-            ))}
+            {Array.from({ length: 7 }).map((_, index) => {
+              date.setDate(date.getDate() + 1);
+              return (
+                <div key={index} className="cell-column">
+                  {tasks.map((task) => {
+                    if (compareDate(task.date, date)) {
+                      return (
+                        <CalendarTaskCard
+                          key={task.id}
+                          onClick={onCLick}
+                          title={task.title}
+                          task={task}
+                        />
+                      );
+                    }
+                  })}
+
+                  {Array.from({ length: 24 }).map((_, index) => (
+                    <div key={index} className="cell"></div>
+                  ))}
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>

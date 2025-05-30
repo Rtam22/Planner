@@ -6,10 +6,12 @@ import { useState } from "react";
 import CreateTaskModal from "../components/createTaskModal";
 import CalendarTimeline from "../components/calendar/calendarTimeline";
 import type { CalendarDayProps } from "../components/calendar/calendarDay";
+import { useTasksContext } from "../context/taskContext";
 
 function CalendarPage() {
   const [selectedDate, setselectedDate] = useState(new Date());
   const [showCreateModal, setShowCreateModal] = useState<boolean>(false);
+  const { tasks } = useTasksContext();
 
   const dayNames = ["Mon", "Tues", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const dates: CalendarDayProps[] = [];
@@ -29,9 +31,7 @@ function CalendarPage() {
 
   function handleShowModal(modal: string) {
     setShowCreateModal(!showCreateModal);
-    console.log(showCreateModal);
   }
-
   return (
     <div className="calendar-page">
       <CreateTaskModal
@@ -50,7 +50,11 @@ function CalendarPage() {
           handleShowModal={handleShowModal}
         />
         <div className="divider">
-          <CalendarTimeline dates={dates} />
+          <CalendarTimeline
+            dates={dates}
+            tasks={tasks}
+            selectedDate={selectedDate}
+          />
         </div>
       </div>
     </div>

@@ -9,8 +9,8 @@ type CalendarDayDisplayProps = {
 function CalendarDayDisplay({ dates }: CalendarDayDisplayProps) {
   return (
     <div className="calendar-day-display">
-      {dates.map((date) => (
-        <CalendarDay day={date.day} dayDate={date.dayDate} />
+      {dates.map((date, index) => (
+        <CalendarDay key={index} day={date.day} dayDate={date.dayDate} />
       ))}
     </div>
   );

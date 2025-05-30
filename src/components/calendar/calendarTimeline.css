@@ -34,7 +34,7 @@
   background-color: rgb(255, 255, 255);
   grid-template-columns: repeat(1, 55px);
   grid-template-rows: repeat(26, 60px);
-  transform: translateY(-88px);
+  transform: translateY(-70px);
   justify-content: end;
   padding-right: 5px;
   flex-grow: 1;
@@ -63,5 +63,9 @@
     min-width: 60px;
     max-width: 80px;
     grid-template-columns: repeat(1, 60px);
+  }
+
+  .cell-column {
+    width: 250px;
   }
 }
