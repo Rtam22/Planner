@@ -29,7 +29,7 @@ function CalendarPage() {
     setselectedDate(newDate);
   }
 
-  function handleShowModal(modal: string) {
+  function handleShowModal() {
     setShowCreateModal(!showCreateModal);
   }
   return (

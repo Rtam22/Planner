@@ -5,7 +5,6 @@ import { useTasksContext } from "../context/taskContext";
 import { v4 as uuidv4 } from "uuid";
 import Select from "react-select";
 import type { StylesConfig } from "react-select";
-import type { Tag } from "./types/taskTypes";
 
 type createTaskModal = {
   showCreateModal: boolean;
@@ -65,7 +64,7 @@ function CreateTaskModal({
   const [endTime, setEndTime] = useState<string>("");
   const [repeat, setRepeat] = useState<string>("");
 
-  const { tasks, addTask, tags } = useTasksContext();
+  const { addTask, tags } = useTasksContext();
   const tagOptions = tags.map((tag) => {
     return { label: tag.value, value: tag.value.toLowerCase() };
   });

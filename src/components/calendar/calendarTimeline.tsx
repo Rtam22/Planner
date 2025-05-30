@@ -1,7 +1,7 @@
 import CalendarDayDisplay from "./calendarDayDisplay";
 import CalendarTaskCard from "./calendarTaskCard";
 import "./calendarTimeline.css";
-import { useRef, type RefObject } from "react";
+import { useRef } from "react";
 import type { CalendarDayProps } from "./calendarDay";
 import ScrollerWrapper from "../scrollerWrapper";
 import type { Task } from "../types/taskTypes";

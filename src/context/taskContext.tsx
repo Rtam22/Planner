@@ -1,6 +1,5 @@
-import { Children, createContext, useContext } from "react";
+import { createContext, useContext } from "react";
 import { useTasks } from "../hooks/useTasks";
-import type { Task } from "../components/types/taskTypes";
 
 const TasksContext = createContext<ReturnType<typeof useTasks> | null>(null);
 

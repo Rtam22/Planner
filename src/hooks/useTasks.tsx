@@ -13,5 +13,9 @@ export function useTasks() {
 
   function editTask() {}
 
-  return { tasks, addTask, removeTask, editTask, tags };
+  function addTag() {
+    setTags([...tags]);
+  }
+
+  return { tasks, addTask, removeTask, editTask, tags, addTag };
 }

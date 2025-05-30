@@ -16,7 +16,7 @@
   .calendar-day-display {
     padding-left: 65px;
     grid-template-columns: repeat(7, 250px);
-    width: 1800px;
+    width: 1850px;
     min-height: 100px;
   }
 }
