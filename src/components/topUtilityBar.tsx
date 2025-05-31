@@ -28,7 +28,7 @@ function TopUtilityBar({
   return (
     <div className="top-utility-bar">
       <div className="horizontal">
-        <Button type="btn back-button" onClick={handleDateChange}>
+        <Button className="btn back-button" onClick={handleDateChange}>
           ‹
         </Button>
         <p>
@@ -38,15 +38,18 @@ function TopUtilityBar({
             "-" +
             addSixToDays(selectedDate)}
         </p>
-        <Button type="btn back-button" onClick={handleDateChange}>
+        <Button className="btn back-button" onClick={handleDateChange}>
           ›
         </Button>
       </div>
       <div className="button-container">
-        <Button type="btn-main" onClick={() => handleShowModal("createTask")}>
+        <Button
+          className="btn-main"
+          onClick={() => handleShowModal("createTask")}
+        >
           Create Task
         </Button>
-        <Button type="btn-plain">To Plan</Button>
+        <Button className="btn-plain">To Plan</Button>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 button {
   font-size: 14px;
-  font-weight: 100;
+  font-weight: 300;
 }
 
 .btn-main {
@@ -21,4 +21,8 @@ button {
 .btn-ext:hover {
   background-color: rgb(227, 29, 29);
   color: white;
+}
+
+.btn-secondary {
+  color: blue;
 }

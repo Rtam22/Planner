@@ -35,3 +35,8 @@
 .create-task-modal .btn-main {
   margin-top: 15px;
 }
+
+.horizontal.time {
+  gap: 10px;
+  display: flex;
+}

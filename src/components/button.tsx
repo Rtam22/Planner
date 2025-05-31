@@ -2,13 +2,14 @@ import "./button.css";
 
 type ButtonProps = {
   children: string;
-  type: string;
+  className: string;
+  type?: "submit" | "button";
   onClick?: ((e: React.MouseEvent<any>) => void) | (() => void);
 };
 
-function Button({ children, type, onClick }: ButtonProps) {
+function Button({ children, className, type, onClick }: ButtonProps) {
   return (
-    <button onClick={(e) => onClick?.(e)} className={type}>
+    <button type={type} onClick={(e) => onClick?.(e)} className={className}>
       {children}
     </button>
   );

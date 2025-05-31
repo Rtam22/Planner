@@ -94,7 +94,7 @@ function CreateTaskModal({
       <div className="header">
         <div></div>
         <Button
-          type="btn-plain btn-ext"
+          className="btn-plain btn-ext"
           onClick={() => handleShowModal("createModal")}
         >
           X
@@ -149,7 +149,7 @@ function CreateTaskModal({
         </fieldset>
         <fieldset>
           <label htmlFor="time">Time</label>
-          <div className="horizontal">
+          <div className="horizontal time">
             <input
               type="time"
               id="time"
@@ -167,6 +167,9 @@ function CreateTaskModal({
               onChange={(e) => setEndTime(e.currentTarget.value)}
               required
             />
+            <Button type="submit" className="btn-secondary">
+              Preview
+            </Button>
           </div>
         </fieldset>
         <fieldset>
@@ -182,7 +185,9 @@ function CreateTaskModal({
           </select>
         </fieldset>
         <fieldset>
-          <Button type="btn-main">Save</Button>
+          <Button type="submit" className="btn-main">
+            Save
+          </Button>
         </fieldset>
       </form>
     </div>
