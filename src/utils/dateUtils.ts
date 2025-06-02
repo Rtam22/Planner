@@ -16,3 +16,8 @@ export function addSixToDays(date: Date) {
   futureDate.setDate(date.getDate() + 6);
   return futureDate.getDate();
 }
+
+export function calculateStartingPosition() {
+  const startingPosition = startHours * 70 + startMinutes - startingTime;
+  return startingPosition;
+}

@@ -5,10 +5,14 @@ import { useTasksContext } from "../context/taskContext";
 import { v4 as uuidv4 } from "uuid";
 import Select from "react-select";
 import type { StylesConfig } from "react-select";
+import type { PreviewTask } from "./types/taskTypes";
 
 type createTaskModal = {
   showCreateModal: boolean;
   handleShowModal: (modal: string) => void;
+  handleSelectDate: (newDate: Date) => void;
+  handleSetPreview: (task: PreviewTask) => void;
+  clearTaskPreview: () => void;
 };
 
 type TagOption = {
@@ -55,6 +59,9 @@ const customStyles: StylesConfig<TagOption, false> = {
 function CreateTaskModal({
   handleShowModal,
   showCreateModal,
+  handleSelectDate,
+  handleSetPreview,
+  clearTaskPreview,
 }: createTaskModal) {
   const [title, setTitle] = useState<string>("");
   const [description, setDscription] = useState<string>("");
@@ -68,24 +75,47 @@ function CreateTaskModal({
   const tagOptions = tags.map((tag) => {
     return { label: tag.value, value: tag.value.toLowerCase() };
   });
-  console.log(tagOptions);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    const [year, month, day] = date.split("-");
     const getTag = tags.find(
       (t) => t.value.toLowerCase() === tag?.value.toLowerCase()
     );
+
     e.preventDefault();
     const newTask = {
       id: uuidv4(),
       title: title,
       description: description,
       tag: getTag,
-      date: new Date(),
+      date: new Date(Number(year), Number(month) - 1, Number(day)),
       startTime: startTime,
       endTime: endTime,
       repeat: repeat,
     };
+    clearTaskPreview();
     addTask(newTask);
+  }
+
+  function handlePreview() {
+    console.log(startTime);
+    if (date === "" && startTime === "" && endTime === "") {
+      return;
+    }
+
+    if (startTime === endTime) {
+      console.log("no");
+      return;
+    }
+    const [year, month, day] = date.split("-");
+    const previewDate = new Date(Number(year), Number(month) - 1, Number(day));
+    handleSelectDate(previewDate);
+    const previewTask = {
+      date: new Date(Number(year), Number(month) - 1, Number(day)),
+      startTime: startTime,
+      endTime: endTime,
+    };
+    handleSetPreview(previewTask);
   }
 
   return (
@@ -167,7 +197,11 @@ function CreateTaskModal({
               onChange={(e) => setEndTime(e.currentTarget.value)}
               required
             />
-            <Button type="submit" className="btn-secondary">
+            <Button
+              type="button"
+              className="btn-secondary"
+              onClick={handlePreview}
+            >
               Preview
             </Button>
           </div>

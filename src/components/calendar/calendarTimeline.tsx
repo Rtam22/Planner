@@ -4,23 +4,38 @@ import "./calendarTimeline.css";
 import { useRef } from "react";
 import type { CalendarDayProps } from "./calendarDay";
 import ScrollerWrapper from "../scrollerWrapper";
-import type { Task } from "../types/taskTypes";
+import type { PreviewTask, Task } from "../types/taskTypes";
+import {
+  calculateLength,
+  calculateStartingPosition,
+} from "../../utils/timelineUtils";
 
 type CalendarTimelineProps = {
   dates: CalendarDayProps[];
   tasks: Task[];
   selectedDate: Date;
+  previewTask: PreviewTask | null;
 };
 
 function CalendarTimeline({
   dates,
   tasks,
   selectedDate,
+  previewTask,
 }: CalendarTimelineProps) {
   const timelineRef = useRef<HTMLDivElement | null>(null);
   const timeStamps = [];
+
   let date = new Date(selectedDate);
   date.setDate(date.getDate() - 1);
+
+  const [startHours, startMinutes] = previewTask?.startTime
+    ?.split(":")
+    .map(Number) || [0, 0];
+  const [endHours, endMinutes] = previewTask?.endTime
+    ?.split(":")
+    .map(Number) || [0, 0];
+  const startingTime = 420;
 
   for (let i = 5; i < 31; i++) {
     const hour24 = i % 24;
@@ -60,6 +75,33 @@ function CalendarTimeline({
               date.setDate(date.getDate() + 1);
               return (
                 <div key={index} className="cell-column">
+                  {index === 0 && previewTask && (
+                    <div
+                      className="preview-task"
+                      style={{
+                        top: calculateStartingPosition(
+                          startHours,
+                          startMinutes,
+                          startingTime
+                        ),
+                        height: `${calculateLength(
+                          startHours,
+                          startMinutes,
+                          endHours,
+                          endMinutes
+                        )}px`,
+                        maxHeight:
+                          1680 -
+                          calculateStartingPosition(
+                            startHours,
+                            startMinutes,
+                            startingTime
+                          ),
+                      }}
+                    >
+                      Preview Task
+                    </div>
+                  )}
                   {tasks.map((task) => {
                     if (compareDate(task.date, date)) {
                       return (

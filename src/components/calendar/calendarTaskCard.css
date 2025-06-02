@@ -11,6 +11,7 @@
   font-size: 12px;
   font-weight: 800;
   color: white;
+  overflow: hidden;
 }
 
 @media (min-width: 900px) {

@@ -33,7 +33,7 @@
   display: grid;
   min-width: 50px;
   max-width: 50px;
-  height: 1550px;
+  height: 1780px;
   position: sticky;
   left: 0px;
   background-color: rgb(255, 255, 255);
@@ -73,6 +73,21 @@
   font-size: 14px;
   color: rgb(95, 95, 95);
 }
+.preview-task {
+  position: absolute;
+  left: 5px;
+  top: 60px;
+  width: 190px;
+  height: 200px;
+  cursor: pointer;
+  border: 1px solid red;
+  border-radius: 10px;
+  padding: 5px;
+  font-size: 12px;
+  font-weight: 800;
+  color: rgb(254, 0, 0);
+  overflow: hidden;
+}
 
 @media (min-width: 900px) {
   .time-cells {
@@ -83,5 +98,10 @@
 
   .cell-column {
     width: 250px;
+  }
+
+  .preview-task {
+    left: 15px;
+    width: 220px;
   }
 }

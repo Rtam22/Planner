@@ -7,11 +7,13 @@ import CreateTaskModal from "../components/createTaskModal";
 import CalendarTimeline from "../components/calendar/calendarTimeline";
 import type { CalendarDayProps } from "../components/calendar/calendarDay";
 import { useTasksContext } from "../context/taskContext";
+import type { PreviewTask } from "../components/types/taskTypes";
 
 function CalendarPage() {
   const [selectedDate, setselectedDate] = useState(new Date());
   const [showCreateModal, setShowCreateModal] = useState<boolean>(false);
   const { tasks } = useTasksContext();
+  const [previewTask, setPreviewTask] = useState<PreviewTask | null>(null);
 
   const dayNames = ["Mon", "Tues", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const dates: CalendarDayProps[] = [];
@@ -32,11 +34,22 @@ function CalendarPage() {
   function handleShowModal() {
     setShowCreateModal(!showCreateModal);
   }
+
+  function handleSetPreview(task: PreviewTask) {
+    setPreviewTask(task ?? null);
+  }
+
+  function clearTaskPreview() {
+    setPreviewTask(null);
+  }
   return (
     <div className="calendar-page">
       <CreateTaskModal
         showCreateModal={showCreateModal}
         handleShowModal={handleShowModal}
+        handleSelectDate={handleSelectDate}
+        handleSetPreview={handleSetPreview}
+        clearTaskPreview={clearTaskPreview}
       />
       <MainNavigation />
       <FilterBar
@@ -54,6 +67,7 @@ function CalendarPage() {
             dates={dates}
             tasks={tasks}
             selectedDate={selectedDate}
+            previewTask={previewTask}
           />
         </div>
       </div>

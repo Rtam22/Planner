@@ -1,6 +1,9 @@
 import type { Task } from "../types/taskTypes";
 import "./calendarTaskCard.css";
-
+import {
+  calculateLength,
+  calculateStartingPosition,
+} from "../../utils/timelineUtils";
 type calendarTaskCardProps = {
   title: string;
   onClick: () => void;
@@ -11,24 +14,19 @@ function CalendarTaskCard({ title, onClick, task }: calendarTaskCardProps) {
   const [startHours, startMinutes] = task.startTime.split(":").map(Number);
   const [endHours, endMinutes] = task.endTime.split(":").map(Number);
   const startingTime = 420;
-  function calculateLength() {
-    const startTotalMinutes = startHours * 70 + startMinutes;
-    const endTotalMinutes = endHours * 70 + endMinutes;
-    return Math.abs(endTotalMinutes - startTotalMinutes);
-  }
-
-  function calculateStartingPosition() {
-    const startingPosition = startHours * 70 + startMinutes - startingTime;
-    return startingPosition;
-  }
 
   return (
     <div
       onClick={onClick}
       className="calendar-task-card"
       style={{
-        top: calculateStartingPosition(),
-        height: `${calculateLength()}px`,
+        top: calculateStartingPosition(startHours, startMinutes, startingTime),
+        height: `${calculateLength(
+          startHours,
+          startMinutes,
+          endHours,
+          endMinutes
+        )}px`,
         backgroundColor: task.tag?.color,
       }}
     >
