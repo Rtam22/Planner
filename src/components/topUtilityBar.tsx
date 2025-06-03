@@ -26,12 +26,12 @@ function TopUtilityBar({
     }
   }
   return (
-    <div className="top-utility-bar">
+    <div className="top-utility-bar" data-testid="top-utility-bar">
       <div className="horizontal">
         <Button className="btn back-button" onClick={handleDateChange}>
           ‹
         </Button>
-        <p>
+        <p data-testid="date-display-utility">
           {getMonthName(selectedDate).slice(0, 3) +
             " " +
             selectedDate.getDate() +

@@ -90,12 +90,14 @@ function Calendar({ selectedDate, handleSelectDate }: calendarProps) {
   }
 
   return (
-    <div className="calendar">
+    <div data-testid="calendar" className="calendar">
       <div className="cal-header">
         <Button className="btn-plain" onClick={handleDateChange}>
           ‹
         </Button>
-        <p>{getMonthName(dateView) + " " + dateView.getFullYear()} </p>
+        <p data-testid="calendar-date">
+          {getMonthName(dateView) + " " + dateView.getFullYear()}
+        </p>
         <Button className="btn-plain" onClick={handleDateChange}>
           ›
         </Button>

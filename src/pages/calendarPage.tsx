@@ -15,10 +15,10 @@ function CalendarPage() {
   const { tasks } = useTasksContext();
   const [previewTask, setPreviewTask] = useState<PreviewTask | null>(null);
 
-  const dayNames = ["Mon", "Tues", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const dates: CalendarDayProps[] = [];
   let dateForDisplay = new Date(selectedDate);
-
+  console.log(selectedDate);
   for (let i = 0; i < 7; i++) {
     dates.push({
       day: dayNames[dateForDisplay.getDay()],
