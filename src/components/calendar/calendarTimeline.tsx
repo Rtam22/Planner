@@ -1,14 +1,14 @@
-import CalendarDayDisplay from "./calendarDayDisplay";
 import CalendarTaskCard from "./calendarTaskCard";
 import "./calendarTimeline.css";
 import { useRef } from "react";
-import type { CalendarDayProps } from "./calendarDay";
+import type { CalendarDayProps } from "./calendarDates";
 import ScrollerWrapper from "../scrollerWrapper";
 import type { PreviewTask, Task } from "../types/taskTypes";
 import {
   calculateLength,
   calculateStartingPosition,
 } from "../../utils/timelineUtils";
+import CalendarDay from "./calendarDates";
 
 type CalendarTimelineProps = {
   dates: CalendarDayProps[];
@@ -60,7 +60,12 @@ function CalendarTimeline({
   return (
     <ScrollerWrapper timelineRef={timelineRef}>
       <div ref={timelineRef} className="calendar-timeline">
-        <CalendarDayDisplay dates={dates} />
+        <div className="calendar-day-display">
+          {dates.map((date, index) => (
+            <CalendarDay key={index} day={date.day} dayDate={date.dayDate} />
+          ))}
+        </div>
+
         <div className="horizontal">
           <div className="time-cells">
             {timeStamps.map((time, index) => (

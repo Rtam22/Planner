@@ -89,6 +89,20 @@
   overflow: hidden;
 }
 
+.calendar-day-display {
+  width: 1500px;
+  min-height: 70px;
+  position: sticky;
+  top: 0;
+  display: flex;
+  z-index: 11;
+  background-color: white;
+  display: grid;
+  grid-template-columns: repeat(7, 200px);
+  padding-left: 55px;
+  place-items: center;
+}
+
 @media (min-width: 900px) {
   .time-cells {
     min-width: 60px;
@@ -103,5 +117,12 @@
   .preview-task {
     left: 15px;
     width: 220px;
+  }
+
+  .calendar-day-display {
+    padding-left: 65px;
+    grid-template-columns: repeat(7, 250px);
+    width: 1850px;
+    min-height: 100px;
   }
 }

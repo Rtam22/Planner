@@ -1,17 +1,18 @@
 import "./calendarPage.css";
 import MainNavigation from "../components/navigation/mainNavigation";
-import TopUtilityBar from "../components/topUtilityBar";
+import TopUtilityBar from "../components/topBar";
 import FilterBar from "../components/filterBar";
 import { useState } from "react";
-import CreateTaskModal from "../components/createTaskModal";
 import CalendarTimeline from "../components/calendar/calendarTimeline";
-import type { CalendarDayProps } from "../components/calendar/calendarDay";
+import type { CalendarDayProps } from "../components/calendar/CalendarDates";
 import { useTasksContext } from "../context/taskContext";
 import type { PreviewTask } from "../components/types/taskTypes";
+import TaskForm from "../components/taskForm";
+import Modal from "../components/modal";
 
 function CalendarPage() {
   const [selectedDate, setselectedDate] = useState(new Date());
-  const [showCreateModal, setShowCreateModal] = useState<boolean>(false);
+  const [showModal, setShowModal] = useState<boolean>(false);
   const { tasks } = useTasksContext();
   const [previewTask, setPreviewTask] = useState<PreviewTask | null>(null);
 
@@ -32,7 +33,7 @@ function CalendarPage() {
   }
 
   function handleShowModal() {
-    setShowCreateModal(!showCreateModal);
+    setShowModal(!showModal);
   }
 
   function handleSetPreview(task: PreviewTask) {
@@ -44,13 +45,13 @@ function CalendarPage() {
   }
   return (
     <div className="calendar-page">
-      <CreateTaskModal
-        showCreateModal={showCreateModal}
-        handleShowModal={handleShowModal}
-        handleSelectDate={handleSelectDate}
-        handleSetPreview={handleSetPreview}
-        clearTaskPreview={clearTaskPreview}
-      />
+      <Modal showModal={showModal} handleShowModal={handleShowModal}>
+        <TaskForm
+          handleSelectDate={handleSelectDate}
+          handleSetPreview={handleSetPreview}
+          clearTaskPreview={clearTaskPreview}
+        />
+      </Modal>
       <MainNavigation />
       <FilterBar
         selectedDate={selectedDate}

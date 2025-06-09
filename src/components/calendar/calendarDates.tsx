@@ -1,4 +1,4 @@
-import "./calendarDay.css";
+import "./calendarDates.css";
 
 export type CalendarDayProps = {
   day: string;
