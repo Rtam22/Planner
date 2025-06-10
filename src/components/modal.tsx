@@ -3,7 +3,7 @@ import "./modal.css";
 
 type modalProps = {
   children: React.ReactNode;
-  type?: string;
+  type?: "right" | "middle" | "left";
   showModal: boolean;
   handleShowModal: () => void;
 };

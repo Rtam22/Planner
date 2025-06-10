@@ -17,6 +17,7 @@ function CalendarTaskCard({ title, onClick, task }: calendarTaskCardProps) {
 
   return (
     <div
+      data-testid="calendar-task-card"
       onClick={onClick}
       className="calendar-task-card"
       style={{

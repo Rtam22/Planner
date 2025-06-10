@@ -51,12 +51,15 @@ function Calendar({ selectedDate, handleSelectDate }: calendarProps) {
         selectedDate.getDate();
     for (let i = 0; i < 42; i++) {
       if (i < firstDay || i > numberOfDays + firstDay) {
-        cells.push(<div key={i} className="cal-cell"></div>);
+        cells.push(
+          <div key={i} data-testid="calendar-day" className="cal-cell"></div>
+        );
       } else if (i < numberOfDays + firstDay) {
         count++;
 
         cells.push(
           <div
+            data-testid="calendar-day"
             key={i}
             id={count.toString()}
             className={`cal-cell filled ${
