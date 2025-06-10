@@ -1,13 +1,11 @@
-import userEvent from "@testing-library/user-event";
 import { render, screen } from "@testing-library/react";
 import { expect, test, vi } from "vitest";
-import Calendar from "./calendar";
-import { getMonthName } from "../../utils/dateUtils";
 import CalendarTaskCard from "./calendarTaskCard";
 import {
   calculateLength,
   calculateStartingPosition,
 } from "../../utils/timelineUtils";
+import userEvent from "@testing-library/user-event";
 
 function renderComponent() {
   const mockFn = vi.fn();
@@ -27,7 +25,15 @@ function renderComponent() {
 
   render(<CalendarTaskCard title="Morning Run" onClick={mockFn} task={task} />);
 
-  return { task, startHours, startMinutes, endHours, endMinutes, startingTime };
+  return {
+    task,
+    startHours,
+    startMinutes,
+    endHours,
+    endMinutes,
+    startingTime,
+    mockFn,
+  };
 }
 
 test("Component displays the correct values and color", async () => {
@@ -57,4 +63,10 @@ test("Task card height and starting position is correct based on time", () => {
   const taskCard = screen.getByTestId("calendar-task-card");
   expect(taskCard).toHaveStyle({ height: `${taskHeight}px` });
   expect(taskCard).toHaveStyle({ top: `${startingPosition}px` });
+});
+
+test("Onclick gets called when clicking component", async () => {
+  const { mockFn } = renderComponent();
+  await userEvent.click(screen.getByTestId("calendar-task-card"));
+  expect(mockFn).toHaveBeenCalled();
 });
