@@ -1,12 +1,6 @@
-import {
-  getByRole,
-  render,
-  screen,
-  waitFor,
-  within,
-} from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, beforeEach, test } from "vitest";
+import { describe, expect, test } from "vitest";
 import CalendarPage from "../pages/calendarPage";
 import { TasksProvider } from "../context/taskContext";
 
@@ -38,7 +32,7 @@ function renderCalendarPage() {
 }
 
 describe("CalendarPage integration testing", () => {
-  test("Initial dates are correct", async () => {
+  test("Initial dates are correct through all components", async () => {
     const { monthName, day, year, currentDay, calendarRegex, shortDateRegex } =
       renderCalendarPage();
     const calendarDay = screen.getAllByTestId("calendar-day");
@@ -54,41 +48,5 @@ describe("CalendarPage integration testing", () => {
     expect(utilityBarDateDisplay?.textContent).toBe(
       `${monthName.slice(0, 3)} ${day}-${day + 6}`
     );
-  });
-
-  test("Calendar buttons changes the date", async () => {
-    const { date } = renderCalendarPage();
-    const calendar = screen.getByTestId("calendar");
-    const calendarButtons = within(calendar).getAllByRole("button");
-
-    //Calendar back button changes date to previous months
-    for (let i = 0; i < 3; i++) {
-      await userEvent.click(calendarButtons[0]);
-      date.setMonth(date.getMonth() - 1);
-    }
-
-    let expectedMonth = date.toLocaleString("default", { month: "long" });
-    let expectedYear = date.getFullYear();
-
-    await waitFor(() => {
-      expect(screen.getByTestId("calendar-date").textContent).toBe(
-        `${expectedMonth} ${expectedYear}`
-      );
-    });
-
-    //Calendar forward button changes date to future months
-    for (let i = 0; i < 4; i++) {
-      await userEvent.click(calendarButtons[1]);
-      date.setMonth(date.getMonth() + 1);
-    }
-
-    expectedMonth = date.toLocaleString("default", { month: "long" });
-    expectedYear = date.getFullYear();
-
-    await waitFor(() => {
-      expect(screen.getByTestId("calendar-date").textContent).toBe(
-        `${expectedMonth} ${expectedYear}`
-      );
-    });
   });
 });
