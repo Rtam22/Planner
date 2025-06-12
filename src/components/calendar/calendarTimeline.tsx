@@ -8,13 +8,15 @@ import {
   calculateLength,
   calculateStartingPosition,
 } from "../../utils/timelineUtils";
-import CalendarDay from "./calendarDates";
+import CalendarDates from "./calendarDates";
+import { convertToDDMMYYYY } from "../../utils/dateUtils";
 
 type CalendarTimelineProps = {
   dates: CalendarDayProps[];
   tasks: Task[];
   selectedDate: Date;
   previewTask: PreviewTask | null;
+  onClick: (taskId: string) => void;
 };
 
 function CalendarTimeline({
@@ -22,6 +24,7 @@ function CalendarTimeline({
   tasks,
   selectedDate,
   previewTask,
+  onClick,
 }: CalendarTimelineProps) {
   const timelineRef = useRef<HTMLDivElement | null>(null);
   const timeStamps = [];
@@ -45,10 +48,6 @@ function CalendarTimeline({
     timeStamps.push({ hour: hour12, period });
   }
 
-  function onCLick() {
-    console.log("dsadsa");
-  }
-
   function compareDate(taskDate: Date, date: Date) {
     return (
       taskDate.getDate() === date.getDate() &&
@@ -62,15 +61,15 @@ function CalendarTimeline({
       <div ref={timelineRef} className="calendar-timeline">
         <div className="calendar-day-display">
           {dates.map((date, index) => (
-            <CalendarDay key={index} day={date.day} dayDate={date.dayDate} />
+            <CalendarDates key={index} day={date.day} dayDate={date.dayDate} />
           ))}
         </div>
 
         <div className="horizontal">
           <div className="time-cells">
             {timeStamps.map((time, index) => (
-              <div className="time-container">
-                <p key={index}>{time.hour}</p>
+              <div key={index} className="time-container">
+                <p>{time.hour}</p>
                 <p>{time.period}</p>
               </div>
             ))}
@@ -79,7 +78,11 @@ function CalendarTimeline({
             {Array.from({ length: 7 }).map((_, index) => {
               date.setDate(date.getDate() + 1);
               return (
-                <div key={index} className="cell-column">
+                <div
+                  key={index}
+                  className="cell-column"
+                  data-testid={convertToDDMMYYYY(date)}
+                >
                   {index === 0 && previewTask && (
                     <div
                       className="preview-task"
@@ -112,7 +115,7 @@ function CalendarTimeline({
                       return (
                         <CalendarTaskCard
                           key={task.id}
-                          onClick={onCLick}
+                          onClick={onClick}
                           title={task.title}
                           task={task}
                         />
