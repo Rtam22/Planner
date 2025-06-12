@@ -4,11 +4,12 @@ import TopUtilityBar from "../components/topBar";
 import FilterBar from "../components/filterBar";
 import { useState } from "react";
 import CalendarTimeline from "../components/calendar/calendarTimeline";
-import type { CalendarDayProps } from "../components/calendar/CalendarDates";
+import type { CalendarDayProps } from "../components/calendar/calendarDates";
 import { useTasksContext } from "../context/taskContext";
 import type { PreviewTask } from "../components/types/taskTypes";
 import TaskForm from "../components/taskForm";
 import Modal from "../components/modal";
+import { getDayAndDayNumber } from "../utils/dateUtils";
 
 function CalendarPage() {
   const [selectedDate, setselectedDate] = useState(new Date());
@@ -17,16 +18,8 @@ function CalendarPage() {
   const [previewTask, setPreviewTask] = useState<PreviewTask | null>(null);
 
   const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const dates: CalendarDayProps[] = [];
-  let dateForDisplay = new Date(selectedDate);
-  console.log(selectedDate);
-  for (let i = 0; i < 7; i++) {
-    dates.push({
-      day: dayNames[dateForDisplay.getDay()],
-      dayDate: dateForDisplay.getDate(),
-    });
-    dateForDisplay.setDate(dateForDisplay.getDate() + 1);
-  }
+
+  const dates: CalendarDayProps[] = getDayAndDayNumber(selectedDate);
 
   function handleSelectDate(newDate: Date) {
     setselectedDate(newDate);
@@ -42,6 +35,10 @@ function CalendarPage() {
 
   function clearTaskPreview() {
     setPreviewTask(null);
+  }
+
+  function handleTaskClick(taskId: string) {
+    console.log(taskId);
   }
   return (
     <div className="calendar-page">
@@ -69,6 +66,7 @@ function CalendarPage() {
             tasks={tasks}
             selectedDate={selectedDate}
             previewTask={previewTask}
+            onClick={handleTaskClick}
           />
         </div>
       </div>

@@ -1,3 +1,5 @@
+import type { CalendarDayProps } from "../components/calendar/calendarDates";
+
 export function getMonthName(dateView: Date) {
   return dateView.toLocaleDateString("default", { month: "long" });
 }
@@ -16,4 +18,29 @@ export function addSixToDays(date: Date) {
   const futureDate = new Date(date);
   futureDate.setDate(date.getDate() + 6);
   return futureDate.getDate();
+}
+
+export function getDayAndDayNumber(selectedDate: Date) {
+  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const dates: CalendarDayProps[] = [];
+  let dateForDisplay = new Date(selectedDate);
+  for (let i = 0; i < 7; i++) {
+    dates.push({
+      day: dayNames[dateForDisplay.getDay()],
+      dayDate: dateForDisplay.getDate(),
+    });
+    dateForDisplay.setDate(dateForDisplay.getDate() + 1);
+  }
+
+  return dates;
+}
+
+export function convertToDDMMYYYY(date: Date) {
+  const day = date.getDate();
+  const month = date.getMonth();
+  const year = date.getFullYear();
+
+  return `${day.toString().padStart(2, "0")}/${month
+    .toString()
+    .padStart(2, "0")}/${year}`;
 }

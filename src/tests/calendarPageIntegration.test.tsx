@@ -35,7 +35,7 @@ describe("CalendarPage integration testing", () => {
   test("Initial dates are correct through all components", async () => {
     const { monthName, day, year, currentDay, calendarRegex, shortDateRegex } =
       renderCalendarPage();
-    const calendarDay = screen.getAllByTestId("calendar-day");
+    const calendarDay = await screen.findAllByTestId("calendar-day");
     const calendarDate = screen.getByText(calendarRegex);
     const utilityBarDateDisplay = screen.getByText(shortDateRegex);
     const [calendarDayName, calendarDayNumber] = Array.from(

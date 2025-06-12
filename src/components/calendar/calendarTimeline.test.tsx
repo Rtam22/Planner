@@ -3,7 +3,6 @@ import { expect, test, vi } from "vitest";
 import CalendarTimeline from "./calendarTimeline";
 import { getDayAndDayNumber } from "../../utils/dateUtils";
 import { convertToDDMMYYYY } from "../../utils/dateUtils";
-import userEvent from "@testing-library/user-event";
 
 function renderComponent() {
   const mockFn = vi.fn();

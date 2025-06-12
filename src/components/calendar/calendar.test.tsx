@@ -36,7 +36,7 @@ test("Initial values are correct and shows current date on load", () => {
   const selectedDate = screen.getByText(calendarRegex);
   const dayCells = screen.getAllByText(/^([1-9]|[12][0-9]|3[01])$/);
   console.log(dayCells[1].textContent);
-  const allCells = screen.getAllByTestId("calendar-day");
+  const allCells = screen.getAllByTestId("cal-cell");
 
   expect(selectedDate.textContent).toBe(`${month} ${year}`);
   expect(dayCells[day - 1]).toHaveClass("active");
