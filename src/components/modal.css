@@ -1,13 +1,32 @@
 .modal {
-  width: 400px;
-  height: 100vh;
   background-color: rgb(255, 255, 255);
   position: absolute;
-  right: 0;
+
   z-index: 20;
   box-shadow: -3px 0 5px rgba(0, 0, 0, 0.2);
   gap: 10px;
   padding: 30px;
+}
+
+.modal.right {
+  width: 400px;
+  height: 100vh;
+  right: 0;
+}
+
+.back-drop {
+  width: 100vw;
+  position: absolute;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.502);
+  z-index: 19;
+}
+
+.back-drop.right {
+  background-color: transparent;
+  width: 400px;
+  height: 100vh;
+  right: 0;
 }
 
 .modal .header {
