@@ -1,17 +1,25 @@
 .modal {
   background-color: rgb(255, 255, 255);
   position: absolute;
-
   z-index: 20;
   box-shadow: -3px 0 5px rgba(0, 0, 0, 0.2);
   gap: 10px;
-  padding: 30px;
+  padding: 15px;
 }
 
 .modal.right {
   width: 400px;
   height: 100vh;
   right: 0;
+}
+
+.modal.middle {
+  max-width: 95vw;
+  max-height: 100vh;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  overflow: auto;
 }
 
 .back-drop {
@@ -58,4 +66,10 @@
 .horizontal.time {
   gap: 10px;
   display: flex;
+}
+
+@media (min-width: 900px) {
+  .modal {
+    padding: 30px;
+  }
 }

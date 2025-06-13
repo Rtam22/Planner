@@ -18,8 +18,8 @@ function Modal({
   showModal,
   handleShowModal,
   backDrop,
-  width = "",
-  height = "100vh",
+  width,
+  height,
 }: modalProps) {
   return (
     <div
@@ -31,16 +31,13 @@ function Modal({
         className={`modal ${type}`}
         style={{ height: height, width: width ? width : "" }}
       >
-        <div className="header-color"></div>
-        <div className="header">
-          <div></div>
-          <Button
-            className="btn-plain btn-ext"
-            onClick={() => handleShowModal("none")}
-          >
-            X
-          </Button>
-        </div>
+        {showModal === "create" && <div className="header-color"></div>}
+        <Button
+          className="btn-plain btn-ext btn-right"
+          onClick={() => handleShowModal("none")}
+        >
+          X
+        </Button>
         {children}
       </div>
     </div>

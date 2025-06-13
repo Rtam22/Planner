@@ -26,3 +26,16 @@ button {
 .btn-secondary {
   color: blue;
 }
+
+.btn-right {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+}
+
+@media (min-width: 900px) {
+  .btn-right {
+    right: 20px;
+    top: 20px;
+  }
+}
