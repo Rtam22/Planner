@@ -33,6 +33,20 @@ button {
   top: 10px;
 }
 
+button.warn {
+  color: red;
+}
+
+.btn-plain-lg {
+  font-size: 18px;
+  font-weight: 300;
+}
+
+.btn-plain-lg:hover,
+.btn-plain:hover {
+  text-decoration: underline;
+}
+
 @media (min-width: 900px) {
   .btn-right {
     right: 20px;

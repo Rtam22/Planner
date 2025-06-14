@@ -23,6 +23,7 @@ function Modal({
 }: modalProps) {
   return (
     <div
+      onClick={() => handleShowModal("none")}
       className={`${backDrop ? "back-drop" : ""} ${
         showModal != "none" ? "" : "hidden"
       }`}
@@ -30,6 +31,7 @@ function Modal({
       <div
         className={`modal ${type}`}
         style={{ height: height, width: width ? width : "" }}
+        onClick={(e) => e.stopPropagation()}
       >
         {showModal === "create" && <div className="header-color"></div>}
         <Button

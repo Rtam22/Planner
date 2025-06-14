@@ -6,7 +6,7 @@ import { useState } from "react";
 import CalendarTimeline from "../components/calendar/calendarTimeline";
 import type { CalendarDayProps } from "../components/calendar/calendarDates";
 import { useTasksContext } from "../context/taskContext";
-import type { PreviewTask } from "../components/types/taskTypes";
+import type { PreviewTask, Task } from "../components/types/taskTypes";
 import TaskForm from "../components/taskForm";
 import Modal from "../components/modal";
 import { getDayAndDayNumber } from "../utils/dateUtils";
@@ -20,7 +20,7 @@ function CalendarPage() {
   );
   const { tasks } = useTasksContext();
   const [previewTask, setPreviewTask] = useState<PreviewTask | null>(null);
-
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   const dates: CalendarDayProps[] = getDayAndDayNumber(selectedDate);
@@ -37,20 +37,27 @@ function CalendarPage() {
     setPreviewTask(task ?? null);
   }
 
+  function handleTaskClick(taskId: string) {
+    const findTask = tasks.find((task) => taskId === task.id);
+    setSelectedTask(findTask ?? null);
+    setShowModal("view");
+  }
+
   function clearTaskPreview() {
     setPreviewTask(null);
   }
 
-  function handleTaskClick(taskId: string) {
-    console.log(taskId);
-  }
   return (
     <div className="calendar-page">
       <Modal
         showModal={showModal}
         type={showModal === "create" ? "right" : "middle"}
         handleShowModal={handleShowModal}
-        backDrop={showModal === "create" ? false : true}
+        backDrop={
+          showModal === "create" ? false : showModal === "view" ? true : true
+        }
+        width={showModal === "view" ? "1000px" : undefined}
+        height={showModal === "view" ? "700px" : undefined}
       >
         {showModal === "create" && (
           <TaskForm
@@ -60,7 +67,7 @@ function CalendarPage() {
           />
         )}
 
-        {showModal === "view" && <TaskView />}
+        {showModal === "view" && <TaskView task={selectedTask} />}
       </Modal>
 
       <MainNavigation />
