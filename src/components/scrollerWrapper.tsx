@@ -1,14 +1,22 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import "./scrollerWrapper.css";
 
 type ScrollerWrapperProps = {
   children: React.ReactNode;
-  timelineRef: React.RefObject<HTMLDivElement | null>;
+  elementRef: React.RefObject<HTMLDivElement | null>;
+  scrollPosition: number;
 };
 
-function ScrollerWrapper({ children, timelineRef }: ScrollerWrapperProps) {
+function ScrollerWrapper({
+  children,
+  elementRef,
+  scrollPosition,
+}: ScrollerWrapperProps) {
   useEffect(() => {
-    const timeline = timelineRef?.current;
+    const element = elementRef?.current;
+    if (element && scrollPosition) {
+      element.scrollTop = scrollPosition;
+    }
     let isDragging = false;
     let startX: number;
     let startY: number;
@@ -21,8 +29,8 @@ function ScrollerWrapper({ children, timelineRef }: ScrollerWrapperProps) {
       console.log(isDragging);
       startX = event.pageX;
       startY = event.pageY;
-      scrollLeft = timeline?.scrollLeft ?? 0;
-      scrollTop = timeline?.scrollTop ?? 0;
+      scrollLeft = element?.scrollLeft ?? 0;
+      scrollTop = element?.scrollTop ?? 0;
       document.body.style.cursor = "grabbing";
     }
 
@@ -31,8 +39,8 @@ function ScrollerWrapper({ children, timelineRef }: ScrollerWrapperProps) {
       event.preventDefault();
       const dx = event.pageX - startX;
       const dy = event.pageY - startY;
-      timeline ? (timeline.scrollLeft = scrollLeft - dx) : null;
-      timeline ? (timeline.scrollTop = scrollTop - dy) : null;
+      element ? (element.scrollLeft = scrollLeft - dx) : null;
+      element ? (element.scrollTop = scrollTop - dy) : null;
     }
 
     function onMouseUp() {
@@ -40,11 +48,11 @@ function ScrollerWrapper({ children, timelineRef }: ScrollerWrapperProps) {
       document.body.style.cursor = "default";
     }
 
-    timeline?.addEventListener("mousedown", onMouseDown);
+    element?.addEventListener("mousedown", onMouseDown);
     window.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseup", onMouseUp);
     return () => {
-      timeline?.removeEventListener("mousedown", onMouseDown);
+      element?.removeEventListener("mousedown", onMouseDown);
       window.removeEventListener("mouseup", onMouseUp);
       window.removeEventListener("mousemove", onMouseMove);
     };
