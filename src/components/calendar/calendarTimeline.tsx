@@ -27,7 +27,7 @@ function CalendarTimeline({
   onClick,
 }: CalendarTimelineProps) {
   const timelineRef = useRef<HTMLDivElement | null>(null);
-  const timeStamps = [];
+  const timeStamps = [{ hour: 12, period: "pm" }];
 
   let date = new Date(selectedDate);
   date.setDate(date.getDate() - 1);
@@ -40,10 +40,10 @@ function CalendarTimeline({
     .map(Number) || [0, 0];
   const startingTime = 420;
 
-  for (let i = 5; i < 31; i++) {
-    const hour24 = i % 24;
+  for (let i = 0; i < 25; i++) {
+    const hour24 = i;
     const hour12 = hour24 % 12 === 0 ? 12 : hour24 % 12;
-    const period = hour24 < 12 ? "am" : "pm";
+    const period = hour24 < 12 || hour24 > 23 ? "am" : "pm";
 
     timeStamps.push({ hour: hour12, period });
   }
@@ -57,7 +57,7 @@ function CalendarTimeline({
   }
 
   return (
-    <ScrollerWrapper timelineRef={timelineRef}>
+    <ScrollerWrapper elementRef={timelineRef} scrollPosition={6 * 70}>
       <div ref={timelineRef} className="calendar-timeline">
         <div className="calendar-day-display">
           {dates.map((date, index) => (
@@ -69,8 +69,12 @@ function CalendarTimeline({
           <div className="time-cells">
             {timeStamps.map((time, index) => (
               <div key={index} className="time-container">
-                <p>{time.hour}</p>
-                <p>{time.period}</p>
+                {index > 0 && (
+                  <>
+                    <p>{time.hour}</p>
+                    <p>{time.period}</p>
+                  </>
+                )}
               </div>
             ))}
           </div>
@@ -89,8 +93,7 @@ function CalendarTimeline({
                       style={{
                         top: calculateStartingPosition(
                           startHours,
-                          startMinutes,
-                          startingTime
+                          startMinutes
                         ),
                         height: `${calculateLength(
                           startHours,
@@ -100,11 +103,7 @@ function CalendarTimeline({
                         )}px`,
                         maxHeight:
                           1680 -
-                          calculateStartingPosition(
-                            startHours,
-                            startMinutes,
-                            startingTime
-                          ),
+                          calculateStartingPosition(startHours, startMinutes),
                       }}
                     >
                       Preview Task
