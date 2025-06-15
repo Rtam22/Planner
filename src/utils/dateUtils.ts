@@ -44,3 +44,10 @@ export function convertToDDMMYYYY(date: Date) {
     .toString()
     .padStart(2, "0")}/${year}`;
 }
+
+export function convertTimeString24To12(time: string) {
+  const [h, m] = time.split(":").map(Number);
+  const hour = h % 12 === 0 ? 12 : h % 12;
+  const period = h < 12 ? "AM" : "PM";
+  return `${hour}:${m.toString().padStart(2, "0")} ${period}`;
+}

@@ -15,12 +15,8 @@ export function calculateLength(
 
 export function calculateStartingPosition(
   startHours: number,
-  startMinutes: number,
-  startingTime: number
+  startMinutes: number
 ) {
-  if (startHours < 6) {
-    return startHours * 70 + startMinutes - startingTime + 1680;
-  }
-  const startingPosition = startHours * 70 + startMinutes - startingTime;
+  const startingPosition = startHours * 70 + startMinutes;
   return startingPosition;
 }
