@@ -38,7 +38,6 @@ function CalendarTimeline({
   const [endHours, endMinutes] = previewTask?.endTime
     ?.split(":")
     .map(Number) || [0, 0];
-  const startingTime = 420;
 
   for (let i = 0; i < 25; i++) {
     const hour24 = i;

@@ -21,7 +21,6 @@ function CalendarPage() {
   const { tasks, editTask, deleteTask } = useTasksContext();
   const [previewTask, setPreviewTask] = useState<PreviewTask | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   const dates: CalendarDayProps[] = getDayAndDayNumber(selectedDate);
 

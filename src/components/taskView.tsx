@@ -43,7 +43,7 @@ function TaskView({ task, onCancel, onSave, onDelete }: TaskViewProps) {
 
   console.log(task?.date);
 
-  function handleDelete(e: React.MouseEvent<any>) {
+  function handleDelete() {
     if (!task) return;
     onDelete(task);
     onCancel("none");

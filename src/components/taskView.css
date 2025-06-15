@@ -22,11 +22,6 @@
   border-radius: 5px;
 }
 
-.task-view input:hover,
-.task-view textarea:hover {
-  border: 1px solid rgb(235, 235, 235);
-}
-
 .task-view input:focus,
 .task-view textarea:focus {
   border: 1px solid rgb(93, 134, 248);
