@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import "./taskView.css";
 import type { Task } from "./types/taskTypes";
 import Button from "./button";
@@ -6,31 +6,56 @@ import type { modalType } from "./types/modalTypes";
 
 type TaskViewProps = {
   task: Task | null;
-  handleCancel: (type: modalType) => void;
+  onCancel: (type: modalType) => void;
+  onSave: (task: Task) => void;
+  onDelete: (task: Task) => void;
 };
 
-function TaskView({ task, handleCancel }: TaskViewProps) {
+function TaskView({ task, onCancel, onSave, onDelete }: TaskViewProps) {
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
-  const [title, setTitle] = useState<string>(task ? task.title : "");
+
+  const [title, setTitle] = useState<string>(task?.title ?? "");
   const [description, setDescription] = useState<string>(
     task ? task.description : ""
   );
   const [startTime, setStartTime] = useState<string>(
     task ? task.startTime : ""
   );
-  const [endTime, setEndTime] = useState<string>(task ? task.endTime : "");
+  const [endTime, setEndTime] = useState<string>(task?.endTime ?? "");
+  const [date, setDate] = useState<Date>(task?.date ?? new Date());
 
-  function handleSubmit() {}
+  function handleSubmit(e: React.MouseEvent<any>) {
+    e.preventDefault();
+    if (!task) return;
+    const updatedTask: Task = {
+      id: task.id,
+      title: title,
+      description: description,
+      date: date,
+      startTime: startTime,
+      endTime: endTime,
+      repeat: task.repeat,
+      tag: task.tag,
+    };
+    onSave(updatedTask);
+    onCancel("none");
+  }
 
-  function handleSave(e: React.MouseEvent<any>) {}
+  console.log(task?.date);
 
-  function handleDelete(e: React.MouseEvent<any>) {}
+  function handleDelete(e: React.MouseEvent<any>) {
+    if (!task) return;
+    onDelete(task);
+    onCancel("none");
+  }
 
   function handleTextAreaSizing(e: React.FormEvent<HTMLTextAreaElement>) {
     const textarea = e.currentTarget;
     textarea.style.height = "auto";
     textarea.style.height = `${textarea.scrollHeight}px`;
   }
+
+  task === null && <div>Task not found</div>;
 
   return (
     <div className="task-view">
@@ -101,11 +126,11 @@ function TaskView({ task, handleCancel }: TaskViewProps) {
           </div>
           <hr />
           <div className=" button-container">
-            <Button onClick={handleSave} type="button" className="btn-plain-lg">
+            <Button type="submit" className="btn-plain-lg">
               Save
             </Button>
             <Button
-              onClick={() => handleCancel("none")}
+              onClick={() => onCancel("none")}
               type="button"
               className="btn-plain-lg"
             >

@@ -18,7 +18,7 @@ function CalendarPage() {
   const [showModal, setShowModal] = useState<"none" | "view" | "create">(
     "none"
   );
-  const { tasks } = useTasksContext();
+  const { tasks, editTask, deleteTask } = useTasksContext();
   const [previewTask, setPreviewTask] = useState<PreviewTask | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -68,7 +68,12 @@ function CalendarPage() {
         )}
 
         {showModal === "view" && (
-          <TaskView task={selectedTask} handleCancel={handleShowModal} />
+          <TaskView
+            task={selectedTask}
+            onCancel={handleShowModal}
+            onSave={editTask}
+            onDelete={deleteTask}
+          />
         )}
       </Modal>
 
