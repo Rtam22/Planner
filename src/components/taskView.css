@@ -9,29 +9,34 @@
   padding-left: 0;
 }
 
-.calendar-page .task-view .col-left {
-  padding-right: 0;
-}
-
-.task-view p:hover {
-  cursor: text;
-  border: 1px solid rgb(216, 216, 216);
-}
-
 .task-view input,
-.task-view p,
 .task-view textarea,
 .task-view input[type="time"] {
   font-size: 16px;
   font-weight: normal;
   line-height: 1.4;
-  padding: 0;
-  margin: 0;
   border: 1px solid transparent;
-  background: transparent;
   width: 100%;
-  outline: none;
   box-sizing: border-box;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.task-view input:hover,
+.task-view textarea:hover {
+  border: 1px solid rgb(235, 235, 235);
+}
+
+.task-view input:focus,
+.task-view textarea:focus {
+  border: 1px solid rgb(93, 134, 248);
+}
+
+.task-view textarea {
+  overflow: hidden;
+  resize: none;
+  height: 88%;
+  min-height: 295px;
 }
 
 .task-view label {
@@ -44,32 +49,19 @@
   cursor: text;
 }
 
-.task-view input,
-.task-view textarea {
-  border: 1px solid rgb(93, 134, 248);
-}
-
 .task-view .title {
   font-size: 24px;
-  height: 50px;
+  min-height: 60px;
+  height: auto;
 }
 
 .task-view form {
   gap: 10px;
 }
 
-.task-view p,
-.task-view textarea {
-  padding: 8.5px 8px 10px 8px;
-}
-
-.task-view input {
-  padding: 12px 8px 10px 8px;
-}
-
-.task-view .description,
-.task-view textarea {
+.task-view .description {
   height: 88%;
+  min-height: 300px;
 }
 
 .wrapper {
@@ -77,7 +69,7 @@
 }
 
 .task-view .wrapper {
-  height: 450px;
+  height: auto;
   margin-top: 5px;
 }
 
@@ -90,7 +82,7 @@ hr.full-width {
 }
 
 hr.full-width-horizontal {
-  margin: -11px 0;
+  margin: -15px 0 -11px 0;
 }
 
 .task-view fieldset {
@@ -129,6 +121,7 @@ hr.full-width-horizontal {
 
   .task-view .description,
   .task-view textarea {
+    min-height: 420px;
     height: 97%;
   }
 

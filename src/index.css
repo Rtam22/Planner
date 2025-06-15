@@ -36,6 +36,8 @@ button {
 p {
   align-items: center;
   user-select: none;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 div {
@@ -89,13 +91,14 @@ textarea {
 
 .col-right {
   width: 100%;
-  height: 100%;
+  height: auto;
   padding: 5px;
 }
 
 .col-left {
   width: 100%;
-  height: 100%;
+  height: auto;
+  padding-bottom: 15px;
 }
 
 .vertical-line {

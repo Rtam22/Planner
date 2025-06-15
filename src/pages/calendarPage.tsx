@@ -57,7 +57,7 @@ function CalendarPage() {
           showModal === "create" ? false : showModal === "view" ? true : true
         }
         width={showModal === "view" ? "1000px" : undefined}
-        height={showModal === "view" ? "700px" : undefined}
+        height={showModal === "view" ? "auto" : undefined}
       >
         {showModal === "create" && (
           <TaskForm
@@ -67,7 +67,9 @@ function CalendarPage() {
           />
         )}
 
-        {showModal === "view" && <TaskView task={selectedTask} />}
+        {showModal === "view" && (
+          <TaskView task={selectedTask} handleCancel={handleShowModal} />
+        )}
       </Modal>
 
       <MainNavigation />

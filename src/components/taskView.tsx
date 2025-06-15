@@ -1,17 +1,16 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./taskView.css";
 import type { Task } from "./types/taskTypes";
 import Button from "./button";
+import type { modalType } from "./types/modalTypes";
 
 type TaskViewProps = {
   task: Task | null;
+  handleCancel: (type: modalType) => void;
 };
 
-function TaskView({ task }: TaskViewProps) {
+function TaskView({ task, handleCancel }: TaskViewProps) {
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
-  const [currentEdit, setCurrentEdit] = useState<
-    "title" | "description" | "startTime" | "endTime" | "none"
-  >("none");
   const [title, setTitle] = useState<string>(task ? task.title : "");
   const [description, setDescription] = useState<string>(
     task ? task.description : ""
@@ -23,19 +22,15 @@ function TaskView({ task }: TaskViewProps) {
 
   function handleSubmit() {}
 
-  useEffect(() => {
-    if (currentEdit === "description" && textAreaRef.current) {
-      const element = textAreaRef.current;
-      element.focus();
-      element.selectionStart = element.selectionEnd = element.value.length;
-    }
-  }, [currentEdit]);
-
   function handleSave(e: React.MouseEvent<any>) {}
 
   function handleDelete(e: React.MouseEvent<any>) {}
 
-  function handleCancel(e: React.MouseEvent<any>) {}
+  function handleTextAreaSizing(e: React.FormEvent<HTMLTextAreaElement>) {
+    const textarea = e.currentTarget;
+    textarea.style.height = "auto";
+    textarea.style.height = `${textarea.scrollHeight}px`;
+  }
 
   return (
     <div className="task-view">
@@ -45,54 +40,31 @@ function TaskView({ task }: TaskViewProps) {
         <form onSubmit={handleSubmit}>
           <div className="header"></div>
           <hr className="full-width"></hr>
-          {currentEdit === "title" ? (
-            <input
-              className="title"
-              type="text"
-              id="title"
-              name="title"
-              value={title}
-              onChange={(e) => setTitle(e.currentTarget.value)}
-              onBlur={() => {
-                setCurrentEdit("none");
-              }}
-              autoFocus
-            ></input>
-          ) : (
-            <p
-              className="title"
-              onClick={() => {
-                setCurrentEdit("title");
-              }}
-            >
-              {title}
-            </p>
-          )}
+          <input
+            className="title"
+            type="text"
+            id="title"
+            name="title"
+            value={title}
+            onChange={(e) => setTitle(e.currentTarget.value)}
+          ></input>
           <hr className="full-width"></hr>
           <div className="wrapper">
             <div className="col-left">
-              {currentEdit === "description" ? (
+              <div>
                 <textarea
+                  rows={1}
+                  onInput={handleTextAreaSizing}
+                  onFocus={handleTextAreaSizing}
                   ref={textAreaRef}
                   id="title"
                   name="title"
                   value={description}
-                  onChange={(e) => setDescription(e.currentTarget.value)}
-                  onBlur={() => {
-                    setCurrentEdit("none");
+                  onChange={(e) => {
+                    setDescription(e.currentTarget.value);
                   }}
-                  autoFocus
                 ></textarea>
-              ) : (
-                <p
-                  className="description"
-                  onClick={() => {
-                    setCurrentEdit("description");
-                  }}
-                >
-                  {description}
-                </p>
-              )}
+              </div>
             </div>
             <hr className="full-width-horizontal"></hr>
             <div className="col-right">
@@ -133,7 +105,7 @@ function TaskView({ task }: TaskViewProps) {
               Save
             </Button>
             <Button
-              onClick={handleCancel}
+              onClick={() => handleCancel("none")}
               type="button"
               className="btn-plain-lg"
             >
