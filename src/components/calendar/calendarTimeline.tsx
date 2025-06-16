@@ -26,6 +26,8 @@ function CalendarTimeline({
   previewTask,
   onClick,
 }: CalendarTimelineProps) {
+  const currentDate = new Date();
+  console.log(dates);
   const timelineRef = useRef<HTMLDivElement | null>(null);
   const timeStamps = [{ hour: 12, period: "pm" }];
   const daysInWeek = 7;
@@ -60,7 +62,12 @@ function CalendarTimeline({
       <div ref={timelineRef} className="calendar-timeline">
         <div className="calendar-day-display">
           {dates.map((date, index) => (
-            <CalendarDates key={index} day={date.day} dayDate={date.dayDate} />
+            <CalendarDates
+              key={index}
+              day={date.day}
+              dayDate={date.dayDate}
+              isToday={date.isToday}
+            />
           ))}
         </div>
 
