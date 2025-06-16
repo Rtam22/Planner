@@ -28,7 +28,7 @@ function CalendarTimeline({
 }: CalendarTimelineProps) {
   const timelineRef = useRef<HTMLDivElement | null>(null);
   const timeStamps = [{ hour: 12, period: "pm" }];
-
+  const daysInWeek = 7;
   let date = new Date(selectedDate);
   date.setDate(date.getDate() - 1);
 
@@ -78,7 +78,7 @@ function CalendarTimeline({
             ))}
           </div>
           <div className="cell-container">
-            {Array.from({ length: 7 }).map((_, index) => {
+            {Array.from({ length: daysInWeek }).map((_, index) => {
               date.setDate(date.getDate() + 1);
               return (
                 <div
@@ -120,10 +120,6 @@ function CalendarTimeline({
                       );
                     }
                   })}
-
-                  {Array.from({ length: 24 }).map((_, index) => (
-                    <div key={index} className="cell"></div>
-                  ))}
                 </div>
               );
             })}
