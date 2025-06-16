@@ -4,12 +4,12 @@ import TopBar from "../components/topBar";
 import FilterBar from "../components/filterBar";
 import { useState } from "react";
 import CalendarTimeline from "../components/calendar/calendarTimeline";
-import type { CalendarDayProps } from "../components/calendar/calendarDates";
+import type { CalendarDayProps } from "../components/calendar/calendarTimeline";
 import { useTasksContext } from "../context/taskContext";
 import type { PreviewTask, Task } from "../components/types/taskTypes";
 import TaskForm from "../components/taskForm";
 import Modal from "../components/modal";
-import { getDayAndDayNumber } from "../utils/dateUtils";
+import { getDayAndDayNumber, getSecondaryDates } from "../utils/dateUtils";
 import type { modalType } from "../components/types/modalTypes";
 import TaskView from "../components/taskView";
 
@@ -21,9 +21,8 @@ function CalendarPage() {
   const { tasks, editTask, deleteTask } = useTasksContext();
   const [previewTask, setPreviewTask] = useState<PreviewTask | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-
   const dates: CalendarDayProps[] = getDayAndDayNumber(selectedDate);
-
+  const secondaryDates = getSecondaryDates(selectedDate, "forwards", 7);
   function handleSelectDate(newDate: Date) {
     setselectedDate(newDate);
   }
@@ -81,6 +80,7 @@ function CalendarPage() {
       <FilterBar
         selectedDate={selectedDate}
         handleSelectDate={handleSelectDate}
+        highlightSecondary={secondaryDates}
       />
       <div className="content">
         <TopBar

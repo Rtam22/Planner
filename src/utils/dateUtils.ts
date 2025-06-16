@@ -1,4 +1,4 @@
-import type { CalendarDayProps } from "../components/calendar/calendarDates";
+import type { CalendarDayProps } from "../components/calendar/calendarTimeline";
 
 export function getMonthName(dateView: Date) {
   return dateView.toLocaleDateString("default", { month: "long" });
@@ -67,8 +67,24 @@ export function setMonthOfDate(
 ) {
   let newDate = new Date(date);
   type === "prev"
-    ? newDate.setMonth(newDate.getMonth() + numberOfMonths)
-    : newDate.setMonth(newDate.getMonth() - numberOfMonths);
+    ? newDate.setMonth(newDate.getMonth() - numberOfMonths)
+    : newDate.setMonth(newDate.getMonth() + numberOfMonths);
 
   return newDate;
+}
+
+export function getSecondaryDates(
+  date: Date,
+  type: "forwards" | "backwards",
+  numberOfDays: number
+) {
+  const secondaryDates: Date[] = [];
+  let newDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  for (let i = 1; i < numberOfDays; i++) {
+    type === "forwards"
+      ? newDate.setDate(newDate.getDate() + 1)
+      : newDate.setDate(newDate.getDate() - 1);
+    secondaryDates.push(new Date(newDate));
+  }
+  return secondaryDates;
 }

@@ -62,12 +62,14 @@ function CalendarTimeline({
       <div ref={timelineRef} className="calendar-timeline">
         <div className="calendar-day-display">
           {dates.map((date, index) => (
-            <CalendarDates
-              key={index}
-              day={date.day}
-              dayDate={date.dayDate}
-              isToday={date.isToday}
-            />
+            <div className="calendar-day" data-testid="calendar-day">
+              <p>{date.day}</p>
+              <div
+                className={`center-container ${date.isToday ? "active" : ""} `}
+              >
+                <h3>{date.dayDate}</h3>
+              </div>
+            </div>
           ))}
         </div>
 
