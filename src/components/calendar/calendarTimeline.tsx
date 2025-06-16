@@ -1,15 +1,20 @@
 import CalendarTaskCard from "./calendarTaskCard";
 import "./calendarTimeline.css";
 import { useRef } from "react";
-import type { CalendarDayProps } from "./calendarDates";
 import ScrollerWrapper from "../scrollerWrapper";
 import type { PreviewTask, Task } from "../types/taskTypes";
 import {
   calculateLength,
   calculateStartingPosition,
 } from "../../utils/timelineUtils";
-import CalendarDates from "./calendarDates";
+
 import { convertToDDMMYYYY } from "../../utils/dateUtils";
+
+export type CalendarDayProps = {
+  day: string;
+  dayDate: number;
+  isToday: boolean;
+};
 
 type CalendarTimelineProps = {
   dates: CalendarDayProps[];
@@ -26,8 +31,6 @@ function CalendarTimeline({
   previewTask,
   onClick,
 }: CalendarTimelineProps) {
-  const currentDate = new Date();
-  console.log(dates);
   const timelineRef = useRef<HTMLDivElement | null>(null);
   const timeStamps = [{ hour: 12, period: "pm" }];
   const daysInWeek = 7;
@@ -62,7 +65,11 @@ function CalendarTimeline({
       <div ref={timelineRef} className="calendar-timeline">
         <div className="calendar-day-display">
           {dates.map((date, index) => (
-            <div className="calendar-day" data-testid="calendar-day">
+            <div
+              key={index}
+              className="calendar-day"
+              data-testid="calendar-day"
+            >
               <p>{date.day}</p>
               <div
                 className={`center-container ${date.isToday ? "active" : ""} `}

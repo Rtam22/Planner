@@ -6,6 +6,8 @@ import {
   daysInMonth,
   getFirstDayOfMonth,
   setMonthOfDate,
+  isSameDate,
+  compareDateArrayToDate,
 } from "../../utils/dateUtils";
 
 export type calendarProps = {
@@ -26,11 +28,19 @@ function Calendar({
     setDateView(selectedDate);
   }, [selectedDate]);
 
-  function handleSelect(event: React.MouseEvent<HTMLDivElement>) {
+  function handleSelect(
+    event: React.MouseEvent<HTMLDivElement>,
+    type: "prev" | "current" | "next"
+  ) {
     const selectDay = Number(event.currentTarget.id);
-    handleSelectDate(
-      new Date(dateView.getFullYear(), dateView.getMonth(), selectDay)
-    );
+    let newDate = new Date(dateView.getFullYear(), dateView.getMonth(), 1);
+    if (type === "prev") {
+      newDate.setMonth(newDate.getMonth() - 1);
+    } else if (type === "next") {
+      newDate.setMonth(newDate.getMonth() + 1);
+    }
+    newDate.setDate(selectDay);
+    handleSelectDate(new Date(newDate));
   }
 
   function handleDateChange(e: React.MouseEvent<HTMLDivElement>) {
@@ -40,7 +50,7 @@ function Calendar({
     if (button === "‹") {
       newDate.setMonth(dateView.getMonth() - 1);
       setDateView(newDate);
-    } else {
+    } else if (button === "›") {
       newDate.setMonth(dateView.getMonth() + 1);
       setDateView(newDate);
     }
@@ -56,30 +66,41 @@ function Calendar({
     const numberOfDays = daysInMonth(date.getFullYear(), date.getMonth());
     const suffix = 42 - (numberOfDays + preffix);
     numberOfDaysPrev = numberOfDaysPrev - preffix + 1;
-
+    const today = new Date();
     let cells: JSX.Element[] = [];
 
     Array.from({ length: preffix }, (_, i) => {
       cells.push(
         <div
           key={"preffix" + i}
+          id={numberOfDaysPrev.toString()}
           data-testid="cal-cell"
           className={`cal-cell is-outside-month ${
-            selectedDate.getFullYear() === dateView.getFullYear() &&
-            selectedDate.getMonth() === dateView.getMonth() - 1 &&
-            selectedDate.getDate() === numberOfDaysPrev
+            isSameDate(
+              selectedDate,
+              new Date(
+                dateView.getFullYear(),
+                dateView.getMonth() - 1,
+                numberOfDaysPrev
+              )
+            )
               ? "active"
               : ""
           } ${
-            highlightSecondary?.some(
-              (secondaryDate) =>
-                secondaryDate.getFullYear() === dateView.getFullYear() &&
-                secondaryDate.getMonth() === dateView.getMonth() - 1 &&
-                secondaryDate.getDate() === numberOfDaysPrev
-            )
+            compareDateArrayToDate(
+              highlightSecondary,
+              new Date(
+                dateView.getFullYear(),
+                dateView.getMonth() - 1,
+                numberOfDaysPrev
+              )
+            ) === true
               ? "secondary"
               : ""
           }`}
+          onClick={(e: React.MouseEvent<HTMLDivElement>) =>
+            handleSelect(e, "prev")
+          }
         >
           {numberOfDaysPrev}
         </div>
@@ -95,23 +116,31 @@ function Calendar({
           key={`cells${i}`}
           id={date.toString()}
           className={`cal-cell ${
-            selectedDate.getFullYear() === dateView.getFullYear() &&
-            selectedDate.getMonth() === dateView.getMonth() &&
-            selectedDate.getDate() === date
+            isSameDate(
+              selectedDate,
+              new Date(dateView.getFullYear(), dateView.getMonth(), date)
+            )
               ? "active"
               : ""
           } ${
-            highlightSecondary?.some(
-              (secondaryDate) =>
-                secondaryDate.getFullYear() === dateView.getFullYear() &&
-                secondaryDate.getMonth() === dateView.getMonth() &&
-                secondaryDate.getDate() === date
-            )
+            compareDateArrayToDate(
+              highlightSecondary,
+              new Date(dateView.getFullYear(), dateView.getMonth(), date)
+            ) === true
               ? "secondary"
+              : ""
+          } ${
+            isSameDate(
+              today,
+              new Date(dateView.getFullYear(), dateView.getMonth(), date)
+            )
+              ? "today"
               : ""
           }
            `}
-          onClick={(e: React.MouseEvent<HTMLDivElement>) => handleSelect(e)}
+          onClick={(e: React.MouseEvent<HTMLDivElement>) =>
+            handleSelect(e, "current")
+          }
         >
           {date}
         </div>
@@ -122,24 +151,31 @@ function Calendar({
       const date = i + 1;
       cells.push(
         <div
+          id={date.toString()}
           key={"suffix" + i}
           data-testid="cal-cell"
           className={`cal-cell is-outside-month ${
-            selectedDate.getFullYear() === dateView.getFullYear() &&
-            selectedDate.getMonth() === dateView.getMonth() + 1 &&
-            selectedDate.getDate() === date
+            isSameDate(
+              selectedDate,
+              new Date(
+                selectedDate.getFullYear(),
+                dateView.getMonth() + 1,
+                date
+              )
+            )
               ? "active"
               : ""
           } ${
-            highlightSecondary?.some(
-              (secondaryDate) =>
-                secondaryDate.getFullYear() === dateView.getFullYear() &&
-                secondaryDate.getMonth() === dateView.getMonth() + 1 &&
-                secondaryDate.getDate() === date
-            )
+            compareDateArrayToDate(
+              highlightSecondary,
+              new Date(dateView.getFullYear(), dateView.getMonth() + 1, date)
+            ) === true
               ? "secondary"
               : ""
           }`}
+          onClick={(e: React.MouseEvent<HTMLDivElement>) =>
+            handleSelect(e, "next")
+          }
         >
           {date}
         </div>

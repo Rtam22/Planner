@@ -28,8 +28,19 @@
   text-align: center;
 }
 
+.top-utility-bar .horizontal {
+  gap: 0;
+}
+
 @media (min-width: 900px) {
   .top-utility-bar {
     height: 70px;
+  }
+
+  .top-utility-bar {
+    padding: 0 25px;
+  }
+  .top-utility-bar .horizontal {
+    gap: 5;
   }
 }

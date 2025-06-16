@@ -1,6 +1,6 @@
 .calendar {
   border: 1px solid rgb(197, 196, 196);
-  width: 90%;
+  width: 95%;
   height: 280px;
   padding: 5px;
   display: flex;
@@ -69,4 +69,27 @@
 
 .cal-cell.is-outside-month {
   color: rgb(193, 193, 193);
+}
+
+.cal-cell.today {
+  background-color: rgb(208, 218, 255) !important;
+  border-radius: 100px;
+  width: 80%;
+  height: 80%;
+}
+
+.cal-cell.today:hover {
+  background-color: rgb(224, 240, 254) !important;
+}
+
+.cal-cell.active.today:hover {
+  background-color: rgb(208, 218, 255) !important;
+}
+
+.cal-cell.active.today {
+  border-radius: 0px;
+}
+
+.cal-cell.secondary.today {
+  border-radius: 0px;
 }

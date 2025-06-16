@@ -88,3 +88,17 @@ export function getSecondaryDates(
   }
   return secondaryDates;
 }
+
+export function compareDateArrayToDate(
+  datesArray: Date[] | undefined,
+  date: Date
+) {
+  return (
+    datesArray?.some(
+      (secondaryDate) =>
+        secondaryDate.getFullYear() === date.getFullYear() &&
+        secondaryDate.getMonth() === date.getMonth() &&
+        secondaryDate.getDate() === date.getDate()
+    ) ?? false
+  );
+}
