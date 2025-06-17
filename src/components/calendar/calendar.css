@@ -14,6 +14,10 @@
   border-bottom: 1px solid rgb(88, 88, 88);
 }
 
+.calendar .cal-header p {
+  width: auto;
+}
+
 .cal-days {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -56,7 +60,7 @@
 }
 
 .cal-cell.active {
-  background-color: rgb(253, 230, 199);
+  background-color: rgb(253, 230, 199) !important;
 }
 
 .cal-cell.secondary {

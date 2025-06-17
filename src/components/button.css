@@ -29,8 +29,8 @@ button {
 
 .btn-right {
   position: absolute;
-  right: 10px;
-  top: 10px;
+  right: 20px;
+  top: 20px;
 }
 
 button.warn {
@@ -45,11 +45,4 @@ button.warn {
 .btn-plain-lg:hover,
 .btn-plain:hover {
   text-decoration: underline;
-}
-
-@media (min-width: 900px) {
-  .btn-right {
-    right: 20px;
-    top: 20px;
-  }
 }

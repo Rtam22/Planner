@@ -6,7 +6,7 @@
 .task-view .container {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 10px;
   padding-left: 0;
 }
 
@@ -24,7 +24,8 @@
 }
 
 .task-view input:focus,
-.task-view textarea:focus {
+.task-view textarea:focus,
+.task-view select:focus {
   border: 1px solid rgb(93, 134, 248);
 }
 
@@ -39,6 +40,7 @@
   display: flex;
   align-items: center;
   color: rgb(58, 58, 58);
+  font-size: 14px;
 }
 
 .task-view input[type="time"]:hover {
@@ -78,7 +80,7 @@ hr.full-width {
 }
 
 hr.full-width-horizontal {
-  margin: -15px 0 -11px 0;
+  margin: 10px 0;
 }
 
 .task-view fieldset {
@@ -86,10 +88,10 @@ hr.full-width-horizontal {
   justify-content: space-between;
 }
 
-.task-view fieldset p,
+.task-view fieldset .task-view fieldset p,
 .task-view fieldset input,
 .task-view input[type="time"] {
-  padding: 0;
+  padding: 0 5px;
   width: 50%;
 }
 
@@ -114,7 +116,26 @@ hr.full-width-horizontal {
   margin-bottom: 5px;
 }
 
+.task-view .calendar {
+  width: 100%;
+}
+
+.task-view select {
+  width: 49%;
+  border: none;
+  font-size: 14px;
+  margin-right: 8px;
+  border: 1px solid transparent;
+}
+
+.task-view select:hover {
+  cursor: pointer;
+}
+
 @media (min-width: 600px) {
+  .task-view select {
+    width: 48%;
+  }
   .task-view .button-container {
     gap: 50px;
   }
@@ -138,7 +159,7 @@ hr.full-width-horizontal {
   .task-view input,
   .task-view textarea,
   .task-view input[type="time"] {
-    font-size: 16px;
+    font-size: 14px;
   }
 
   .task-view .container {
@@ -147,6 +168,12 @@ hr.full-width-horizontal {
 
   .task-view .title {
     font-size: 24px;
+  }
+}
+
+@media (min-width: 600px) {
+  hr.full-width-horizontal {
+    margin: -15px 0 -11px 0;
   }
 }
 

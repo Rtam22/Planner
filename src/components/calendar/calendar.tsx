@@ -14,12 +14,14 @@ export type calendarProps = {
   selectedDate: Date;
   handleSelectDate: (newDate: Date) => void;
   highlightSecondary?: Date[];
+  showToday?: boolean;
 };
 
 function Calendar({
   selectedDate,
   handleSelectDate,
   highlightSecondary,
+  showToday = true,
 }: calendarProps) {
   const [dateView, setDateView] = useState(new Date());
   const days = ["M", "T", "W", "T", "F", "S", "S"];
@@ -133,7 +135,7 @@ function Calendar({
             isSameDate(
               today,
               new Date(dateView.getFullYear(), dateView.getMonth(), date)
-            )
+            ) && showToday === true
               ? "today"
               : ""
           }
@@ -188,13 +190,13 @@ function Calendar({
   return (
     <div data-testid="calendar" className="calendar">
       <div className="cal-header">
-        <Button className="btn-plain" onClick={handleDateChange}>
+        <Button type="button" className="btn-plain" onClick={handleDateChange}>
           ‹
         </Button>
         <p data-testid="calendar-date">
           {getMonthName(dateView) + " " + dateView.getFullYear()}
         </p>
-        <Button className="btn-plain" onClick={handleDateChange}>
+        <Button type="button" className="btn-plain" onClick={handleDateChange}>
           ›
         </Button>
       </div>

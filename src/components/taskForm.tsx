@@ -200,8 +200,10 @@ function CreateTaskModal({
           value={repeat}
           onChange={(e) => setRepeat(e.currentTarget.value)}
         >
-          <option value="1"> 1</option>
-          <option value="2"> 2</option>
+          <option value="None">None</option>
+          <option value="Daily">Daily</option>
+          <option value="Weekly">Weekly</option>
+          <option value="Fortnightly">Fortnightly</option>
         </select>
       </fieldset>
       <fieldset>
