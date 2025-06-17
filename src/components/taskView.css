@@ -1,5 +1,6 @@
 .task-view {
   width: 100%;
+  padding: 0 10px 0 10px;
 }
 
 .task-view .container {
@@ -12,7 +13,7 @@
 .task-view input,
 .task-view textarea,
 .task-view input[type="time"] {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: normal;
   line-height: 1.4;
   border: 1px solid transparent;
@@ -45,7 +46,7 @@
 }
 
 .task-view .title {
-  font-size: 24px;
+  font-size: 16px;
   min-height: 60px;
   height: auto;
 }
@@ -98,6 +99,21 @@ hr.full-width-horizontal {
   gap: 40px;
 }
 
+.task-view .horizontal p:first-child {
+  font-size: 30px;
+  font-weight: 600;
+}
+.task-view .horizontal p:last-child {
+  font-size: 20px;
+  font-weight: 400;
+}
+
+.task-view .horizontal {
+  align-items: center;
+  padding: 0 5px;
+  margin-bottom: 5px;
+}
+
 @media (min-width: 600px) {
   .task-view .button-container {
     gap: 50px;
@@ -119,9 +135,18 @@ hr.full-width-horizontal {
     min-height: 420px;
     height: 97%;
   }
+  .task-view input,
+  .task-view textarea,
+  .task-view input[type="time"] {
+    font-size: 16px;
+  }
 
   .task-view .container {
     padding-left: 5%;
+  }
+
+  .task-view .title {
+    font-size: 24px;
   }
 }
 
