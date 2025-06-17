@@ -1,15 +1,21 @@
 .calendar {
   border: 1px solid rgb(197, 196, 196);
-  width: 90%;
+  width: 95%;
   height: 280px;
   padding: 5px;
+  display: flex;
+  flex-direction: column;
 }
 
 .cal-header {
   display: flex;
   justify-content: space-between;
   padding: 2px 0;
-  border-bottom: 1px solid rgb(142, 142, 142);
+  border-bottom: 1px solid rgb(88, 88, 88);
+}
+
+.calendar .cal-header p {
+  width: auto;
 }
 
 .cal-days {
@@ -21,7 +27,7 @@
 
 .cal-days p {
   font-size: 14px;
-  color: rgb(190, 190, 190);
+  color: rgb(76, 76, 76);
 }
 
 .cal-cell-container div {
@@ -30,9 +36,12 @@
 }
 
 .cal-cell-container {
+  flex: 1;
   display: grid;
+  height: 76%;
   grid-template-columns: repeat(7, 1fr);
-  grid-template-rows: repeat(6, 35px);
+  grid-template-rows: repeat(6, 1fr);
+  place-items: center;
   place-items: center;
 }
 
@@ -44,14 +53,14 @@
   align-items: center;
 }
 
-.filled:hover,
+.cal-cell:hover,
 .cal-cell.secondary:hover {
   background-color: aliceblue;
   cursor: pointer;
 }
 
 .cal-cell.active {
-  background-color: rgb(253, 230, 199);
+  background-color: rgb(253, 230, 199) !important;
 }
 
 .cal-cell.secondary {
@@ -60,4 +69,31 @@
 
 .cal-cell.active:hover {
   cursor: default;
+}
+
+.cal-cell.is-outside-month {
+  color: rgb(193, 193, 193);
+}
+
+.cal-cell.today {
+  background-color: rgb(208, 218, 255) !important;
+  border-radius: 100px;
+  width: 80%;
+  height: 80%;
+}
+
+.cal-cell.today:hover {
+  background-color: rgb(224, 240, 254) !important;
+}
+
+.cal-cell.active.today:hover {
+  background-color: rgb(208, 218, 255) !important;
+}
+
+.cal-cell.active.today {
+  border-radius: 0px;
+}
+
+.cal-cell.secondary.today {
+  border-radius: 0px;
 }

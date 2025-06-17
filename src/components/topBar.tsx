@@ -1,11 +1,12 @@
 import "./topBar.css";
 import Button from "./button";
 import { getMonthName, addSixToDays } from "../utils/dateUtils";
+import type { modalType } from "../components/types/modalTypes";
 
 type filterBarProps = {
   selectedDate: Date;
   handleSelectDate: (newDate: Date) => void;
-  handleShowModal: (modal: string) => void;
+  handleShowModal: (type: modalType) => void;
 };
 
 function TopUtilityBar({
@@ -43,10 +44,7 @@ function TopUtilityBar({
         </Button>
       </div>
       <div className="button-container">
-        <Button
-          className="btn-main"
-          onClick={() => handleShowModal("createTask")}
-        >
+        <Button className="btn-main" onClick={() => handleShowModal("create")}>
           Create Task
         </Button>
         <Button className="btn-plain">To Plan</Button>

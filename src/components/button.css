@@ -26,3 +26,23 @@ button {
 .btn-secondary {
   color: blue;
 }
+
+.btn-right {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+}
+
+button.warn {
+  color: red;
+}
+
+.btn-plain-lg {
+  font-size: 18px;
+  font-weight: 300;
+}
+
+.btn-plain-lg:hover,
+.btn-plain:hover {
+  text-decoration: underline;
+}

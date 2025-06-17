@@ -46,13 +46,8 @@ test("Component displays the correct values and color", async () => {
 });
 
 test("Task card height and starting position is correct based on time", () => {
-  const { startHours, startMinutes, startingTime, endMinutes, endHours } =
-    renderComponent();
-  const startingPosition = calculateStartingPosition(
-    startHours,
-    startMinutes,
-    startingTime
-  );
+  const { startHours, startMinutes, endMinutes, endHours } = renderComponent();
+  const startingPosition = calculateStartingPosition(startHours, startMinutes);
   const taskHeight = calculateLength(
     startHours,
     startMinutes,

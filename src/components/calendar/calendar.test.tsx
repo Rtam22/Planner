@@ -2,7 +2,7 @@ import userEvent from "@testing-library/user-event";
 import { render, screen } from "@testing-library/react";
 import { expect, test, vi } from "vitest";
 import Calendar from "./calendar";
-import { getMonthName } from "../../utils/dateUtils";
+import { getFirstDayOfMonth, getMonthName } from "../../utils/dateUtils";
 
 function renderComponent() {
   const mockFn = vi.fn();
@@ -32,17 +32,15 @@ function renderComponent() {
 }
 
 test("Initial values are correct and shows current date on load", () => {
-  let { calendarRegex, year, month, day, startingDay } = renderComponent();
+  let { calendarRegex, year, month, day, startingDay, date } =
+    renderComponent();
   const selectedDate = screen.getByText(calendarRegex);
   const dayCells = screen.getAllByText(/^([1-9]|[12][0-9]|3[01])$/);
-  console.log(dayCells[1].textContent);
   const allCells = screen.getAllByTestId("cal-cell");
+  const numberOfDays = getFirstDayOfMonth(date.getFullYear(), date.getMonth());
 
   expect(selectedDate.textContent).toBe(`${month} ${year}`);
-  expect(dayCells[day - 1]).toHaveClass("active");
-  for (let i = 0; i < 6; i++) {
-    expect(dayCells[day + i]).toHaveClass("secondary");
-  }
+  expect(dayCells[day + numberOfDays - 1]).toHaveClass("active");
   expect(allCells[startingDay - 1].textContent).toBe("1");
 });
 
@@ -76,13 +74,14 @@ test("Clicking on a date highlights it and calls the selectdate functions", asyn
   const { day, date, mockFn, rerender } = renderComponent();
   const dayCells = screen.getAllByText(/^([1-9]|[12][0-9]|3[01])$/);
   let testSelect = day === 15 ? 17 : 15;
-
-  await userEvent.click(dayCells[testSelect - 1]);
+  const numberOfDays = getFirstDayOfMonth(date.getFullYear(), date.getMonth());
+  console.log();
+  await userEvent.click(dayCells[testSelect + numberOfDays - 1]);
 
   let newDate = new Date(date.getFullYear(), date.getMonth(), testSelect);
   expect(mockFn).toHaveBeenCalledWith(newDate);
 
   rerender(<Calendar selectedDate={newDate} handleSelectDate={mockFn} />);
 
-  expect(dayCells[testSelect - 1]).toHaveClass("active");
+  expect(dayCells[testSelect + numberOfDays - 1]).toHaveClass("active");
 });

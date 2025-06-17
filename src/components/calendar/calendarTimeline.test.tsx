@@ -41,7 +41,7 @@ function renderComponent() {
 
 test("timestamps are shown in the timeline", () => {
   renderComponent();
-  expect(screen.getAllByText(/am|pm/)).toHaveLength(26);
+  expect(screen.getAllByText(/am|pm/)).toHaveLength(25);
 });
 
 test("tasks are shown in the timeline and are in the right column", () => {

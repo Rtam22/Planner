@@ -1,15 +1,20 @@
 import CalendarTaskCard from "./calendarTaskCard";
 import "./calendarTimeline.css";
 import { useRef } from "react";
-import type { CalendarDayProps } from "./calendarDates";
 import ScrollerWrapper from "../scrollerWrapper";
 import type { PreviewTask, Task } from "../types/taskTypes";
 import {
   calculateLength,
   calculateStartingPosition,
 } from "../../utils/timelineUtils";
-import CalendarDates from "./calendarDates";
+
 import { convertToDDMMYYYY } from "../../utils/dateUtils";
+
+export type CalendarDayProps = {
+  day: string;
+  dayDate: number;
+  isToday: boolean;
+};
 
 type CalendarTimelineProps = {
   dates: CalendarDayProps[];
@@ -27,8 +32,8 @@ function CalendarTimeline({
   onClick,
 }: CalendarTimelineProps) {
   const timelineRef = useRef<HTMLDivElement | null>(null);
-  const timeStamps = [];
-
+  const timeStamps = [{ hour: 12, period: "pm" }];
+  const daysInWeek = 7;
   let date = new Date(selectedDate);
   date.setDate(date.getDate() - 1);
 
@@ -38,12 +43,11 @@ function CalendarTimeline({
   const [endHours, endMinutes] = previewTask?.endTime
     ?.split(":")
     .map(Number) || [0, 0];
-  const startingTime = 420;
 
-  for (let i = 5; i < 31; i++) {
-    const hour24 = i % 24;
+  for (let i = 0; i < 25; i++) {
+    const hour24 = i;
     const hour12 = hour24 % 12 === 0 ? 12 : hour24 % 12;
-    const period = hour24 < 12 ? "am" : "pm";
+    const period = hour24 < 12 || hour24 > 23 ? "am" : "pm";
 
     timeStamps.push({ hour: hour12, period });
   }
@@ -57,11 +61,22 @@ function CalendarTimeline({
   }
 
   return (
-    <ScrollerWrapper timelineRef={timelineRef}>
+    <ScrollerWrapper elementRef={timelineRef} scrollPosition={6 * 70}>
       <div ref={timelineRef} className="calendar-timeline">
         <div className="calendar-day-display">
           {dates.map((date, index) => (
-            <CalendarDates key={index} day={date.day} dayDate={date.dayDate} />
+            <div
+              key={index}
+              className="calendar-day"
+              data-testid="calendar-day"
+            >
+              <p>{date.day}</p>
+              <div
+                className={`center-container ${date.isToday ? "active" : ""} `}
+              >
+                <h3>{date.dayDate}</h3>
+              </div>
+            </div>
           ))}
         </div>
 
@@ -69,13 +84,17 @@ function CalendarTimeline({
           <div className="time-cells">
             {timeStamps.map((time, index) => (
               <div key={index} className="time-container">
-                <p>{time.hour}</p>
-                <p>{time.period}</p>
+                {index > 0 && (
+                  <>
+                    <p>{time.hour}</p>
+                    <p>{time.period}</p>
+                  </>
+                )}
               </div>
             ))}
           </div>
           <div className="cell-container">
-            {Array.from({ length: 7 }).map((_, index) => {
+            {Array.from({ length: daysInWeek }).map((_, index) => {
               date.setDate(date.getDate() + 1);
               return (
                 <div
@@ -89,8 +108,7 @@ function CalendarTimeline({
                       style={{
                         top: calculateStartingPosition(
                           startHours,
-                          startMinutes,
-                          startingTime
+                          startMinutes
                         ),
                         height: `${calculateLength(
                           startHours,
@@ -100,11 +118,7 @@ function CalendarTimeline({
                         )}px`,
                         maxHeight:
                           1680 -
-                          calculateStartingPosition(
-                            startHours,
-                            startMinutes,
-                            startingTime
-                          ),
+                          calculateStartingPosition(startHours, startMinutes),
                       }}
                     >
                       Preview Task
@@ -122,10 +136,6 @@ function CalendarTimeline({
                       );
                     }
                   })}
-
-                  {Array.from({ length: 24 }).map((_, index) => (
-                    <div key={index} className="cell"></div>
-                  ))}
                 </div>
               );
             })}
