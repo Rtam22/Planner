@@ -1,4 +1,4 @@
-import type { Task } from "../components/types/taskTypes";
+import type { Task } from "../types/taskTypes";
 
 export type FilterProps = {
   filters: {

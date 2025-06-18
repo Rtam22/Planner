@@ -1,9 +1,9 @@
 import React, { useRef, useState } from "react";
 import "./taskView.css";
-import type { Task } from "./types/taskTypes";
-import Button from "./button";
-import type { modalType } from "./types/modalTypes";
-import Calendar from "./calendar/calendar";
+import type { Task } from "../../types/taskTypes";
+import Button from "../common/button";
+import type { modalType } from "../../types/modalTypes";
+import Calendar from "../calendar/calendar";
 
 type TaskViewProps = {
   task: Task | null;

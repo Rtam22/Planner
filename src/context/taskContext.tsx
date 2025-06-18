@@ -1,5 +1,5 @@
 import { createContext, useContext, useState } from "react";
-import type { Task, Tag } from "../components/types/taskTypes";
+import type { Task, Tag } from "../types/taskTypes";
 import { initialTags, initialTasks } from "../data/taskData";
 
 type TasksContextType = {

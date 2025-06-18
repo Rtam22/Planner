@@ -1,6 +1,6 @@
 import { useEffect, useState, type JSX } from "react";
 import "./calendar.css";
-import Button from "../button";
+import Button from "../common/button";
 import {
   getMonthName,
   daysInMonth,

@@ -1,7 +1,7 @@
 import "./topBar.css";
-import Button from "./button";
-import { getMonthName, addSixToDays } from "../utils/dateUtils";
-import type { modalType } from "../components/types/modalTypes";
+import Button from "../common/button";
+import { getMonthName, addSixToDays } from "../../utils/dateUtils";
+import type { modalType } from "../../types/modalTypes";
 
 type filterBarProps = {
   selectedDate: Date;

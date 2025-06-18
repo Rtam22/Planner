@@ -161,6 +161,7 @@ hr.full-width-horizontal {
   .task-view textarea {
     font-size: 16px;
     line-height: 35px;
+    min-height: 400px;
   }
 
   .task-view .container {

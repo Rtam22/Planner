@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Button from "./button";
+import Button from "../common/button";
 import "./search.css";
 
 type SearchProps = {

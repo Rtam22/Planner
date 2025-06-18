@@ -1,6 +1,6 @@
 import Button from "./button";
 import "./modal.css";
-import type { modalType } from "../components/types/modalTypes";
+import type { modalType } from "../../types/modalTypes";
 
 type modalProps = {
   children: React.ReactNode;

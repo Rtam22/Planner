@@ -1,17 +1,17 @@
 import "./calendarPage.css";
 import MainNavigation from "../components/navigation/mainNavigation";
-import TopBar from "../components/topBar";
-import FilterBar from "../components/filterBar";
+import TopBar from "../components/navigation/topBar";
+import FilterBar from "../components/filters/filterBar";
 import { useEffect, useState } from "react";
 import CalendarTimeline from "../components/calendar/calendarTimeline";
 import type { CalendarDayProps } from "../components/calendar/calendarTimeline";
 import { useTasksContext } from "../context/taskContext";
-import type { PreviewTask, Task } from "../components/types/taskTypes";
-import TaskForm from "../components/taskForm";
-import Modal from "../components/modal";
+import type { PreviewTask, Task } from "../types/taskTypes";
+import TaskForm from "../components/tasks/taskForm";
+import Modal from "../components/common/modal";
 import { getDayAndDayNumber, getSecondaryDates } from "../utils/dateUtils";
-import type { modalType } from "../components/types/modalTypes";
-import TaskView from "../components/taskView";
+import type { modalType } from "../types/modalTypes";
+import TaskView from "../components/tasks/taskView";
 import type { FilterProps } from "../hooks/useFilters";
 import { useFilters } from "../hooks/useFilters";
 

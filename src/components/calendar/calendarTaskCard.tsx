@@ -1,4 +1,4 @@
-import type { Task } from "../types/taskTypes";
+import type { Task } from "../../types/taskTypes";
 import "./calendarTaskCard.css";
 import {
   calculateLength,

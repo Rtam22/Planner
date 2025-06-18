@@ -1,8 +1,8 @@
 import CalendarTaskCard from "./calendarTaskCard";
 import "./calendarTimeline.css";
 import { useRef } from "react";
-import ScrollerWrapper from "../scrollerWrapper";
-import type { PreviewTask, Task } from "../types/taskTypes";
+import ScrollerWrapper from "../common/scrollerWrapper";
+import type { PreviewTask, Task } from "../../types/taskTypes";
 import {
   calculateLength,
   calculateStartingPosition,

@@ -1,11 +1,11 @@
 import { useState } from "react";
 import "./taskForm.css";
-import Button from "./button";
-import { useTasksContext } from "../context/taskContext";
+import Button from "../common/button";
+import { useTasksContext } from "../../context/taskContext";
 import { v4 as uuidv4 } from "uuid";
 import Select from "react-select";
 import type { StylesConfig } from "react-select";
-import type { PreviewTask } from "./types/taskTypes";
+import type { PreviewTask } from "../../types/taskTypes";
 
 type createTaskModal = {
   handleSelectDate: (newDate: Date) => void;

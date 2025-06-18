@@ -1,9 +1,9 @@
-import Calendar from "./calendar/calendar";
+import Calendar from "../calendar/calendar";
 import "./filterBar.css";
 import Search from "./search";
-import type { FilterProps } from "../hooks/useFilters";
+import type { FilterProps } from "../../hooks/useFilters";
 import { useEffect, useState } from "react";
-import type { Task } from "./types/taskTypes";
+import type { Task } from "../../types/taskTypes";
 
 type filterBarProps = {
   tasks: Task[];
