@@ -3,7 +3,7 @@ import type { Task } from "../types/taskTypes";
 export type FilterProps = {
   filters: {
     search: string;
-    tags: string[] | null;
+    tags: string[];
   };
 };
 
@@ -14,9 +14,12 @@ export function useFilters() {
         ? task.title.toLowerCase().includes(filters.search.toLowerCase())
         : true;
 
-      const tagsResult = filters.tags
-        ? filters.tags.some((tag) => tag === task.tag?.label)
-        : true;
+      console.log(task);
+
+      const tagsResult =
+        filters.tags.length > 0
+          ? filters.tags.some((tag) => tag === task.tag?.label)
+          : true;
 
       return searchResult && tagsResult;
     };

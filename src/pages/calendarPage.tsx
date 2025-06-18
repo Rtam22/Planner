@@ -21,7 +21,7 @@ function CalendarPage() {
   const [showModal, setShowModal] = useState<"none" | "view" | "create">(
     "none"
   );
-  const { tasks, editTask, deleteTask } = useTasksContext();
+  const { tasks, tags, editTask, deleteTask } = useTasksContext();
   const [previewTask, setPreviewTask] = useState<PreviewTask | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [filteredTasks, setfilteredTasks] = useState<Task[]>(tasks);
@@ -89,6 +89,7 @@ function CalendarPage() {
 
       <FilterBar
         tasks={tasks}
+        tags={tags}
         handleFilter={handleFilterTasks}
         selectedDate={selectedDate}
         handleSelectDate={handleSelectDate}

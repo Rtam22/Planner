@@ -11,7 +11,6 @@ export type Task = {
 
 export type Tag = {
   label: string;
-  value: string;
   color: string;
 };
 

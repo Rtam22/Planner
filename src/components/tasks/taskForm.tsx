@@ -69,13 +69,13 @@ function CreateTaskModal({
 
   const { addTask, tags } = useTasksContext();
   const tagOptions = tags.map((tag) => {
-    return { label: tag.value, value: tag.value.toLowerCase() };
+    return { label: tag.label, value: tag.label.toLowerCase() };
   });
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     const [year, month, day] = date.split("-");
     const getTag = tags.find(
-      (t) => t.value.toLowerCase() === tag?.value.toLowerCase()
+      (t) => t.label.toLowerCase() === tag?.value.toLowerCase()
     );
 
     e.preventDefault();

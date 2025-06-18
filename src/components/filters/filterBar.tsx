@@ -3,10 +3,12 @@ import "./filterBar.css";
 import Search from "./search";
 import type { FilterProps } from "../../hooks/useFilters";
 import { useEffect, useState } from "react";
-import type { Task } from "../../types/taskTypes";
+import type { Tag, Task } from "../../types/taskTypes";
+import FilterTag from "./filterTag";
 
 type filterBarProps = {
   tasks: Task[];
+  tags: Tag[];
   selectedDate: Date;
   handleSelectDate: (newDate: Date) => void;
   highlightSecondary?: Date[];
@@ -15,13 +17,14 @@ type filterBarProps = {
 
 function FilterBar({
   tasks,
+  tags,
   handleFilter,
   selectedDate,
   handleSelectDate,
   highlightSecondary,
 }: filterBarProps) {
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [selectedTags, setSelectedTags] = useState<string[] | null>(null);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   useEffect(() => {
     const filters: FilterProps = {
@@ -41,6 +44,19 @@ function FilterBar({
         highlightSecondary={highlightSecondary}
       />
       <Search onSearch={setSearchQuery} useButton={false} />
+
+      <div className="filter-section">
+        <h4>Tags</h4>
+        {tags.map((tag) => {
+          return (
+            <FilterTag
+              selectedTags={selectedTags}
+              tag={tag}
+              setTags={setSelectedTags}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 }

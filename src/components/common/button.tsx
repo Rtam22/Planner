@@ -1,7 +1,7 @@
 import "./button.css";
 
 type ButtonProps = {
-  children: string;
+  children: string | React.ReactNode;
   className: string;
   type?: "submit" | "button";
   onClick?: ((e: React.MouseEvent<any>) => void) | (() => void);
