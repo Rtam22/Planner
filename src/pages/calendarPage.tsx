@@ -12,15 +12,19 @@ import Modal from "../components/modal";
 import { getDayAndDayNumber, getSecondaryDates } from "../utils/dateUtils";
 import type { modalType } from "../components/types/modalTypes";
 import TaskView from "../components/taskView";
+import type { FilterProps } from "../hooks/useFilters";
+import { useFilters } from "../hooks/useFilters";
 
 function CalendarPage() {
   const [selectedDate, setselectedDate] = useState(new Date());
+  const { applyFilter } = useFilters();
   const [showModal, setShowModal] = useState<"none" | "view" | "create">(
     "none"
   );
   const { tasks, editTask, deleteTask } = useTasksContext();
   const [previewTask, setPreviewTask] = useState<PreviewTask | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [showTasks, setShowTasks] = useState<Task[]>(tasks);
   const dates: CalendarDayProps[] = getDayAndDayNumber(selectedDate);
   const secondaryDates = getSecondaryDates(selectedDate, "forwards", 7);
   function handleSelectDate(newDate: Date) {
@@ -43,6 +47,12 @@ function CalendarPage() {
 
   function clearTaskPreview() {
     setPreviewTask(null);
+  }
+
+  function handleFilter(filters: FilterProps) {
+    const filteredTasks = applyFilter(tasks, filters);
+    setShowTasks(filteredTasks);
+    console.log(filteredTasks);
   }
 
   return (
@@ -78,6 +88,7 @@ function CalendarPage() {
       <MainNavigation />
 
       <FilterBar
+        handleFilter={handleFilter}
         selectedDate={selectedDate}
         handleSelectDate={handleSelectDate}
         highlightSecondary={secondaryDates}
@@ -91,7 +102,7 @@ function CalendarPage() {
         <div className="divider">
           <CalendarTimeline
             dates={dates}
-            tasks={tasks}
+            tasks={showTasks}
             selectedDate={selectedDate}
             previewTask={previewTask}
             onClick={handleTaskClick}
