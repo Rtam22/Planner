@@ -3,8 +3,10 @@ import "./filterBar.css";
 import Search from "./search";
 import type { FilterProps } from "../hooks/useFilters";
 import { useEffect, useState } from "react";
+import type { Task } from "./types/taskTypes";
 
 type filterBarProps = {
+  tasks: Task[];
   selectedDate: Date;
   handleSelectDate: (newDate: Date) => void;
   highlightSecondary?: Date[];
@@ -12,6 +14,7 @@ type filterBarProps = {
 };
 
 function FilterBar({
+  tasks,
   handleFilter,
   selectedDate,
   handleSelectDate,
@@ -28,7 +31,7 @@ function FilterBar({
       },
     };
     handleFilter(filters);
-  }, [searchQuery, selectedTags]);
+  }, [searchQuery, selectedTags, tasks]);
 
   return (
     <div className="filter-bar">

@@ -2,7 +2,7 @@ import "./calendarPage.css";
 import MainNavigation from "../components/navigation/mainNavigation";
 import TopBar from "../components/topBar";
 import FilterBar from "../components/filterBar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CalendarTimeline from "../components/calendar/calendarTimeline";
 import type { CalendarDayProps } from "../components/calendar/calendarTimeline";
 import { useTasksContext } from "../context/taskContext";
@@ -24,9 +24,10 @@ function CalendarPage() {
   const { tasks, editTask, deleteTask } = useTasksContext();
   const [previewTask, setPreviewTask] = useState<PreviewTask | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [showTasks, setShowTasks] = useState<Task[]>(tasks);
+  const [filteredTasks, setfilteredTasks] = useState<Task[]>(tasks);
   const dates: CalendarDayProps[] = getDayAndDayNumber(selectedDate);
   const secondaryDates = getSecondaryDates(selectedDate, "forwards", 7);
+
   function handleSelectDate(newDate: Date) {
     setselectedDate(newDate);
   }
@@ -49,10 +50,9 @@ function CalendarPage() {
     setPreviewTask(null);
   }
 
-  function handleFilter(filters: FilterProps) {
+  function handleFilterTasks(filters: FilterProps) {
     const filteredTasks = applyFilter(tasks, filters);
-    setShowTasks(filteredTasks);
-    console.log(filteredTasks);
+    setfilteredTasks(filteredTasks);
   }
 
   return (
@@ -88,7 +88,8 @@ function CalendarPage() {
       <MainNavigation />
 
       <FilterBar
-        handleFilter={handleFilter}
+        tasks={tasks}
+        handleFilter={handleFilterTasks}
         selectedDate={selectedDate}
         handleSelectDate={handleSelectDate}
         highlightSecondary={secondaryDates}
@@ -102,7 +103,7 @@ function CalendarPage() {
         <div className="divider">
           <CalendarTimeline
             dates={dates}
-            tasks={showTasks}
+            tasks={filteredTasks}
             selectedDate={selectedDate}
             previewTask={previewTask}
             onClick={handleTaskClick}
