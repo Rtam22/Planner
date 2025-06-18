@@ -33,7 +33,6 @@
   overflow: hidden;
   resize: none;
   height: 88%;
-  min-height: 295px;
 }
 
 .task-view label {
@@ -59,7 +58,6 @@
 
 .task-view .description {
   height: 88%;
-  min-height: 300px;
 }
 
 .wrapper {
@@ -153,13 +151,16 @@ hr.full-width-horizontal {
 
   .task-view .description,
   .task-view textarea {
-    min-height: 420px;
     height: 97%;
   }
   .task-view input,
-  .task-view textarea,
   .task-view input[type="time"] {
     font-size: 14px;
+  }
+
+  .task-view textarea {
+    font-size: 16px;
+    line-height: 35px;
   }
 
   .task-view .container {

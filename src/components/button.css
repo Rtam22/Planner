@@ -46,3 +46,14 @@ button.warn {
 .btn-plain:hover {
   text-decoration: underline;
 }
+
+.btn-search {
+  width: 40px;
+  height: 35px;
+  background-color: #e5e9f4;
+  border-top: 1px solid rgb(100, 100, 100);
+  border-right: 1px solid rgb(100, 100, 100);
+  border-bottom: 1px solid rgb(100, 100, 100);
+  border-top-right-radius: 2px;
+  border-bottom-right-radius: 2px;
+}
