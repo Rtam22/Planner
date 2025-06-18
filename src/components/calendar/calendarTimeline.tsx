@@ -1,4 +1,4 @@
-import CalendarTaskCard from "./calendarTaskCard";
+import TaskCard from "../tasks/taskCard";
 import "./calendarTimeline.css";
 import { useRef } from "react";
 import ScrollerWrapper from "../common/scrollerWrapper";
@@ -127,7 +127,7 @@ function CalendarTimeline({
                   {tasks.map((task) => {
                     if (compareDate(task.date, date)) {
                       return (
-                        <CalendarTaskCard
+                        <TaskCard
                           key={task.id}
                           onClick={onClick}
                           title={task.title}

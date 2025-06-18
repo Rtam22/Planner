@@ -43,8 +43,6 @@ function TaskView({ task, onCancel, onSave, onDelete }: TaskViewProps) {
     onCancel("none");
   }
 
-  console.log(task?.repeat);
-
   function handleDelete() {
     if (!task) return;
     onDelete(task);

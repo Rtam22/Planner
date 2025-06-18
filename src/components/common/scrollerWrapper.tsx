@@ -26,7 +26,6 @@ function ScrollerWrapper({
     function onMouseDown(event: MouseEvent) {
       if (event.button !== 0) return;
       isDragging = true;
-      console.log(isDragging);
       startX = event.pageX;
       startY = event.pageY;
       scrollLeft = element?.scrollLeft ?? 0;

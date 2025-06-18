@@ -2,7 +2,7 @@ import "./calendarPage.css";
 import MainNavigation from "../components/navigation/mainNavigation";
 import TopBar from "../components/navigation/topBar";
 import FilterBar from "../components/filters/filterBar";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import CalendarTimeline from "../components/calendar/calendarTimeline";
 import type { CalendarDayProps } from "../components/calendar/calendarTimeline";
 import { useTasksContext } from "../context/taskContext";

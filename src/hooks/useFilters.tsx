@@ -14,8 +14,6 @@ export function useFilters() {
         ? task.title.toLowerCase().includes(filters.search.toLowerCase())
         : true;
 
-      console.log(task);
-
       const tagsResult =
         filters.tags.length > 0
           ? filters.tags.some((tag) => tag === task.tag?.label)

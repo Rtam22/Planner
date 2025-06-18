@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { expect, test, vi } from "vitest";
-import CalendarTaskCard from "./calendarTaskCard";
+import CalendarTaskCard from "./taskCard";
 import {
   calculateLength,
   calculateStartingPosition,

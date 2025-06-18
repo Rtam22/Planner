@@ -1,5 +1,5 @@
 import type { Task } from "../../types/taskTypes";
-import "./calendarTaskCard.css";
+import "./taskCard.css";
 import {
   calculateLength,
   calculateStartingPosition,
@@ -11,7 +11,7 @@ type calendarTaskCardProps = {
   task: Task;
 };
 
-function CalendarTaskCard({ title, onClick, task }: calendarTaskCardProps) {
+function TaskCard({ title, onClick, task }: calendarTaskCardProps) {
   const [startHours, startMinutes] = task.startTime.split(":").map(Number);
   const [endHours, endMinutes] = task.endTime.split(":").map(Number);
   const startPosition = calculateStartingPosition(startHours, startMinutes);
@@ -48,4 +48,4 @@ function CalendarTaskCard({ title, onClick, task }: calendarTaskCardProps) {
   );
 }
 
-export default CalendarTaskCard;
+export default TaskCard;

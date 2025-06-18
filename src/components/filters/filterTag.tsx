@@ -19,7 +19,6 @@ function FilterTag({ tag, setTags, selectedTags }: FilterTagProps) {
     } else {
       setTags([...selectedTags.filter((_, i) => i !== tagIndex)]);
     }
-    console.log(selectedTags);
   }
   return (
     <div className="filter-tag horizontal">

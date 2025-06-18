@@ -16,7 +16,6 @@ function TopUtilityBar({
 }: filterBarProps) {
   function handleDateChange(e: React.MouseEvent<HTMLDivElement>) {
     const button = e.currentTarget.textContent;
-    console.log(button);
     let newDate = new Date(selectedDate);
     if (button === "‹") {
       newDate.setDate(selectedDate.getDate() - 7);

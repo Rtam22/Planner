@@ -94,13 +94,11 @@ function CreateTaskModal({
   }
 
   function handlePreview() {
-    console.log(startTime);
     if (date === "" && startTime === "" && endTime === "") {
       return;
     }
 
     if (startTime === endTime) {
-      console.log("no");
       return;
     }
     const [year, month, day] = date.split("-");
