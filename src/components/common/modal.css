@@ -1,17 +1,19 @@
 .modal {
   background-color: rgb(255, 255, 255);
-  position: absolute;
+  width: auto;
   z-index: 20;
   box-shadow: -3px 0 5px rgba(0, 0, 0, 0.2);
   gap: 10px;
   padding: 15px;
   border-radius: 5px;
+  position: relative;
 }
 
 .modal.right {
   width: 100%;
-  height: 100vh;
   right: 0;
+  position: relative;
+  height: 100%;
 }
 
 .modal.middle {
@@ -22,6 +24,7 @@
   transform: translate(-50%, -50%);
   overflow-x: hidden;
   overflow-y: auto;
+  height: auto;
 }
 
 .back-drop {
@@ -44,10 +47,6 @@
   justify-content: space-between;
 }
 
-.header {
-  margin-bottom: 20px;
-}
-
 .hidden {
   display: none;
 }
@@ -55,8 +54,8 @@
 .header-color {
   position: absolute;
   top: 0;
-  left: -10px;
-  width: 400px;
+  left: 0px;
+  width: 100%;
   height: 10px;
   background-color: rgb(255, 115, 115);
 }

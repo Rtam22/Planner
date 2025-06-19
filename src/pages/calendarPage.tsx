@@ -57,34 +57,23 @@ function CalendarPage() {
 
   return (
     <div className="calendar-page">
-      <Modal
-        showModal={showModal}
-        type={showModal === "create" ? "right" : "middle"}
-        handleShowModal={handleShowModal}
-        backDrop={
-          showModal === "create" ? false : showModal === "view" ? true : true
-        }
-        width={showModal === "view" ? "1000px" : undefined}
-        height={showModal === "view" ? "auto" : undefined}
-      >
-        {showModal === "create" && (
-          <TaskForm
-            handleSelectDate={handleSelectDate}
-            handleSetPreview={handleSetPreview}
-            clearTaskPreview={clearTaskPreview}
-          />
-        )}
-
-        {showModal === "view" && (
+      {showModal === "view" && (
+        <Modal
+          showModal={showModal}
+          type="middle"
+          handleShowModal={handleShowModal}
+          backDrop={true}
+          width="1000px"
+          height="auto"
+        >
           <TaskView
             task={selectedTask}
             onCancel={handleShowModal}
             onSave={editTask}
             onDelete={deleteTask}
           />
-        )}
-      </Modal>
-
+        </Modal>
+      )}
       <MainNavigation />
 
       <FilterBar
@@ -100,8 +89,9 @@ function CalendarPage() {
           selectedDate={selectedDate}
           handleSelectDate={handleSelectDate}
           handleShowModal={handleShowModal}
+          showModal={showModal}
         />
-        <div className="divider">
+        <div className="horizontal">
           <CalendarTimeline
             dates={dates}
             tasks={filteredTasks}
@@ -109,6 +99,21 @@ function CalendarPage() {
             previewTask={previewTask}
             onClick={handleTaskClick}
           />
+
+          {showModal === "create" && (
+            <Modal
+              showModal={showModal}
+              type="right"
+              handleShowModal={handleShowModal}
+              backDrop={false}
+            >
+              <TaskForm
+                handleSelectDate={handleSelectDate}
+                handleSetPreview={handleSetPreview}
+                clearTaskPreview={clearTaskPreview}
+              />
+            </Modal>
+          )}
         </div>
       </div>
     </div>

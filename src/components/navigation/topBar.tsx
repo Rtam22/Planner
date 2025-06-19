@@ -7,12 +7,14 @@ type filterBarProps = {
   selectedDate: Date;
   handleSelectDate: (newDate: Date) => void;
   handleShowModal: (type: modalType) => void;
+  showModal: "none" | "view" | "create";
 };
 
 function TopUtilityBar({
   selectedDate,
   handleSelectDate,
   handleShowModal,
+  showModal,
 }: filterBarProps) {
   function handleDateChange(e: React.MouseEvent<HTMLDivElement>) {
     const button = e.currentTarget.textContent;
@@ -43,7 +45,12 @@ function TopUtilityBar({
         </Button>
       </div>
       <div className="button-container">
-        <Button className="btn-main" onClick={() => handleShowModal("create")}>
+        <Button
+          className="btn-main"
+          onClick={() =>
+            handleShowModal(showModal === "create" ? "none" : "create")
+          }
+        >
           Create Task
         </Button>
         <Button className="btn-plain">To Plan</Button>

@@ -24,6 +24,11 @@ function ScrollerWrapper({
     let scrollTop: number;
 
     function onMouseDown(event: MouseEvent) {
+      const isTaskCard = (event.target as HTMLElement).closest(
+        ".calendar-task-card"
+      );
+      const isButton = (event.target as HTMLElement).closest("button");
+      if (isTaskCard || isButton) return;
       if (event.button !== 0) return;
       isDragging = true;
       startX = event.pageX;

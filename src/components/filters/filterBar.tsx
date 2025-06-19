@@ -47,9 +47,10 @@ function FilterBar({
 
       <div className="filter-section">
         <h4>Tags</h4>
-        {tags.map((tag) => {
+        {tags.map((tag, index) => {
           return (
             <FilterTag
+              key={index}
               selectedTags={selectedTags}
               tag={tag}
               setTags={setSelectedTags}
