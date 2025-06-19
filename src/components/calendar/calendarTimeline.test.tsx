@@ -3,7 +3,7 @@ import { expect, test, vi } from "vitest";
 import CalendarTimeline from "./calendarTimeline";
 import { getDayAndDayNumber } from "../../utils/dateUtils";
 import { convertToDDMMYYYY } from "../../utils/dateUtils";
-
+import { TasksProvider } from "../../context/taskContext";
 function renderComponent() {
   const mockFn = vi.fn();
   const date = new Date();
@@ -27,13 +27,15 @@ function renderComponent() {
     endTime: "03:45",
   };
   render(
-    <CalendarTimeline
-      dates={getDayAndDayNumber(date)}
-      tasks={task}
-      selectedDate={date}
-      previewTask={previewTask}
-      onClick={mockFn}
-    />
+    <TasksProvider>
+      <CalendarTimeline
+        dates={getDayAndDayNumber(date)}
+        tasks={task}
+        selectedDate={date}
+        previewTask={previewTask}
+        onClick={mockFn}
+      />
+    </TasksProvider>
   );
 
   return { mockFn, date, dueDate, previewTask };

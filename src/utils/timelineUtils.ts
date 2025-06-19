@@ -4,13 +4,14 @@ export function calculateLength(
   endHours: number,
   endMinutes: number
 ) {
-  const startTotalMinutes = startHours * 70 + startMinutes;
-  let endTotalMinutes = endHours * 70 + endMinutes;
+  const startTotalMinutes = startHours * 60 + startMinutes;
+  let endTotalMinutes = endHours * 60 + endMinutes;
 
   if (endTotalMinutes <= startTotalMinutes) {
-    endTotalMinutes += 24 * 70;
+    endTotalMinutes += 24 * 60;
   }
-  return Math.abs(endTotalMinutes - startTotalMinutes);
+  const pixelsPerMinute = 70 / 60;
+  return (endTotalMinutes - startTotalMinutes) * pixelsPerMinute;
 }
 
 export function calculateStartingPosition(
