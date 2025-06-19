@@ -24,7 +24,7 @@
   gap: 5px;
 }
 
-@media (min-width: 900px) {
+@media (min-width: 1000px) {
   .filter-bar {
     display: flex;
     align-items: center;

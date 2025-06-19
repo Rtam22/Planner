@@ -14,6 +14,7 @@
   right: 0;
   position: relative;
   height: 100%;
+  position: absolute;
 }
 
 .modal.middle {
@@ -69,6 +70,12 @@
   display: flex;
 }
 
+@media (min-width: 1000px) {
+  .modal.right {
+    width: 400px;
+  }
+}
+
 @media (min-width: 900px) {
   .modal {
     padding: 15px 20px 20px 15px;
@@ -80,6 +87,6 @@
     max-width: 95vw;
   }
   .modal.right {
-    width: 400px;
+    position: relative;
   }
 }

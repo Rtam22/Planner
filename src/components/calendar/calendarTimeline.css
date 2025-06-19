@@ -146,7 +146,7 @@
   color: rgb(255, 255, 255);
 }
 
-@media (min-width: 900px) {
+@media (min-width: 1000px) {
   .time-cells {
     min-width: 60px;
     max-width: 80px;
