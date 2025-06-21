@@ -38,7 +38,7 @@ export const initialTasks: Task[] = [
     tag: { label: "Fitness", color: "#22D3EE" },
     date: new Date("2025-06-22"),
     startTime: "06:30",
-    endTime: "07:30",
+    endTime: "08:30",
     repeat: "None",
   },
   {
