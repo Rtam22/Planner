@@ -22,6 +22,7 @@ function TaskView({ task, onCancel, onSave, onDelete }: TaskViewProps) {
   const [startTime, setStartTime] = useState<string>(
     task ? task.startTime : ""
   );
+  console.log(task?.endTime);
   const [endTime, setEndTime] = useState<string>(task?.endTime ?? "");
   const [date, setDate] = useState<Date>(task?.date ?? new Date());
   const [repeat, setRepeat] = useState<string>(task?.repeat ?? "");
