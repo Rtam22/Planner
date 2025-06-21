@@ -5,7 +5,7 @@ import {
   calculateStartingPosition,
 } from "../../utils/timelineUtils";
 import { convertTimeString24To12 } from "../../utils/dateUtils";
-import { useContext, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useTasksContext } from "../../context/taskContext";
 
 type calendarTaskCardProps = {
@@ -15,7 +15,8 @@ type calendarTaskCardProps = {
 };
 
 function TaskCard({ title, onClick, task }: calendarTaskCardProps) {
-  const { editTask } = useTasksContext();
+  const { tasks, editTask } = useTasksContext();
+
   const taskRef = useRef<HTMLDivElement | null>(null);
   const [startHours, startMinutes] = task.startTime.split(":").map(Number);
   const [endHours, endMinutes] = task.endTime.split(":").map(Number);
@@ -30,16 +31,18 @@ function TaskCard({ title, onClick, task }: calendarTaskCardProps) {
     endHours,
     endMinutes
   );
-
+  const [taskLength, setTaskLength] = useState<number>(cardLength);
   let isDragging = false;
   if (startPosition + cardLength > timelineHeight)
     cardLength = timelineHeight - startPosition;
 
-  const [taskLength, setTaskLength] = useState<number>(cardLength);
-
   function handleClick() {
     onClick(task.id);
   }
+
+  useEffect(() => {
+    setTaskLength(cardLength);
+  }, [task]);
 
   function setTimeFromLength(height: number) {
     const pixelsPerMinute = 70 / 60;
@@ -47,17 +50,18 @@ function TaskCard({ title, onClick, task }: calendarTaskCardProps) {
     const hours24 = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
 
-    const newEndTime = `${startHours + hours24}:${String(minutes).padStart(
+    const newEndTime = `${String(startHours + hours24).padStart(
       2,
       "0"
-    )}`;
+    )}:${String(minutes).padStart(2, "0")}`;
 
+    const newTask: Task = { ...task, endTime: newEndTime };
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => {
-      if (task.endTime !== newEndTime) {
-        editTask({ ...task, endTime: newEndTime });
-        setTaskLength(height);
-      }
+      // if (task.endTime !== newEndTime) {
+      editTask(newTask);
+      setTaskLength(height);
+      //}
     }, 1);
   }
 
