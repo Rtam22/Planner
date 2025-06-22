@@ -4,7 +4,11 @@ import {
   calculateLength,
   calculateStartingPosition,
 } from "../../utils/timelineUtils";
-import { convertTimeString24To12 } from "../../utils/dateUtils";
+import {
+  convertHHMMToMinutes,
+  convertTimeString24To12,
+  isSameDate,
+} from "../../utils/dateUtils";
 import { useContext, useEffect, useRef, useState } from "react";
 import { useTasksContext } from "../../context/taskContext";
 
@@ -16,7 +20,6 @@ type calendarTaskCardProps = {
 
 function TaskCard({ title, onClick, task }: calendarTaskCardProps) {
   const { tasks, editTask } = useTasksContext();
-
   const taskRef = useRef<HTMLDivElement | null>(null);
   const [startHours, startMinutes] = task.startTime.split(":").map(Number);
   const [endHours, endMinutes] = task.endTime.split(":").map(Number);
@@ -46,23 +49,51 @@ function TaskCard({ title, onClick, task }: calendarTaskCardProps) {
 
   function setTimeFromLength(height: number) {
     const pixelsPerMinute = 70 / 60;
-    const totalMinutes = Math.floor(height / pixelsPerMinute + startMinutes);
-    const hours24 = Math.floor(totalMinutes / 60);
-    const minutes = totalMinutes % 60;
+    const durationMinutes = Math.floor(height / pixelsPerMinute);
 
-    const newEndTime = `${String(startHours + hours24).padStart(
-      2,
-      "0"
-    )}:${String(minutes).padStart(2, "0")}`;
+    const startTotalMinutes = startHours * 60 + startMinutes;
+    const endTotalMinutes = startTotalMinutes + durationMinutes;
+
+    const hours24 = Math.floor(endTotalMinutes / 60);
+    const minutes = endTotalMinutes % 60;
+
+    const newEndTime = `${String(hours24).padStart(2, "0")}:${String(
+      minutes
+    ).padStart(2, "0")}`;
 
     const newTask: Task = { ...task, endTime: newEndTime };
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => {
-      // if (task.endTime !== newEndTime) {
-      editTask(newTask);
-      setTaskLength(height);
-      //}
+      if (task.endTime !== newEndTime) {
+        editTask(newTask);
+        setTaskLength(height);
+      }
     }, 1);
+  }
+
+  function checkNextTaskStartTime(task: Task) {
+    const tasksPastCurrent = tasks
+      .filter((storedTask) => {
+        if (
+          isSameDate(task.date, storedTask.date) &&
+          convertHHMMToMinutes(storedTask.startTime) >
+            convertHHMMToMinutes(task.endTime) - 1
+        )
+          return task;
+      })
+      .sort(
+        (a, b) =>
+          convertHHMMToMinutes(a.startTime) - convertHHMMToMinutes(b.startTime)
+      );
+
+    if (tasksPastCurrent.length > 0) {
+      const [startHours, startMinutes] =
+        tasksPastCurrent[0].startTime.split(":");
+      return calculateStartingPosition(
+        Number(startHours),
+        Number(startMinutes)
+      );
+    }
   }
 
   function onMouseDown(e: React.MouseEvent<HTMLButtonElement>) {
@@ -74,11 +105,24 @@ function TaskCard({ title, onClick, task }: calendarTaskCardProps) {
 
     function onMouseMove(event: MouseEvent) {
       if (!isDragging) return;
-
       const mouseCurrentY = event.pageY;
       const difference = mouseCurrentY - mousePrevY;
       const newLength = cardLength + difference;
-      if (taskRef.current && newLength > 5.83) {
+      const nextTaskTime = checkNextTaskStartTime(task);
+
+      if (
+        nextTaskTime !== undefined &&
+        startPosition + newLength > nextTaskTime
+      ) {
+        console.log("height");
+        setTimeFromLength(nextTaskTime - startPosition + 1);
+      } else if (startPosition + newLength >= timelineHeight) {
+        setTimeFromLength(timelineHeight - startPosition);
+      } else if (
+        taskRef.current &&
+        newLength > 5.83 &&
+        startPosition + newLength < timelineHeight
+      ) {
         setTimeFromLength(newLength);
       }
     }

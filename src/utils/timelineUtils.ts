@@ -18,6 +18,7 @@ export function calculateStartingPosition(
   startHours: number,
   startMinutes: number
 ) {
-  const startingPosition = startHours * 70 + startMinutes;
+  const pixelsPerMinute = 70 / 60;
+  const startingPosition = startHours * 70 + startMinutes * pixelsPerMinute;
   return startingPosition;
 }

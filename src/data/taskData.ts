@@ -43,12 +43,12 @@ export const initialTasks: Task[] = [
   },
   {
     id: uuidv4(),
-    title: "Design Review",
-    description: "Review new UI mockups for the dashboard.",
-    tag: { label: "Project", color: "#A89DFF" },
-    date: new Date("2025-06-24"),
-    startTime: "15:00",
-    endTime: "16:00",
+    title: "Online Workshop: TypeScript Essentials",
+    description: "Attend live webinar on practical TypeScript usage.",
+    tag: { label: "Learning", color: "#60A5FA" },
+    date: new Date("2025-06-22"),
+    startTime: "12:00",
+    endTime: "13:30",
     repeat: "None",
   },
   {
@@ -61,6 +61,17 @@ export const initialTasks: Task[] = [
     endTime: "18:30",
     repeat: "None",
   },
+  {
+    id: uuidv4(),
+    title: "Client Catch-up",
+    description: "Bi-weekly meeting to review project progress.",
+    tag: { label: "Meeting", color: "#10B981" },
+    date: new Date("2025-06-22"),
+    startTime: "10:00",
+    endTime: "11:00",
+    repeat: "Bi-weekly",
+  },
+
   {
     id: uuidv4(),
     title: "Client Catch-up",

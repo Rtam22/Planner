@@ -102,3 +102,8 @@ export function compareDateArrayToDate(
     ) ?? false
   );
 }
+
+export function convertHHMMToMinutes(time: string) {
+  const [hours, minutes] = time.split(":");
+  return Number(hours) * 60 + Number(minutes);
+}
