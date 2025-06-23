@@ -9,7 +9,13 @@ import {
   convertTimeString24To12,
   isSameDate,
 } from "../../utils/dateUtils";
-import { useContext, useEffect, useRef, useState } from "react";
+import {
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type HtmlHTMLAttributes,
+} from "react";
 import { useTasksContext } from "../../context/taskContext";
 
 type calendarTaskCardProps = {
@@ -36,10 +42,19 @@ function TaskCard({ title, onClick, task }: calendarTaskCardProps) {
   );
   const [taskLength, setTaskLength] = useState<number>(cardLength);
   let isDragging = false;
+  const hasDraggedRef = useRef(false);
   if (startPosition + cardLength > timelineHeight)
     cardLength = timelineHeight - startPosition;
+  let animationFrameId: number | null = null;
 
-  function handleClick() {
+  function handleClick(e: React.MouseEvent<HTMLDivElement>) {
+    console.log(hasDraggedRef.current);
+    if (hasDraggedRef.current) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+
     onClick(task.id);
   }
 
@@ -48,27 +63,30 @@ function TaskCard({ title, onClick, task }: calendarTaskCardProps) {
   }, [task]);
 
   function setTimeFromLength(height: number) {
-    const pixelsPerMinute = 70 / 60;
-    const durationMinutes = Math.floor(height / pixelsPerMinute);
+    if (animationFrameId) {
+      cancelAnimationFrame(animationFrameId);
+    }
 
-    const startTotalMinutes = startHours * 60 + startMinutes;
-    const endTotalMinutes = startTotalMinutes + durationMinutes;
+    animationFrameId = requestAnimationFrame(() => {
+      const pixelsPerMinute = 70 / 60;
+      const durationMinutes = Math.floor(height / pixelsPerMinute);
 
-    const hours24 = Math.floor(endTotalMinutes / 60);
-    const minutes = endTotalMinutes % 60;
+      const startTotalMinutes = startHours * 60 + startMinutes;
+      const endTotalMinutes = startTotalMinutes + durationMinutes;
 
-    const newEndTime = `${String(hours24).padStart(2, "0")}:${String(
-      minutes
-    ).padStart(2, "0")}`;
+      const hours24 = Math.floor(endTotalMinutes / 60);
+      const minutes = endTotalMinutes % 60;
 
-    const newTask: Task = { ...task, endTime: newEndTime };
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => {
-      if (task.endTime !== newEndTime) {
-        editTask(newTask);
-        setTaskLength(height);
-      }
-    }, 1);
+      const newEndTime = `${String(hours24).padStart(2, "0")}:${String(
+        minutes
+      ).padStart(2, "0")}`;
+
+      const newTask: Task = { ...task, endTime: newEndTime };
+
+      editTask(newTask);
+      setTaskLength(height);
+      animationFrameId = null;
+    });
   }
 
   function checkNextTaskStartTime(task: Task) {
@@ -99,22 +117,21 @@ function TaskCard({ title, onClick, task }: calendarTaskCardProps) {
   function onMouseDown(e: React.MouseEvent<HTMLButtonElement>) {
     e.stopPropagation();
     isDragging = true;
+    hasDraggedRef.current = false;
     const mousePrevY = e.pageY;
     window.addEventListener("mouseup", onMouseUp);
     window.addEventListener("mousemove", onMouseMove);
 
     function onMouseMove(event: MouseEvent) {
-      if (!isDragging) return;
       const mouseCurrentY = event.pageY;
       const difference = mouseCurrentY - mousePrevY;
       const newLength = cardLength + difference;
       const nextTaskTime = checkNextTaskStartTime(task);
-
+      if (newLength > 3) hasDraggedRef.current = true;
       if (
         nextTaskTime !== undefined &&
         startPosition + newLength > nextTaskTime
       ) {
-        console.log("height");
         setTimeFromLength(nextTaskTime - startPosition + 1);
       } else if (startPosition + newLength >= timelineHeight) {
         setTimeFromLength(timelineHeight - startPosition);
@@ -138,7 +155,7 @@ function TaskCard({ title, onClick, task }: calendarTaskCardProps) {
     <div
       ref={taskRef}
       data-testid="calendar-task-card"
-      onClick={handleClick}
+      onClick={(e) => handleClick(e)}
       className="calendar-task-card"
       style={{
         top: startPosition,
