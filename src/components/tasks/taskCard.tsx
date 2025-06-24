@@ -5,7 +5,7 @@ import {
   calculateStartingPosition,
 } from "../../utils/timelineUtils";
 import { convertTimeString24To12 } from "../../utils/dateUtils";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useTaskCardResizeAndMove } from "../../hooks/useTaskCardResizeAndMove";
 
 type calendarTaskCardProps = {
@@ -30,6 +30,7 @@ function TaskCard({ title, onClick, task }: calendarTaskCardProps) {
     endMinutes
   );
   const [taskLength, setTaskLength] = useState<number>(cardLength);
+  const [taskPosition, setTaskPosition] = useState<number>(startPosition);
   const hasDraggedRef = useRef(false);
   if (startPosition + cardLength > timelineHeight)
     cardLength = timelineHeight - startPosition;
@@ -40,6 +41,7 @@ function TaskCard({ title, onClick, task }: calendarTaskCardProps) {
     task,
     hasDraggedRef,
     setTaskLength,
+    setTaskPosition,
     cardLength,
     startPosition,
     taskRef,
@@ -57,18 +59,19 @@ function TaskCard({ title, onClick, task }: calendarTaskCardProps) {
 
   useEffect(() => {
     setTaskLength(cardLength);
+    setTaskPosition;
   }, [task]);
 
   return (
     <div
       ref={taskRef}
       data-testid="calendar-task-card"
-      onClick={(e) => {
-        handleClick(e);
+      onMouseDown={(e: React.MouseEvent<HTMLDivElement>) => {
+        onMouseDown(e, "move");
       }}
       className="calendar-task-card"
       style={{
-        top: startPosition,
+        top: taskPosition,
         height: `${taskLength}px`,
         backgroundColor: task.tag?.color,
       }}

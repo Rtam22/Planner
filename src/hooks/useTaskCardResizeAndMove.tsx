@@ -1,7 +1,10 @@
 import type { Task } from "../types/taskTypes";
 import { useTasksContext } from "../context/taskContext";
 import { convertHHMMToMinutes, isSameDate } from "../utils/dateUtils";
-import { calculateStartingPosition } from "../utils/timelineUtils";
+import {
+  calculateStartingPosition,
+  convertLengthToTime,
+} from "../utils/timelineUtils";
 import type { useRef } from "react";
 
 export type UseTaskCardResizeAndMoveProps = {
@@ -10,6 +13,7 @@ export type UseTaskCardResizeAndMoveProps = {
   task: Task;
   hasDraggedRef: ReturnType<typeof useRef<boolean>>;
   setTaskLength: React.Dispatch<React.SetStateAction<number>>;
+  setTaskPosition: React.Dispatch<React.SetStateAction<number>>;
   cardLength: number;
   startPosition: number;
   taskRef: ReturnType<typeof useRef<HTMLDivElement | null>>;
@@ -21,6 +25,7 @@ export function useTaskCardResizeAndMove({
   task,
   hasDraggedRef,
   setTaskLength,
+  setTaskPosition,
   cardLength,
   startPosition,
   taskRef,
@@ -31,7 +36,7 @@ export function useTaskCardResizeAndMove({
   const timelineHeight = 1680;
 
   function onMouseDown(
-    e: React.MouseEvent<HTMLButtonElement>,
+    e: React.MouseEvent<HTMLButtonElement> | React.MouseEvent<HTMLDivElement>,
     type: "resize" | "move"
   ) {
     e.stopPropagation();
@@ -46,6 +51,32 @@ export function useTaskCardResizeAndMove({
       const difference = mouseCurrentY - mousePrevY;
       const newLength = cardLength + difference;
       const nextTaskTime = checkNextTaskStartTime(task);
+
+      if (type === "move") {
+        const newStartTime = convertLengthToTime(
+          difference,
+          startHours,
+          startMinutes
+        );
+        const [hoursEnd, minutesEnd] = task.endTime.split(":");
+        const newEndTime = convertLengthToTime(
+          difference,
+          Number(hoursEnd),
+          Number(minutesEnd)
+        );
+
+        const newTask: Task = {
+          ...task,
+          startTime: newStartTime,
+          endTime: newEndTime,
+        };
+
+        animationFrameId = requestAnimationFrame(() => {
+          editTask(newTask);
+          setTaskPosition(Math.floor(startPosition) + difference);
+          animationFrameId = null;
+        });
+      }
 
       if (type === "resize") {
         if (newLength > 3) hasDraggedRef.current = true;
