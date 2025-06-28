@@ -36,14 +36,10 @@ function TaskCard({ title, onClick, task }: calendarTaskCardProps) {
     cardLength = timelineHeight - startPosition;
 
   const { onMouseDown } = useTaskCardResizeAndMove({
-    startHours,
-    startMinutes,
     task,
     hasDraggedRef,
     setTaskLength,
     setTaskPosition,
-    cardLength,
-    startPosition,
     taskRef,
   });
 

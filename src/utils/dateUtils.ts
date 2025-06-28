@@ -107,3 +107,18 @@ export function convertHHMMToMinutes(time: string) {
   const [hours, minutes] = time.split(":");
   return Number(hours) * 60 + Number(minutes);
 }
+
+export function convertMinutesToHHMM(totalMinutes: number): string {
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+
+  const paddedHours = String(hours).padStart(2, "0");
+  const paddedMinutes = String(minutes).padStart(2, "0");
+
+  return `${paddedHours}:${paddedMinutes}`;
+}
+
+export function convertLengthToMinutes(lengthPx: number): number {
+  const pixelsPerMinute = 70 / 60;
+  return Math.round(lengthPx / pixelsPerMinute);
+}

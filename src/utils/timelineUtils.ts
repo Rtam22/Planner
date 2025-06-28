@@ -1,3 +1,5 @@
+import type { Task } from "../types/taskTypes";
+
 export function calculateLength(
   startHours: number,
   startMinutes: number,
@@ -41,4 +43,10 @@ export function convertLengthToTime(
   return `${String(totalHours).padStart(2, "0")}:${String(
     normalizedMinutes
   ).padStart(2, "0")}`;
+}
+
+export function getHoursAndMinutes(task: Task) {
+  const [startHours, startMinutes] = task.startTime.split(":").map(Number);
+  const [endHours, endMinutes] = task.endTime.split(":").map(Number);
+  return { startHours, startMinutes, endHours, endMinutes };
 }
