@@ -10,6 +10,7 @@ import {
   calculateLength,
   calculateStartingPosition,
   convertLengthToTime,
+  convertPixelsToMinutes,
   getHoursAndMinutes,
 } from "../utils/timelineUtils";
 import { useEffect, useRef } from "react";
@@ -30,6 +31,8 @@ export function useTaskCardResizeAndMove({
   setTaskPosition,
   taskRef,
 }: UseTaskCardResizeAndMoveProps) {
+  const TIMELINE_START = "00:00";
+  const TIMELINE_END = "24:00";
   const { tasks, editTask } = useTasksContext();
   let currentTaskRef = useRef(task);
   let isDragging = false;
@@ -78,11 +81,6 @@ export function useTaskCardResizeAndMove({
       currentTask = currentTaskRef.current;
       const mouseCurrentY = event.pageY;
       difference = mouseCurrentY - mousePrevY + taskHopDifference;
-      /*       const taskMinutes =
-        convertHHMMToMinutes(currentTask.endTime) -
-        convertHHMMToMinutes(currentTask.startTime);
-        
- */
 
       const nextTaskTime = checkNextTaskStartTime(currentTask);
       let cardLength = calculateLength(
@@ -94,31 +92,28 @@ export function useTaskCardResizeAndMove({
       const newLength = cardLength + difference;
 
       if (type === "move") {
-        const { hasCollided, collidedStart, collidedEnd, direction } =
-          collisionCheck(selectedIndex, sortedTasks, difference);
-        // console.log(collidedTask?.endTime);
+        const { hasCollided, setStart, setEnd, direction } = collisionCheck(
+          selectedIndex,
+          sortedTasks,
+          difference
+        );
+
         if (hasCollided) {
           const newTime = {
             startTime:
               direction === "next"
-                ? getSnappedTimesFromCollision(
-                    currentTask,
-                    collidedStart,
-                    "next"
-                  )
-                : collidedEnd,
+                ? getSnappedTimesFromCollision(currentTask, setStart, "next")
+                : setEnd,
             endTime:
               direction === "prev"
-                ? getSnappedTimesFromCollision(currentTask, collidedEnd, "prev")
-                : collidedStart,
+                ? getSnappedTimesFromCollision(currentTask, setEnd, "prev")
+                : setStart,
           };
 
           handleMove(newTime.startTime, newTime.endTime);
         } else {
           handleMove();
         }
-
-        //  collisionCheck(currentTask, difference, cardLength);
       }
 
       if (type === "resize") {
@@ -183,46 +178,33 @@ export function useTaskCardResizeAndMove({
       sortedTasks: Task[],
       difference: number
     ) {
-      const endOfTimeLine = {
-        start: "00:00",
-        end: "24:00",
-      };
-      const selectedTaskEndTime =
-        convertHHMMToMinutes(sortedTasks[selectedTaskIndex].endTime) +
-        difference;
-      const selectedTaskStartTime =
-        convertHHMMToMinutes(sortedTasks[selectedTaskIndex].startTime) +
-        difference;
-      const nextTaskStartTime = convertHHMMToMinutes(
-        sortedTasks[selectedTaskIndex + 1]
-          ? sortedTasks[selectedTaskIndex + 1].startTime
-          : "24:00"
+      const currentTask = sortedTasks[selectedTaskIndex];
+      const nextTask = sortedTasks[selectedTaskIndex + 1];
+      const prevTask = sortedTasks[selectedTaskIndex - 1];
+      const differenceMinutes = convertPixelsToMinutes(difference);
+      const currentEnd =
+        convertHHMMToMinutes(currentTask.endTime) + differenceMinutes;
+      const currentStart =
+        convertHHMMToMinutes(currentTask.startTime) + differenceMinutes;
+      const nextStart = convertHHMMToMinutes(
+        nextTask ? nextTask.startTime : TIMELINE_END
       );
-      const prevTaskEndTime = convertHHMMToMinutes(
-        sortedTasks[selectedIndex - 1]
-          ? sortedTasks[selectedIndex - 1].endTime
-          : "00:00"
+      const prevEnd = convertHHMMToMinutes(
+        prevTask ? prevTask.endTime : TIMELINE_START
       );
 
-      console.log(selectedTaskEndTime + " " + nextTaskStartTime);
-
-      if (selectedTaskEndTime > nextTaskStartTime) {
+      if (currentEnd > nextStart) {
         return {
           hasCollided: true,
-          collidedStart:
-            sortedTasks[selectedTaskIndex + 1]?.startTime ?? endOfTimeLine.end,
-          collidedEnd:
-            sortedTasks[selectedTaskIndex + 1]?.endTime ?? endOfTimeLine.end,
+          setStart: nextTask?.startTime ?? TIMELINE_END,
+          setEnd: nextTask?.endTime ?? TIMELINE_END,
           direction: "next",
         };
-      } else if (selectedTaskStartTime < prevTaskEndTime) {
+      } else if (currentStart < prevEnd) {
         return {
           hasCollided: true,
-          collidedStart:
-            sortedTasks[selectedTaskIndex - 1]?.startTime ??
-            endOfTimeLine.start,
-          collidedEnd:
-            sortedTasks[selectedTaskIndex - 1]?.endTime ?? endOfTimeLine.start,
+          setStart: prevTask?.startTime ?? TIMELINE_START,
+          setEnd: prevTask?.endTime ?? TIMELINE_START,
           direction: "prev",
         };
       }
@@ -232,29 +214,25 @@ export function useTaskCardResizeAndMove({
     }
 
     function handleMove(setStartTime?: string, setEndTime?: string) {
-      let newStartTime;
-      let newEndTime;
+      let startTime;
+      let endTime;
       let position;
 
       if (setStartTime && setEndTime) {
-        newStartTime = setStartTime;
-        newEndTime = setEndTime;
-        const [startHours, startMinutes] = newStartTime.split(":").map(Number);
+        startTime = setStartTime;
+        endTime = setEndTime;
+        const [startHours, startMinutes] = startTime.split(":").map(Number);
         position = calculateStartingPosition(startHours, startMinutes);
       } else {
-        newStartTime = convertLengthToTime(
-          difference,
-          startHours,
-          startMinutes
-        );
+        startTime = convertLengthToTime(difference, startHours, startMinutes);
         position = Math.floor(startPosition) + difference;
-        newEndTime = convertLengthToTime(difference, hoursEnd, minutesEnd);
+        endTime = convertLengthToTime(difference, hoursEnd, minutesEnd);
       }
 
       const newTask: Task = {
         ...currentTask,
-        startTime: newStartTime,
-        endTime: newEndTime,
+        startTime: startTime,
+        endTime: endTime,
       };
 
       animationFrameId = requestAnimationFrame(() => {
@@ -264,73 +242,13 @@ export function useTaskCardResizeAndMove({
         animationFrameId = null;
       });
     }
-    /* 
-    function collisionCheck(
-      currentTask: Task,
-      difference: number,
-      cardLength: number
-    ) {
-      //if (taskHopDifference > 100) return;
-      const prevTaskValues = task;
-      const differenceMinutes = convertLengthToMinutes(difference);
-      const selectedTaskStartTime =
-        convertHHMMToMinutes(prevTaskValues.startTime) + differenceMinutes;
-      const selectedTaskEndTime =
-        convertHHMMToMinutes(prevTaskValues.endTime) + differenceMinutes;
-      const selectedTaskTotalTime = selectedTaskEndTime - selectedTaskStartTime;
 
-      const selectedIndex = sortedTasks.findIndex(
-        (t) => t.id === currentTask.id
-      );
+    function handleTaskHop(
+      direction: "next" | "prev",
+      collidedTask: Task,
+      currentTask: Task
+    ) {}
 
-      // for (let i = selectedIndex + 1; i < sortedTasks.length; i++) {
-      const taskStartTime = convertHHMMToMinutes(
-        sortedTasks[selectedIndex + 1].startTime
-      );
-      const taskEndTime = convertHHMMToMinutes(
-        sortedTasks[selectedIndex + 1].endTime
-      );
-      //  if (taskHopDifference > 100) break;
-      console.log(selectedTaskEndTime + " " + taskStartTime);
-      if (
-        selectedTaskStartTime > taskStartTime &&
-        selectedTaskStartTime < taskEndTime
-      ) {
-        const spaceBetweenTasks = sortedTasks[selectedIndex + 2]
-          ? convertHHMMToMinutes(sortedTasks[selectedIndex + 2].startTime) -
-            convertHHMMToMinutes(sortedTasks[selectedIndex + 1].endTime)
-          : convertHHMMToMinutes("24:00") -
-            convertHHMMToMinutes(sortedTasks[selectedIndex + 1].endTime);
-        if (spaceBetweenTasks > selectedTaskTotalTime) {
-          const newEndTime = convertMinutesToHHMM(
-            convertHHMMToMinutes(sortedTasks[selectedIndex + 1].endTime) +
-              selectedTaskTotalTime
-          );
-          const updatedTask = {
-            ...currentTask,
-            startingTime: sortedTasks[selectedIndex + 1].endTime,
-            endTime: newEndTime,
-          };
-          const [startH, startM] =
-            sortedTasks[selectedIndex + 1].endTime.split(":");
-          const taskTimes = getHoursAndMinutes(sortedTasks[selectedIndex + 1]);
-          taskHopDifference =
-            calculateLength(
-              taskTimes.startHours,
-              taskTimes.startMinutes,
-              taskTimes.endHours,
-              taskTimes.endMinutes
-            ) + cardLength;
-          currentTask = updatedTask;
-          editTask(updatedTask);
-          setTaskPosition(
-            calculateStartingPosition(Number(startH), Number(startM))
-          );
-        }
-      }
-      //  }
-    }
- */
     function setTimeFromLength(
       height: number,
       startHours: number,

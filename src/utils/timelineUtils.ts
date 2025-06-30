@@ -50,3 +50,7 @@ export function getHoursAndMinutes(task: Task) {
   const [endHours, endMinutes] = task.endTime.split(":").map(Number);
   return { startHours, startMinutes, endHours, endMinutes };
 }
+
+export function convertPixelsToMinutes(pixels: number) {
+  return Math.round((pixels * 60) / 70);
+}
