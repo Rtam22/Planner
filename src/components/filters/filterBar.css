@@ -5,7 +5,7 @@
   flex-shrink: 0;
   border-right: 1px solid rgb(185, 185, 185);
   flex-direction: column;
-  padding: 0 10px;
+  padding: 25px 10px;
   gap: 35px;
 }
 
