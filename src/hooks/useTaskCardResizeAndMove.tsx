@@ -11,7 +11,7 @@ import {
   convertLengthToTime,
   convertPixelsToMinutes,
 } from "../utils/timelineUtils";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getTimeDifferenceInMinutes } from "../utils/timeUtils";
 import throttle from "lodash.throttle";
 
@@ -32,13 +32,13 @@ export function useTaskCardResizeAndMove({
 }: UseTaskCardResizeAndMoveProps) {
   const TIMELINE_START = "00:00";
   const TIMELINE_END = "24:00";
-  const { tasks, editTask } = useTasksContext();
+  const { tasks, editTask, handleSetPreviewTask } = useTasksContext();
   let currentTaskRef = useRef(task);
   let currentTasksRef = useRef(tasks);
   let isDragging = false;
   let animationFrameId: number | null = null;
   const timelineHeight = 1680;
-
+  const buffer = 10;
   function getSortedTasks() {
     return [...currentTasksRef.current]
       .sort((t1, t2) => {
@@ -74,7 +74,7 @@ export function useTaskCardResizeAndMove({
       initialStartHours,
       initialStartMinutes
     );
-    const findSpaceBetweenTasksThrottled = throttle(findSpaceBetweenTasks, 50);
+    const findSpaceBetweenTasksThrottled = throttle(findSpaceBetweenTasks, 0);
     window.addEventListener("mouseup", onMouseUp);
     window.addEventListener("mousemove", onMouseMove);
     let currentTask = currentTaskRef.current;
@@ -86,6 +86,7 @@ export function useTaskCardResizeAndMove({
     function onMouseMove(event: MouseEvent) {
       const sortedTasks = getSortedTasks();
       currentTask = currentTaskRef.current;
+      const draggedEl = taskRef.current;
       const mouseCurrentY = event.pageY;
       difference = mouseCurrentY - mousePrevY;
       const selectedIndex = sortedTasks.findIndex((t) => t.id === task.id);
@@ -112,6 +113,15 @@ export function useTaskCardResizeAndMove({
         );
 
         if (hasCollided) {
+          let elementUnderMouse;
+          if (draggedEl) {
+            draggedEl.style.pointerEvents = "none";
+            elementUnderMouse = document.elementFromPoint(
+              event.clientX,
+              event.clientY
+            );
+            draggedEl.style.pointerEvents = "auto";
+          }
           const newTime = {
             startTime:
               direction === "next"
@@ -124,43 +134,41 @@ export function useTaskCardResizeAndMove({
           };
 
           if (!newTime?.startTime || !newTime?.endTime) return;
-          const snappedStartMinutes = convertHHMMToMinutes(newTime?.startTime);
-          const currentDraggedStart = convertHHMMToMinutes(mouseStartTime);
 
-          const taskBlocked =
-            (direction === "next" &&
-              currentDraggedStart > snappedStartMinutes) ||
-            (direction === "prev" && currentDraggedStart < snappedStartMinutes);
-
-          if (taskBlocked) {
-            handleMove(currentTask, newTime.startTime, newTime.endTime);
-          } else {
-            handleMove(currentTask);
-          }
-
+          handleMove(currentTask, newTime.startTime, newTime.endTime);
           const newTimes = findSpaceBetweenTasksThrottled(
             direction as "next" | "prev",
             currentTask,
             cardLength
           );
+          if (newTimes && elementUnderMouse?.closest(".calendar-task-card")) {
+            handleSetPreviewTask({
+              ...currentTask,
+              startTime: newTimes.startTime,
+              endTime: newTimes.endTime,
+            });
+          }
 
           if (
             direction === "next" &&
             newTimes?.startTime &&
             convertHHMMToMinutes(mouseStartTime) >
-              convertHHMMToMinutes(newTimes?.startTime)
+              convertHHMMToMinutes(newTimes?.startTime) - buffer
           ) {
             handleMove(currentTask, newTimes?.startTime, newTimes?.endTime);
+            handleSetPreviewTask(null);
           } else if (
             direction === "prev" &&
             newTimes?.startTime &&
             convertHHMMToMinutes(mouseStartTime) <
-              convertHHMMToMinutes(newTimes?.startTime)
+              convertHHMMToMinutes(newTimes?.startTime) + buffer
           ) {
             handleMove(currentTask, newTimes?.startTime, newTimes?.endTime);
+            handleSetPreviewTask(null);
           }
         } else {
           handleMove(currentTask);
+          handleSetPreviewTask(null);
         }
       }
 
@@ -185,6 +193,7 @@ export function useTaskCardResizeAndMove({
 
     function onMouseUp() {
       isDragging = false;
+      handleSetPreviewTask(null);
       setTimeout(() => {
         hasDraggedRef.current = false;
       }, 1);
@@ -233,7 +242,6 @@ export function useTaskCardResizeAndMove({
         prevTask ? prevTask.endTime : TIMELINE_START
       );
 
-      console.log(convertHHMMToMinutes(task.endTime));
       if (currentEnd > nextStart) {
         return {
           hasCollided: true,
@@ -362,7 +370,7 @@ export function useTaskCardResizeAndMove({
           direction === "next" ? taskB : taskA.startTime
         );
 
-        if (spaceBetweenTasks > currentTaskHeight) {
+        if (spaceBetweenTasks >= currentTaskHeight) {
           return calculateNewTimes(
             direction,
             currentTask,

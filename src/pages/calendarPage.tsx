@@ -21,8 +21,15 @@ function CalendarPage() {
   const [showModal, setShowModal] = useState<"none" | "view" | "create">(
     "none"
   );
-  const { tasks, tags, editTask, deleteTask } = useTasksContext();
-  const [previewTask, setPreviewTask] = useState<PreviewTask | null>(null);
+  const {
+    tasks,
+    tags,
+    previewTask,
+    editTask,
+    deleteTask,
+    handleSetPreviewTask,
+  } = useTasksContext();
+  // const [previewTask, setPreviewTask] = useState<PreviewTask | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [filteredTasks, setfilteredTasks] = useState<Task[]>(tasks);
   const dates: CalendarDayProps[] = getDayAndDayNumber(selectedDate);
@@ -36,18 +43,14 @@ function CalendarPage() {
     setShowModal(type);
   }
 
-  function handleSetPreview(task: PreviewTask) {
-    setPreviewTask(task ?? null);
+  function handleSetPreview(task: Task | null) {
+    handleSetPreviewTask(task);
   }
 
   function handleTaskClick(taskId: string) {
     const findTask = tasks.find((task) => taskId === task.id);
     setSelectedTask(findTask ?? null);
     setShowModal("view");
-  }
-
-  function clearTaskPreview() {
-    setPreviewTask(null);
   }
 
   function handleFilterTasks(filters: FilterProps) {
@@ -110,7 +113,6 @@ function CalendarPage() {
               <TaskForm
                 handleSelectDate={handleSelectDate}
                 handleSetPreview={handleSetPreview}
-                clearTaskPreview={clearTaskPreview}
               />
             </Modal>
           )}

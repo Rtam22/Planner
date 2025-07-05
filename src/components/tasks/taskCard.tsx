@@ -3,19 +3,22 @@ import "./taskCard.css";
 import {
   calculateLength,
   calculateStartingPosition,
+  darkenColor,
 } from "../../utils/timelineUtils";
 import { convertTimeString24To12 } from "../../utils/dateUtils";
 import React, { useEffect, useRef, useState } from "react";
 import { useTaskCardResizeAndMove } from "../../hooks/useTaskCardResizeAndMove";
+import Button from "../common/button";
 
 type calendarTaskCardProps = {
   title: string;
-  onClick: (taskId: string) => void;
+  onClick?: (taskId: string) => void;
   task: Task;
 };
 
 function TaskCard({ title, onClick, task }: calendarTaskCardProps) {
   // const { tasks, editTask } = useTasksContext();
+
   const taskRef = useRef<HTMLDivElement | null>(null);
   const [startHours, startMinutes] = task.startTime.split(":").map(Number);
   const [endHours, endMinutes] = task.endTime.split(":").map(Number);
@@ -44,6 +47,7 @@ function TaskCard({ title, onClick, task }: calendarTaskCardProps) {
   });
 
   function handleClick(e: React.MouseEvent<HTMLDivElement>) {
+    if (!onClick) return;
     if (hasDraggedRef.current) {
       e.preventDefault();
       e.stopPropagation();
@@ -52,6 +56,8 @@ function TaskCard({ title, onClick, task }: calendarTaskCardProps) {
 
     onClick(task.id);
   }
+
+  function hasd() {}
 
   useEffect(() => {
     setTaskLength(cardLength);
@@ -72,15 +78,22 @@ function TaskCard({ title, onClick, task }: calendarTaskCardProps) {
         backgroundColor: task.tag?.color,
       }}
     >
-      <h3>{title}</h3>
-      <p>{`${startTime} - ${endTime}`}</p>
-      <button
+      <Button color={task.tag?.color} className="btn-move-left" onClick={hasd}>
+        ‹
+      </Button>
+      <Button color={task.tag?.color} className="btn-move-right" onClick={hasd}>
+        ›
+      </Button>
+      <div className="container">
+        <h3>{title}</h3>
+        <p>{`${startTime} - ${endTime}`}</p>
+      </div>
+      <Button
         className="btn-resize"
-        onMouseDown={(e: React.MouseEvent<HTMLButtonElement>) =>
-          onMouseDown(e, "resize")
-        }
+        color={darkenColor(task.tag?.color ?? "#ccc", 20)}
+        onMouseDown={(e) => onMouseDown(e, "resize")}
         onClick={(e) => e.stopPropagation()}
-      ></button>
+      ></Button>
     </div>
   );
 }

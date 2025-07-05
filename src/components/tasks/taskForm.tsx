@@ -5,12 +5,11 @@ import { useTasksContext } from "../../context/taskContext";
 import { v4 as uuidv4 } from "uuid";
 import Select from "react-select";
 import type { StylesConfig } from "react-select";
-import type { PreviewTask } from "../../types/taskTypes";
+import type { Task } from "../../types/taskTypes";
 
 type createTaskModal = {
   handleSelectDate: (newDate: Date) => void;
-  handleSetPreview: (task: PreviewTask) => void;
-  clearTaskPreview: () => void;
+  handleSetPreview: (task: Task | null) => void;
 };
 
 type TagOption = {
@@ -57,7 +56,6 @@ const customStyles: StylesConfig<TagOption, false> = {
 function CreateTaskModal({
   handleSelectDate,
   handleSetPreview,
-  clearTaskPreview,
 }: createTaskModal) {
   const [title, setTitle] = useState<string>("");
   const [description, setDscription] = useState<string>("");
@@ -89,7 +87,7 @@ function CreateTaskModal({
       endTime: endTime,
       repeat: repeat,
     };
-    clearTaskPreview();
+    handleSetPreview(null);
     addTask(newTask);
   }
 
@@ -103,11 +101,19 @@ function CreateTaskModal({
     }
     const [year, month, day] = date.split("-");
     const previewDate = new Date(Number(year), Number(month) - 1, Number(day));
+    const getTag = tags.find(
+      (t) => t.label.toLowerCase() === tag?.value.toLowerCase()
+    );
     handleSelectDate(previewDate);
     const previewTask = {
+      id: uuidv4(),
+      title: title,
+      description: description,
+      tag: getTag,
       date: new Date(Number(year), Number(month) - 1, Number(day)),
       startTime: startTime,
       endTime: endTime,
+      repeat: repeat,
     };
     handleSetPreview(previewTask);
   }

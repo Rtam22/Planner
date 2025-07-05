@@ -54,3 +54,20 @@ export function getHoursAndMinutes(task: Task) {
 export function convertPixelsToMinutes(pixels: number) {
   return Math.round((pixels * 60) / 70);
 }
+
+export function darkenColor(hex: string, amount: number = 30): string {
+  let color = hex.replace("#", "");
+  if (color.length === 3) {
+    color = color
+      .split("")
+      .map((c) => c + c)
+      .join("");
+  }
+
+  const num = parseInt(color, 16);
+  const r = Math.max(0, (num >> 16) - amount);
+  const g = Math.max(0, ((num >> 8) & 0x00ff) - amount);
+  const b = Math.max(0, (num & 0x0000ff) - amount);
+
+  return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+}
