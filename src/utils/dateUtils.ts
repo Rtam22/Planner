@@ -73,6 +73,19 @@ export function setMonthOfDate(
   return newDate;
 }
 
+export function setDayOfDate(
+  date: Date,
+  type: "prev" | "next",
+  numberOfDays: number
+) {
+  let newDate = new Date(date);
+  type === "prev"
+    ? newDate.setDate(newDate.getDate() - numberOfDays)
+    : newDate.setDate(newDate.getDate() + numberOfDays);
+
+  return newDate;
+}
+
 export function getSecondaryDates(
   date: Date,
   type: "forwards" | "backwards",
@@ -121,4 +134,9 @@ export function convertMinutesToHHMM(totalMinutes: number): string {
 export function convertLengthToMinutes(lengthPx: number): number {
   const pixelsPerMinute = 70 / 60;
   return Math.round(lengthPx / pixelsPerMinute);
+}
+
+export function convertMinutesToLength(minutes: number): number {
+  const pixelsPerMinute = 70 / 60;
+  return Math.round(Math.abs(minutes) * pixelsPerMinute);
 }

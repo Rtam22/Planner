@@ -1,9 +1,9 @@
 import type { Task } from "../../types/taskTypes";
 import "./taskCard.css";
 import {
+  adjustColor,
   calculateLength,
   calculateStartingPosition,
-  darkenColor,
 } from "../../utils/timelineUtils";
 import { convertTimeString24To12 } from "../../utils/dateUtils";
 import React, { useEffect, useRef, useState } from "react";
@@ -38,7 +38,7 @@ function TaskCard({ title, onClick, task }: calendarTaskCardProps) {
   if (startPosition + cardLength > timelineHeight)
     cardLength = timelineHeight - startPosition;
 
-  const { onMouseDown } = useTaskCardResizeAndMove({
+  const { onMouseDown, handleChangeDay } = useTaskCardResizeAndMove({
     task,
     hasDraggedRef,
     setTaskLength,
@@ -78,10 +78,18 @@ function TaskCard({ title, onClick, task }: calendarTaskCardProps) {
         backgroundColor: task.tag?.color,
       }}
     >
-      <Button color={task.tag?.color} className="btn-move-left" onClick={hasd}>
+      <Button
+        color={task.tag?.color}
+        className="btn-move-left"
+        onClick={() => handleChangeDay("prev")}
+      >
         ‹
       </Button>
-      <Button color={task.tag?.color} className="btn-move-right" onClick={hasd}>
+      <Button
+        color={task.tag?.color}
+        className="btn-move-right"
+        onClick={() => handleChangeDay("next")}
+      >
         ›
       </Button>
       <div className="container">
@@ -90,7 +98,7 @@ function TaskCard({ title, onClick, task }: calendarTaskCardProps) {
       </div>
       <Button
         className="btn-resize"
-        color={darkenColor(task.tag?.color ?? "#ccc", 20)}
+        color={adjustColor(task.tag?.color ?? "#ccc", -20)}
         onMouseDown={(e) => onMouseDown(e, "resize")}
         onClick={(e) => e.stopPropagation()}
       ></Button>

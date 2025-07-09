@@ -24,7 +24,7 @@ function Search({ onSearch, useButton = true }: SearchProps) {
     }
   }
   return (
-    <form className="search-container">
+    <form className="search-container" onSubmit={handleSearch}>
       <input
         className="search-bar"
         type="search"

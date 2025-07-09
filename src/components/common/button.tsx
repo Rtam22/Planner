@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "./button.css";
-import { darkenColor } from "../../utils/timelineUtils";
+import { adjustColor } from "../../utils/timelineUtils";
 
 type ButtonProps = {
   children?: string | React.ReactNode;
@@ -26,7 +26,7 @@ function Button({
       style={{
         backgroundColor: isHovered
           ? color
-            ? darkenColor(color, 20)
+            ? adjustColor(color, -20)
             : color
           : color,
       }}
