@@ -1,14 +1,16 @@
 import { createContext, useContext, useState } from "react";
-import type { Task, Tag } from "../components/types/taskTypes";
+import type { Task, Tag } from "../types/taskTypes";
 import { initialTags, initialTasks } from "../data/taskData";
 
 type TasksContextType = {
   tasks: Task[];
   tags: Tag[];
+  previewTask: Task | null;
   addTask: (selectedTask: Task) => void;
   deleteTask: (selectedTask: Task) => void;
   editTask: (selectedTask: Task) => void;
   addTag: () => void;
+  handleSetPreviewTask: (task: Task | null) => void;
 };
 
 const TasksContext = createContext<TasksContextType | null>(null);
@@ -16,7 +18,7 @@ const TasksContext = createContext<TasksContextType | null>(null);
 export function TasksProvider({ children }: { children: React.ReactNode }) {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [tags, setTags] = useState<Tag[]>(initialTags);
-
+  const [previewTask, setPreviewTask] = useState<Task | null>(null);
   function addTask(selectedTask: Task) {
     setTasks([...tasks, selectedTask]);
   }
@@ -33,13 +35,26 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
     );
   }
 
+  function handleSetPreviewTask(task: Task | null) {
+    setPreviewTask(task);
+  }
+
   function addTag() {
     setTags([...tags]);
   }
 
   return (
     <TasksContext.Provider
-      value={{ tasks, tags, addTask, deleteTask, editTask, addTag }}
+      value={{
+        tasks,
+        tags,
+        previewTask,
+        addTask,
+        deleteTask,
+        editTask,
+        addTag,
+        handleSetPreviewTask,
+      }}
     >
       {children}
     </TasksContext.Provider>

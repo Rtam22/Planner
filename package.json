@@ -12,6 +12,8 @@
   "dependencies": {
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/react-fontawesome": "^0.2.2",
+    "lodash": "^4.17.21",
+    "lodash.throttle": "^4.1.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-select": "^5.10.1",
@@ -23,6 +25,7 @@
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
     "@types/jest": "^29.5.14",
+    "@types/lodash.throttle": "^4.1.9",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.2",
     "@vitejs/plugin-react-swc": "^3.9.0",

@@ -77,8 +77,9 @@ select {
 
 textarea {
   height: 150px;
-  padding: 0 5px;
+  padding: 5px 5px;
   resize: none;
+  border-radius: 3px;
 }
 
 .wrapper {

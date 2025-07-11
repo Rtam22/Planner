@@ -6,3 +6,11 @@
   position: relative;
   overflow: hidden;
 }
+
+.Scroller-wrapper:hover {
+  cursor: grab;
+}
+
+.Scroller-wrapper:active {
+  cursor: grabbing;
+}

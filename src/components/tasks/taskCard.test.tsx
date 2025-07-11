@@ -1,11 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import { expect, test, vi } from "vitest";
-import CalendarTaskCard from "./calendarTaskCard";
+import CalendarTaskCard from "./taskCard";
 import {
   calculateLength,
   calculateStartingPosition,
 } from "../../utils/timelineUtils";
 import userEvent from "@testing-library/user-event";
+import { TasksProvider } from "../../context/taskContext";
 
 function renderComponent() {
   const mockFn = vi.fn();
@@ -23,7 +24,11 @@ function renderComponent() {
   const [endHours, endMinutes] = task.endTime.split(":").map(Number);
   const startingTime = 420;
 
-  render(<CalendarTaskCard title="Morning Run" onClick={mockFn} task={task} />);
+  render(
+    <TasksProvider>
+      <CalendarTaskCard title="Morning Run" onClick={mockFn} task={task} />{" "}
+    </TasksProvider>
+  );
 
   return {
     task,

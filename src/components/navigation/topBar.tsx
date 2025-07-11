@@ -1,22 +1,23 @@
 import "./topBar.css";
-import Button from "./button";
-import { getMonthName, addSixToDays } from "../utils/dateUtils";
-import type { modalType } from "../components/types/modalTypes";
+import Button from "../common/button";
+import { getMonthName, addSixToDays } from "../../utils/dateUtils";
+import type { modalType } from "../../types/modalTypes";
 
 type filterBarProps = {
   selectedDate: Date;
   handleSelectDate: (newDate: Date) => void;
   handleShowModal: (type: modalType) => void;
+  showModal: "none" | "view" | "create";
 };
 
 function TopUtilityBar({
   selectedDate,
   handleSelectDate,
   handleShowModal,
+  showModal,
 }: filterBarProps) {
   function handleDateChange(e: React.MouseEvent<HTMLDivElement>) {
     const button = e.currentTarget.textContent;
-    console.log(button);
     let newDate = new Date(selectedDate);
     if (button === "‹") {
       newDate.setDate(selectedDate.getDate() - 7);
@@ -44,7 +45,12 @@ function TopUtilityBar({
         </Button>
       </div>
       <div className="button-container">
-        <Button className="btn-main" onClick={() => handleShowModal("create")}>
+        <Button
+          className="btn-main"
+          onClick={() =>
+            handleShowModal(showModal === "create" ? "none" : "create")
+          }
+        >
           Create Task
         </Button>
         <Button className="btn-plain">To Plan</Button>

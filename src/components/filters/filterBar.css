@@ -1,0 +1,32 @@
+.filter-bar {
+  display: none;
+  min-width: 300px;
+  height: 100vh;
+  flex-shrink: 0;
+  border-right: 1px solid rgb(185, 185, 185);
+  flex-direction: column;
+  padding: 25px 10px;
+  gap: 35px;
+}
+
+.filter-bar h4 {
+  width: 100%;
+  color: rgb(95, 94, 94);
+  font-weight: 500;
+  margin-bottom: 10px;
+  padding: 0 17px;
+}
+
+.filter-section {
+  display: flex;
+  flex-direction: column;
+  width: 299px;
+  gap: 5px;
+}
+
+@media (min-width: 1000px) {
+  .filter-bar {
+    display: flex;
+    align-items: center;
+  }
+}

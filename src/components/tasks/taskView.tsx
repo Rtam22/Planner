@@ -1,9 +1,9 @@
 import React, { useRef, useState } from "react";
 import "./taskView.css";
-import type { Task } from "./types/taskTypes";
-import Button from "./button";
-import type { modalType } from "./types/modalTypes";
-import Calendar from "./calendar/calendar";
+import type { Task } from "../../types/taskTypes";
+import Button from "../common/button";
+import type { modalType } from "../../types/modalTypes";
+import Calendar from "../calendar/calendar";
 
 type TaskViewProps = {
   task: Task | null;
@@ -22,6 +22,7 @@ function TaskView({ task, onCancel, onSave, onDelete }: TaskViewProps) {
   const [startTime, setStartTime] = useState<string>(
     task ? task.startTime : ""
   );
+  console.log(task?.endTime);
   const [endTime, setEndTime] = useState<string>(task?.endTime ?? "");
   const [date, setDate] = useState<Date>(task?.date ?? new Date());
   const [repeat, setRepeat] = useState<string>(task?.repeat ?? "");
@@ -42,8 +43,6 @@ function TaskView({ task, onCancel, onSave, onDelete }: TaskViewProps) {
     onSave(updatedTask);
     onCancel("none");
   }
-
-  console.log(task?.repeat);
 
   function handleDelete() {
     if (!task) return;

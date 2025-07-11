@@ -1,6 +1,6 @@
 import { useEffect, useState, type JSX } from "react";
 import "./calendar.css";
-import Button from "../button";
+import Button from "../common/button";
 import {
   getMonthName,
   daysInMonth,
@@ -72,6 +72,7 @@ function Calendar({
     let cells: JSX.Element[] = [];
 
     Array.from({ length: preffix }, (_, i) => {
+      const date = i + 1;
       cells.push(
         <div
           key={"preffix" + i}
@@ -93,11 +94,18 @@ function Calendar({
               highlightSecondary,
               new Date(
                 dateView.getFullYear(),
-                dateView.getMonth() - 1,
+                dateView.getMonth() + 1,
                 numberOfDaysPrev
               )
             ) === true
               ? "secondary"
+              : ""
+          } ${
+            isSameDate(
+              today,
+              new Date(dateView.getFullYear(), dateView.getMonth() - 1, date)
+            ) && showToday === true
+              ? "today"
               : ""
           }`}
           onClick={(e: React.MouseEvent<HTMLDivElement>) =>
@@ -173,6 +181,13 @@ function Calendar({
               new Date(dateView.getFullYear(), dateView.getMonth() + 1, date)
             ) === true
               ? "secondary"
+              : ""
+          } ${
+            isSameDate(
+              today,
+              new Date(dateView.getFullYear(), dateView.getMonth() + 1, date)
+            ) && showToday === true
+              ? "today"
               : ""
           }`}
           onClick={(e: React.MouseEvent<HTMLDivElement>) =>

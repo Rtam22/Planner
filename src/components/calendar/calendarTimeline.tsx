@@ -1,8 +1,8 @@
-import CalendarTaskCard from "./calendarTaskCard";
+import TaskCard from "../tasks/taskCard";
 import "./calendarTimeline.css";
 import { useRef } from "react";
-import ScrollerWrapper from "../scrollerWrapper";
-import type { PreviewTask, Task } from "../types/taskTypes";
+import ScrollerWrapper from "../common/scrollerWrapper";
+import type { PreviewTask, Task } from "../../types/taskTypes";
 import {
   calculateLength,
   calculateStartingPosition,
@@ -102,32 +102,32 @@ function CalendarTimeline({
                   className="cell-column"
                   data-testid={convertToDDMMYYYY(date)}
                 >
-                  {index === 0 && previewTask && (
-                    <div
-                      className="preview-task"
-                      style={{
-                        top: calculateStartingPosition(
-                          startHours,
-                          startMinutes
-                        ),
-                        height: `${calculateLength(
-                          startHours,
-                          startMinutes,
-                          endHours,
-                          endMinutes
-                        )}px`,
-                        maxHeight:
-                          1680 -
-                          calculateStartingPosition(startHours, startMinutes),
-                      }}
-                    >
-                      Preview Task
-                    </div>
-                  )}
+                  {previewTask &&
+                    compareDate(date, previewTask.date) &&
+                    previewTask && (
+                      <div
+                        className="preview-task"
+                        style={{
+                          top: calculateStartingPosition(
+                            startHours,
+                            startMinutes
+                          ),
+                          height: `${calculateLength(
+                            startHours,
+                            startMinutes,
+                            endHours,
+                            endMinutes
+                          )}px`,
+                          maxHeight:
+                            1680 -
+                            calculateStartingPosition(startHours, startMinutes),
+                        }}
+                      ></div>
+                    )}
                   {tasks.map((task) => {
                     if (compareDate(task.date, date)) {
                       return (
-                        <CalendarTaskCard
+                        <TaskCard
                           key={task.id}
                           onClick={onClick}
                           title={task.title}

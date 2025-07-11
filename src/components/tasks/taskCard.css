@@ -1,0 +1,61 @@
+.calendar-task-card {
+  position: absolute;
+  left: 15px;
+  top: 60px;
+  width: 170px;
+  min-height: 30px;
+  height: 200px;
+  background-color: rgb(226, 226, 226);
+  cursor: pointer;
+  border-radius: 10px;
+
+  font-size: 12px;
+  font-weight: 800;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.calendar-task-card .container {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 2;
+  padding: 3% 7px;
+}
+
+.calendar-task-card p {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.747);
+}
+
+.calendar-task-card h3 {
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.preview-task {
+  position: absolute;
+  left: 5px;
+  top: 60px;
+  width: 190px;
+  height: 200px;
+  cursor: pointer;
+  border: 2px solid rgb(115, 241, 123);
+  border-radius: 10px;
+  padding: 5px;
+  font-size: 12px;
+  font-weight: 800;
+  color: rgb(201, 33, 33);
+  overflow: hidden;
+}
+
+@media (min-width: 1000px) {
+  .calendar-task-card {
+    left: 19px;
+    width: 210px;
+  }
+}
