@@ -96,7 +96,7 @@ button.warn {
   background-color: rgb(143, 161, 250);
   top: 50%;
   transform: translateY(-50%);
-  width: 12px;
+  width: 14px;
   border-radius: 5px;
   color: white;
   font-size: 20px;
@@ -108,9 +108,9 @@ button.warn {
 }
 
 .btn-move-right {
-  right: -13px;
+  right: -16px;
 }
 
 .btn-move-left {
-  left: -13px;
+  left: -16px;
 }

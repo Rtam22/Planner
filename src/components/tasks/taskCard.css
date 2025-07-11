@@ -1,8 +1,8 @@
 .calendar-task-card {
   position: absolute;
-  left: 5px;
+  left: 15px;
   top: 60px;
-  width: 190px;
+  width: 170px;
   min-height: 30px;
   height: 200px;
   background-color: rgb(226, 226, 226);
@@ -55,7 +55,7 @@
 
 @media (min-width: 1000px) {
   .calendar-task-card {
-    left: 15px;
-    width: 220px;
+    left: 19px;
+    width: 210px;
   }
 }
