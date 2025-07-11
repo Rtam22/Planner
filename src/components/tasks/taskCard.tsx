@@ -7,7 +7,7 @@ import {
 } from "../../utils/timelineUtils";
 import { convertTimeString24To12 } from "../../utils/dateUtils";
 import React, { useEffect, useRef, useState } from "react";
-import { useTaskCardResizeAndMove } from "../../hooks/useTaskCardResizeAndMove";
+import { useTaskCardControl } from "../../hooks/useTaskCardControl";
 import Button from "../common/button";
 
 type calendarTaskCardProps = {
@@ -38,7 +38,7 @@ function TaskCard({ title, onClick, task }: calendarTaskCardProps) {
   if (startPosition + cardLength > timelineHeight)
     cardLength = timelineHeight - startPosition;
 
-  const { onMouseDown, handleChangeDay } = useTaskCardResizeAndMove({
+  const { onMouseDown, handleChangeDay } = useTaskCardControl({
     task,
     hasDraggedRef,
     setTaskLength,
