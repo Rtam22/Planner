@@ -2,7 +2,7 @@ import "./calendarPage.css";
 import MainNavigation from "../components/navigation/mainNavigation";
 import TopBar from "../components/navigation/topBar";
 import FilterBar from "../components/filters/filterBar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CalendarTimeline from "../components/calendar/calendarTimeline";
 import type { CalendarDayProps } from "../components/calendar/calendarTimeline";
 import { useTasksContext } from "../context/taskContext";
@@ -16,7 +16,8 @@ import type { FilterProps } from "../hooks/useFilters";
 import { useFilters } from "../hooks/useFilters";
 
 function CalendarPage() {
-  const [selectedDate, setselectedDate] = useState(new Date());
+  const [selectedDate, setselectedDate] = useState<Date>(new Date());
+  const [isEditing, setIsEditing] = useState<boolean>(false);
   const { applyFilter } = useFilters();
   const [showModal, setShowModal] = useState<"none" | "view" | "create">(
     "none"
@@ -34,6 +35,14 @@ function CalendarPage() {
   const [filteredTasks, setfilteredTasks] = useState<Task[]>(tasks);
   const dates: CalendarDayProps[] = getDayAndDayNumber(selectedDate);
   const secondaryDates = getSecondaryDates(selectedDate, "forwards", 7);
+
+  useEffect(() => {
+    if (showModal === "create") {
+      setIsEditing(true);
+    } else {
+      setIsEditing(false);
+    }
+  }, [showModal]);
 
   function handleSelectDate(newDate: Date) {
     setselectedDate(newDate);
@@ -57,6 +66,8 @@ function CalendarPage() {
     const filteredTasks = applyFilter(tasks, filters);
     setfilteredTasks(filteredTasks);
   }
+
+  function handleSave() {}
 
   return (
     <div className="calendar-page">
@@ -93,6 +104,9 @@ function CalendarPage() {
           handleSelectDate={handleSelectDate}
           handleShowModal={handleShowModal}
           showModal={showModal}
+          isEditing={isEditing}
+          setIsEditing={setIsEditing}
+          handleSave={handleSave}
         />
         <div className="horizontal">
           <CalendarTimeline
@@ -101,6 +115,7 @@ function CalendarPage() {
             selectedDate={selectedDate}
             previewTask={previewTask}
             onClick={handleTaskClick}
+            isEditing={isEditing}
           />
 
           {showModal === "create" && (

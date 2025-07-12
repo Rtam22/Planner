@@ -22,6 +22,7 @@ type CalendarTimelineProps = {
   selectedDate: Date;
   previewTask: PreviewTask | null;
   onClick: (taskId: string) => void;
+  isEditing: boolean;
 };
 
 function CalendarTimeline({
@@ -30,6 +31,7 @@ function CalendarTimeline({
   selectedDate,
   previewTask,
   onClick,
+  isEditing,
 }: CalendarTimelineProps) {
   const timelineRef = useRef<HTMLDivElement | null>(null);
   const timeStamps = [{ hour: 12, period: "pm" }];
@@ -132,6 +134,7 @@ function CalendarTimeline({
                           onClick={onClick}
                           title={task.title}
                           task={task}
+                          isEditing={isEditing}
                         />
                       );
                     }

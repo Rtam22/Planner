@@ -14,7 +14,7 @@ import { useEffect, useRef } from "react";
 import { getTimeDifferenceInMinutes, splitTimeHHMM } from "../utils/timeUtils";
 import throttle from "lodash.throttle";
 
-export type UseTaskCardResizeAndMoveProps = {
+export type UseTaskCardControlProps = {
   task: Task;
   hasDraggedRef: ReturnType<typeof useRef<boolean>>;
   setTaskLength: React.Dispatch<React.SetStateAction<number>>;
@@ -51,13 +51,13 @@ type MoveByTime = {
 
 type MoveParams = MoveByTask | MoveByTime;
 
-export function useTaskCardResizeAndMove({
+export function useTaskCardControl({
   task,
   hasDraggedRef,
   setTaskLength,
   setTaskPosition,
   taskRef,
-}: UseTaskCardResizeAndMoveProps) {
+}: UseTaskCardControlProps) {
   const TIMELINE_START = "00:00";
   const TIMELINE_END = "24:00";
   const { tasks, editTask, handleSetPreviewTask } = useTasksContext();

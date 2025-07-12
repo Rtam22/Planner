@@ -23,10 +23,15 @@ function renderComponent() {
   const [startHours, startMinutes] = task.startTime.split(":").map(Number);
   const [endHours, endMinutes] = task.endTime.split(":").map(Number);
   const startingTime = 420;
-
+  const isEditing = false;
   render(
     <TasksProvider>
-      <CalendarTaskCard title="Morning Run" onClick={mockFn} task={task} />{" "}
+      <CalendarTaskCard
+        title="Morning Run"
+        onClick={mockFn}
+        task={task}
+        isEditing={isEditing}
+      />{" "}
     </TasksProvider>
   );
 

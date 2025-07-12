@@ -8,6 +8,9 @@ type filterBarProps = {
   handleSelectDate: (newDate: Date) => void;
   handleShowModal: (type: modalType) => void;
   showModal: "none" | "view" | "create";
+  isEditing: boolean;
+  setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
+  handleSave: () => void;
 };
 
 function TopUtilityBar({
@@ -15,6 +18,9 @@ function TopUtilityBar({
   handleSelectDate,
   handleShowModal,
   showModal,
+  isEditing,
+  setIsEditing,
+  handleSave,
 }: filterBarProps) {
   function handleDateChange(e: React.MouseEvent<HTMLDivElement>) {
     const button = e.currentTarget.textContent;
@@ -26,6 +32,11 @@ function TopUtilityBar({
       newDate.setDate(selectedDate.getDate() + 7);
       handleSelectDate(newDate);
     }
+  }
+
+  function handleCreateTask() {
+    handleShowModal("create");
+    setIsEditing(true);
   }
   return (
     <div className="top-utility-bar" data-testid="top-utility-bar">
@@ -44,17 +55,36 @@ function TopUtilityBar({
           ›
         </Button>
       </div>
-      <div className="button-container">
-        <Button
-          className="btn-main"
-          onClick={() =>
-            handleShowModal(showModal === "create" ? "none" : "create")
-          }
-        >
-          Create Task
-        </Button>
-        <Button className="btn-plain">To Plan</Button>
-      </div>
+      {showModal === "create" ? null : (
+        <div className="button-container">
+          <Button className="btn-main" onClick={handleCreateTask}>
+            Create Task
+          </Button>
+          {isEditing ? (
+            <>
+              <Button
+                className="btn-plain"
+                onClick={() => setIsEditing(!isEditing)}
+              >
+                Save
+              </Button>
+              <Button
+                className="btn-plain"
+                onClick={() => setIsEditing(!isEditing)}
+              >
+                Cancel
+              </Button>
+            </>
+          ) : (
+            <Button
+              className="btn-plain"
+              onClick={() => setIsEditing(!isEditing)}
+            >
+              To Plan
+            </Button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
