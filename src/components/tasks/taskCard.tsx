@@ -48,6 +48,8 @@ function TaskCard({ title, onClick, task, isEditing }: calendarTaskCardProps) {
     setTaskLength,
     setTaskPosition,
     taskRef,
+    taskLength,
+    taskPosition,
   });
 
   function handleClick(e: React.MouseEvent<HTMLDivElement>) {

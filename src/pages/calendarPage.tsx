@@ -16,20 +16,23 @@ import type { FilterProps } from "../hooks/useFilters";
 import { useFilters } from "../hooks/useFilters";
 
 function CalendarPage() {
+  const {
+    tasks,
+    draftTasks,
+    tags,
+    previewTask,
+    editTask,
+    deleteTask,
+    handleSetPreviewTask,
+    createDraftTasks,
+    handleDraftAction,
+  } = useTasksContext();
   const [selectedDate, setselectedDate] = useState<Date>(new Date());
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const { applyFilter } = useFilters();
   const [showModal, setShowModal] = useState<"none" | "view" | "create">(
     "none"
   );
-  const {
-    tasks,
-    tags,
-    previewTask,
-    editTask,
-    deleteTask,
-    handleSetPreviewTask,
-  } = useTasksContext();
   // const [previewTask, setPreviewTask] = useState<PreviewTask | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [filteredTasks, setfilteredTasks] = useState<Task[]>(tasks);
@@ -39,10 +42,22 @@ function CalendarPage() {
   useEffect(() => {
     if (showModal === "create") {
       setIsEditing(true);
-    } else {
-      setIsEditing(false);
     }
   }, [showModal]);
+
+  useEffect(() => {
+    if (isEditing) {
+      createDraftTasks();
+    }
+  }, [isEditing]);
+
+  useEffect(() => {
+    if (isEditing && draftTasks) {
+      setfilteredTasks(draftTasks ?? []);
+    } else {
+      setfilteredTasks(tasks);
+    }
+  }, [draftTasks]);
 
   function handleSelectDate(newDate: Date) {
     setselectedDate(newDate);
@@ -50,6 +65,12 @@ function CalendarPage() {
 
   function handleShowModal(type: modalType) {
     setShowModal(type);
+  }
+
+  function handleCancelModal(type: modalType) {
+    setShowModal(type);
+    handleDraftAction("cancel");
+    setIsEditing(false);
   }
 
   function handleSetPreview(task: Task | null) {
@@ -106,7 +127,7 @@ function CalendarPage() {
           showModal={showModal}
           isEditing={isEditing}
           setIsEditing={setIsEditing}
-          handleSave={handleSave}
+          handleDraftAction={handleDraftAction}
         />
         <div className="horizontal">
           <CalendarTimeline
@@ -122,7 +143,7 @@ function CalendarPage() {
             <Modal
               showModal={showModal}
               type="right"
-              handleShowModal={handleShowModal}
+              handleShowModal={handleCancelModal}
               backDrop={false}
             >
               <TaskForm

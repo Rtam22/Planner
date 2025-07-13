@@ -10,7 +10,7 @@ type filterBarProps = {
   showModal: "none" | "view" | "create";
   isEditing: boolean;
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
-  handleSave: () => void;
+  handleDraftAction: (action: "save" | "cancel" | null) => void;
 };
 
 function TopUtilityBar({
@@ -20,7 +20,7 @@ function TopUtilityBar({
   showModal,
   isEditing,
   setIsEditing,
-  handleSave,
+  handleDraftAction,
 }: filterBarProps) {
   function handleDateChange(e: React.MouseEvent<HTMLDivElement>) {
     const button = e.currentTarget.textContent;
@@ -32,6 +32,11 @@ function TopUtilityBar({
       newDate.setDate(selectedDate.getDate() + 7);
       handleSelectDate(newDate);
     }
+  }
+
+  function handleCancelEdit() {
+    setIsEditing(false);
+    handleDraftAction("cancel");
   }
 
   function handleCreateTask() {
@@ -68,10 +73,7 @@ function TopUtilityBar({
               >
                 Save
               </Button>
-              <Button
-                className="btn-plain"
-                onClick={() => setIsEditing(!isEditing)}
-              >
+              <Button className="btn-plain" onClick={handleCancelEdit}>
                 Cancel
               </Button>
             </>

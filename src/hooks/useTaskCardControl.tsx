@@ -17,9 +17,11 @@ import throttle from "lodash.throttle";
 export type UseTaskCardControlProps = {
   task: Task;
   hasDraggedRef: ReturnType<typeof useRef<boolean>>;
+  taskLength: number;
   setTaskLength: React.Dispatch<React.SetStateAction<number>>;
   setTaskPosition: React.Dispatch<React.SetStateAction<number>>;
   taskRef: ReturnType<typeof useRef<HTMLDivElement | null>>;
+  taskPosition: number;
 };
 
 type TimeSpot = {
@@ -57,12 +59,24 @@ export function useTaskCardControl({
   setTaskLength,
   setTaskPosition,
   taskRef,
+  taskLength,
+  taskPosition,
 }: UseTaskCardControlProps) {
   const TIMELINE_START = "00:00";
   const TIMELINE_END = "24:00";
-  const { tasks, editTask, handleSetPreviewTask } = useTasksContext();
+  const {
+    draftTasks,
+    draftAction,
+    editTask,
+    handleSetPreviewTask,
+    editDraftTask,
+    deleteDraftTasks,
+    handleDraftAction,
+  } = useTasksContext();
+  const initialTaskPositionRef = useRef(taskPosition);
+  const initialLengthRef = useRef(taskLength);
   let currentTaskRef = useRef(task);
-  let currentTasksRef = useRef(tasks);
+  let currentTasksRef = useRef(draftTasks ? draftTasks : []);
   let isDragging = false;
   let animationFrameId: number | null = null;
   const timelineHeight = 1680;
@@ -87,8 +101,23 @@ export function useTaskCardControl({
   }, [task]);
 
   useEffect(() => {
-    currentTasksRef.current = tasks;
-  }, [tasks]);
+    currentTasksRef.current = draftTasks ? draftTasks : [];
+  }, [draftTasks]);
+
+  useEffect(() => {
+    if (draftAction === "cancel") {
+      handleCancel();
+    }
+  }, [draftAction]);
+
+  function handleCancel() {
+    setTaskPosition(initialTaskPositionRef.current);
+    setTaskLength(initialLengthRef.current);
+    deleteDraftTasks();
+    handleDraftAction(null);
+  }
+
+  function handleSave() {}
 
   function onMouseDown(
     e: React.MouseEvent<HTMLButtonElement> | React.MouseEvent<HTMLDivElement>,
@@ -329,35 +358,37 @@ export function useTaskCardControl({
       const newTask: Task = { ...task, endTime: newEndTime };
 
       animationFrameId = requestAnimationFrame(() => {
-        editTask(newTask);
+        editDraftTask(newTask);
         setTaskLength(height);
         animationFrameId = null;
       });
     }
 
     function checkNextTaskStartTime(task: Task) {
-      const tasksPastCurrent = tasks
-        .filter((storedTask) => {
-          if (
-            isSameDate(task.date, storedTask.date) &&
-            convertHHMMToMinutes(storedTask.startTime) >
-              convertHHMMToMinutes(task.endTime) - 1
-          )
-            return task;
-        })
-        .sort(
-          (a, b) =>
-            convertHHMMToMinutes(a.startTime) -
-            convertHHMMToMinutes(b.startTime)
-        );
+      if (draftTasks) {
+        const tasksPastCurrent = draftTasks
+          .filter((storedTask) => {
+            if (
+              isSameDate(task.date, storedTask.date) &&
+              convertHHMMToMinutes(storedTask.startTime) >
+                convertHHMMToMinutes(task.endTime) - 1
+            )
+              return task;
+          })
+          .sort(
+            (a, b) =>
+              convertHHMMToMinutes(a.startTime) -
+              convertHHMMToMinutes(b.startTime)
+          );
 
-      if (tasksPastCurrent.length > 0) {
-        const [startHours, startMinutes] =
-          tasksPastCurrent[0].startTime.split(":");
-        return calculateStartingPosition(
-          Number(startHours),
-          Number(startMinutes)
-        );
+        if (tasksPastCurrent.length > 0) {
+          const [startHours, startMinutes] =
+            tasksPastCurrent[0].startTime.split(":");
+          return calculateStartingPosition(
+            Number(startHours),
+            Number(startMinutes)
+          );
+        }
       }
     }
   }
@@ -394,7 +425,7 @@ export function useTaskCardControl({
 
     animationFrameId = requestAnimationFrame(() => {
       setTaskPosition(position);
-      editTask(newTask);
+      editDraftTask(newTask);
       animationFrameId = null;
     });
   }
