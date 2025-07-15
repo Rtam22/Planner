@@ -42,6 +42,7 @@ function FilterBar({
         selectedDate={selectedDate}
         handleSelectDate={handleSelectDate}
         highlightSecondary={highlightSecondary}
+        showTaskInCell={tasks}
       />
       <Search onSearch={setSearchQuery} useButton={false} />
 

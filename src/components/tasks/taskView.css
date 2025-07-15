@@ -138,11 +138,11 @@ hr.full-width-horizontal {
     gap: 50px;
   }
   .task-view .col-right {
-    width: 30%;
+    width: 33%;
   }
 
   .task-view .col-left {
-    width: 70%;
+    width: 67%;
   }
 
   .calendar-page .task-view .col-left {

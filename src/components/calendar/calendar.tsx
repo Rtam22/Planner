@@ -9,12 +9,14 @@ import {
   isSameDate,
   compareDateArrayToDate,
 } from "../../utils/dateUtils";
+import type { Task } from "../../types/taskTypes";
 
 export type calendarProps = {
   selectedDate: Date;
   handleSelectDate: (newDate: Date) => void;
   highlightSecondary?: Date[];
   showToday?: boolean;
+  showTaskInCell?: Task[];
 };
 
 function Calendar({
@@ -22,10 +24,11 @@ function Calendar({
   handleSelectDate,
   highlightSecondary,
   showToday = true,
+  showTaskInCell,
 }: calendarProps) {
   const [dateView, setDateView] = useState(new Date());
   const days = ["M", "T", "W", "T", "F", "S", "S"];
-
+  const taskList = showTaskInCell ? showTaskInCell : null;
   useEffect(() => {
     setDateView(selectedDate);
   }, [selectedDate]);
@@ -73,38 +76,35 @@ function Calendar({
 
     Array.from({ length: preffix }, (_, i) => {
       const date = i + 1;
+      const prevMonthActive = new Date(
+        dateView.getFullYear(),
+        dateView.getMonth() - 1,
+        numberOfDaysPrev
+      );
+      const nextMonthSelected = new Date(
+        dateView.getFullYear(),
+        dateView.getMonth() + 1,
+        numberOfDaysPrev
+      );
+      const prevMonthFindToday = new Date(
+        dateView.getFullYear(),
+        dateView.getMonth() - 1,
+        date
+      );
       cells.push(
         <div
           key={"preffix" + i}
           id={numberOfDaysPrev.toString()}
           data-testid="cal-cell"
           className={`cal-cell is-outside-month ${
-            isSameDate(
-              selectedDate,
-              new Date(
-                dateView.getFullYear(),
-                dateView.getMonth() - 1,
-                numberOfDaysPrev
-              )
-            )
-              ? "active"
-              : ""
+            isSameDate(selectedDate, prevMonthActive) ? "active" : ""
           } ${
-            compareDateArrayToDate(
-              highlightSecondary,
-              new Date(
-                dateView.getFullYear(),
-                dateView.getMonth() + 1,
-                numberOfDaysPrev
-              )
-            ) === true
+            compareDateArrayToDate(highlightSecondary, nextMonthSelected) ===
+            true
               ? "secondary"
               : ""
           } ${
-            isSameDate(
-              today,
-              new Date(dateView.getFullYear(), dateView.getMonth() - 1, date)
-            ) && showToday === true
+            isSameDate(today, prevMonthFindToday) && showToday === true
               ? "today"
               : ""
           }`}
@@ -120,32 +120,24 @@ function Calendar({
 
     Array.from({ length: numberOfDays }, (_, i) => {
       const date = i + 1;
+      const calendarDate = new Date(
+        dateView.getFullYear(),
+        dateView.getMonth(),
+        date
+      );
       cells.push(
         <div
           data-testid="cal-cell"
           key={`cells${i}`}
           id={date.toString()}
           className={`cal-cell ${
-            isSameDate(
-              selectedDate,
-              new Date(dateView.getFullYear(), dateView.getMonth(), date)
-            )
-              ? "active"
-              : ""
+            isSameDate(selectedDate, calendarDate) ? "active" : ""
           } ${
-            compareDateArrayToDate(
-              highlightSecondary,
-              new Date(dateView.getFullYear(), dateView.getMonth(), date)
-            ) === true
+            compareDateArrayToDate(highlightSecondary, calendarDate) === true
               ? "secondary"
               : ""
           } ${
-            isSameDate(
-              today,
-              new Date(dateView.getFullYear(), dateView.getMonth(), date)
-            ) && showToday === true
-              ? "today"
-              : ""
+            isSameDate(today, calendarDate) && showToday === true ? "today" : ""
           }
            `}
           onClick={(e: React.MouseEvent<HTMLDivElement>) =>
@@ -153,42 +145,44 @@ function Calendar({
           }
         >
           {date}
+          <div className="container">
+            {showTaskInCell
+              ? taskList?.map((task) => {
+                  if (isSameDate(task.date, calendarDate)) {
+                    return (
+                      <div
+                        className="task-box"
+                        style={{ backgroundColor: task.tag?.color }}
+                      ></div>
+                    );
+                  }
+                })
+              : null}
+          </div>
         </div>
       );
     });
 
     Array.from({ length: suffix }, (_, i) => {
       const date = i + 1;
+      const nextMonth = new Date(
+        dateView.getFullYear(),
+        dateView.getMonth() + 1,
+        date
+      );
       cells.push(
         <div
           id={date.toString()}
           key={"suffix" + i}
           data-testid="cal-cell"
           className={`cal-cell is-outside-month ${
-            isSameDate(
-              selectedDate,
-              new Date(
-                selectedDate.getFullYear(),
-                dateView.getMonth() + 1,
-                date
-              )
-            )
-              ? "active"
-              : ""
+            isSameDate(selectedDate, nextMonth) ? "active" : ""
           } ${
-            compareDateArrayToDate(
-              highlightSecondary,
-              new Date(dateView.getFullYear(), dateView.getMonth() + 1, date)
-            ) === true
+            compareDateArrayToDate(highlightSecondary, nextMonth) === true
               ? "secondary"
               : ""
           } ${
-            isSameDate(
-              today,
-              new Date(dateView.getFullYear(), dateView.getMonth() + 1, date)
-            ) && showToday === true
-              ? "today"
-              : ""
+            isSameDate(today, nextMonth) && showToday === true ? "today" : ""
           }`}
           onClick={(e: React.MouseEvent<HTMLDivElement>) =>
             handleSelect(e, "next")
