@@ -75,6 +75,30 @@ export function adjustColor(hex: string, amount: number = 30): string {
   return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
 }
 
+export function adjustAlpha(color: string, alpha: number): string {
+  alpha = Math.max(0, Math.min(1, alpha)); // clamp between 0 and 1
+  if (color.startsWith("#")) {
+    const hex = color.replace("#", "");
+    if (hex.length === 6) {
+      const r = parseInt(hex.substring(0, 2), 16);
+      const g = parseInt(hex.substring(2, 4), 16);
+      const b = parseInt(hex.substring(4, 6), 16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+  }
+  if (color.startsWith("rgb(")) {
+    return color.replace("rgb(", "rgba(").replace(")", `, ${alpha})`);
+  }
+
+  if (color.startsWith("rgba(")) {
+    return color.replace(
+      /rgba\(([^,]+),([^,]+),([^,]+),[^)]+\)/,
+      `rgba($1,$2,$3,${alpha})`
+    );
+  }
+  return color;
+}
+
 export function convertLengthToMinutes(lengthPx: number): number {
   const pixelsPerMinute = 70 / 60;
   return Math.round(lengthPx / pixelsPerMinute);

@@ -98,6 +98,7 @@ function CalendarTimeline({
           <div className="cell-container">
             {Array.from({ length: daysInWeek }).map((_, index) => {
               date.setDate(date.getDate() + 1);
+
               return (
                 <div
                   key={index}
@@ -135,6 +136,7 @@ function CalendarTimeline({
                           title={task.title}
                           task={task}
                           isEditing={isEditing}
+                          timelineRef={timelineRef}
                         />
                       );
                     }

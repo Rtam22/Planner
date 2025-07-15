@@ -15,9 +15,17 @@ type calendarTaskCardProps = {
   onClick?: (taskId: string) => void;
   task: Task;
   isEditing: boolean;
+  timelineRef: React.RefObject<HTMLDivElement | null>;
+  type?: "preview";
 };
 
-function TaskCard({ title, onClick, task, isEditing }: calendarTaskCardProps) {
+function TaskCard({
+  title,
+  onClick,
+  task,
+  isEditing,
+  timelineRef,
+}: calendarTaskCardProps) {
   const taskRef = useRef<HTMLDivElement | null>(null);
   const [startHours, startMinutes] = task.startTime.split(":").map(Number);
   const [endHours, endMinutes] = task.endTime.split(":").map(Number);
@@ -31,6 +39,7 @@ function TaskCard({ title, onClick, task, isEditing }: calendarTaskCardProps) {
     endHours,
     endMinutes
   );
+
   const [taskLength, setTaskLength] = useState<number>(cardLength);
   const [taskPosition, setTaskPosition] = useState<number>(startPosition);
   const hasDraggedRef = useRef(false);
@@ -48,6 +57,7 @@ function TaskCard({ title, onClick, task, isEditing }: calendarTaskCardProps) {
     setTaskLength,
     setTaskPosition,
     taskRef,
+    timelineRef,
   });
 
   function handleClick(e: React.MouseEvent<HTMLDivElement>) {

@@ -7,6 +7,7 @@ import {
 } from "../../utils/timelineUtils";
 import userEvent from "@testing-library/user-event";
 import { TasksProvider } from "../../context/taskContext";
+import { useRef } from "react";
 
 function renderComponent() {
   const mockFn = vi.fn();
@@ -24,6 +25,7 @@ function renderComponent() {
   const [endHours, endMinutes] = task.endTime.split(":").map(Number);
   const startingTime = 420;
   const isEditing = false;
+  const timelineRef = useRef(null);
   render(
     <TasksProvider>
       <CalendarTaskCard
@@ -31,6 +33,7 @@ function renderComponent() {
         onClick={mockFn}
         task={task}
         isEditing={isEditing}
+        timelineRef={timelineRef}
       />{" "}
     </TasksProvider>
   );

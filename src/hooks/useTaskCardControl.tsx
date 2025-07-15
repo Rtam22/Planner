@@ -15,14 +15,14 @@ import {
 } from "../utils/timelineUtils";
 import { useEffect, useRef } from "react";
 import { getTimeDifferenceInMinutes, splitTimeHHMM } from "../utils/timeUtils";
-import throttle from "lodash.throttle";
-
+import { throttle } from "lodash";
 export type UseTaskCardControlProps = {
   task: Task;
   hasDraggedRef: ReturnType<typeof useRef<boolean>>;
   setTaskLength: React.Dispatch<React.SetStateAction<number>>;
   setTaskPosition: React.Dispatch<React.SetStateAction<number>>;
   taskRef: ReturnType<typeof useRef<HTMLDivElement | null>>;
+  timelineRef: React.RefObject<HTMLDivElement | null>;
 };
 
 type TimeSpot = {
@@ -60,12 +60,14 @@ export function useTaskCardControl({
   setTaskLength,
   setTaskPosition,
   taskRef,
+  timelineRef,
 }: UseTaskCardControlProps) {
   const TIMELINE_START = "00:00";
   const TIMELINE_END = "24:00";
   const {
     draftTasks,
     draftAction,
+    previewTask,
     saveTasks,
     handleSetPreviewTask,
     editDraftTask,
@@ -73,8 +75,10 @@ export function useTaskCardControl({
     handleDraftAction,
   } = useTasksContext();
   const { tasks } = useTasksContext();
-  let currentTaskRef = useRef(task);
-  let currentTasksRef = useRef(draftTasks ? draftTasks : []);
+  const timeLine = timelineRef.current;
+  let previewTaskRef = useRef<Task | null>(null);
+  let currentTaskRef = useRef<Task>(task);
+  let currentTasksRef = useRef<Task[]>(draftTasks ? draftTasks : []);
   let isDragging = false;
   let animationFrameId: number | null = null;
   const timelineHeight = 1680;
@@ -125,12 +129,12 @@ export function useTaskCardControl({
         currentTaskRef.current.date,
         currentTasksRef.current
       );
+      document.body.style.cursor = "grabbing";
       currentTask = currentTaskRef.current;
-      const draggedEl = taskRef.current;
+      //   const draggedEl = taskRef.current;
       const mouseCurrentY = event.pageY;
       difference = mouseCurrentY - mousePrevY;
       const selectedIndex = sortedTasks.findIndex((t) => t.id === task.id);
-      const nextTaskTime = checkNextTaskStartTime(currentTask);
       const mouseStartTime = convertLengthToTime(
         difference,
         startHours,
@@ -153,16 +157,6 @@ export function useTaskCardControl({
         );
 
         if (hasCollided) {
-          if (!isDragging) return;
-          let elementUnderMouse;
-          if (draggedEl) {
-            draggedEl.style.pointerEvents = "none";
-            elementUnderMouse = document.elementFromPoint(
-              event.clientX,
-              event.clientY
-            );
-            draggedEl.style.pointerEvents = "auto";
-          }
           const newTime = {
             startTime:
               direction === "next"
@@ -186,26 +180,39 @@ export function useTaskCardControl({
             direction,
             currentTask,
             cardLength,
-            elementUnderMouse as Element,
-            mouseStartTime
+            mouseStartTime,
+            event.pageY
           );
         } else {
           handleMove({ currentTask, difference, startPosition });
           handleSetPreviewTask(null);
+          previewTaskRef.current = null;
         }
       }
 
       if (type === "resize") {
+        const nextTaskTime = checkNextTaskStartTime(currentTask);
         handleResize(newLength, nextTaskTime, startPosition);
       }
     }
 
     function onMouseUp() {
       isDragging = false;
-      handleSetPreviewTask(null);
+      if (previewTaskRef.current) {
+        const newStartTime = previewTaskRef.current.startTime;
+        const newEndTime = previewTaskRef.current.endTime;
+        handleMove({
+          currentTask,
+          setStartTime: newStartTime,
+          setEndTime: newEndTime,
+        });
+      }
+
       setTimeout(() => {
+        handleSetPreviewTask(null);
+        previewTaskRef.current = null;
         hasDraggedRef.current = false;
-      }, 1);
+      }, 50);
       window.removeEventListener("mouseup", onMouseUp);
       window.removeEventListener("mousemove", onMouseMove);
     }
@@ -228,12 +235,53 @@ export function useTaskCardControl({
       return convertMinutesToHHMM(newEndMinutes);
     }
   }
+
+  function findCenterBetweenTimes(timeA: string, timeB: string) {
+    const minutesA = convertHHMMToMinutes(timeA);
+    const minutesB = convertHHMMToMinutes(timeB);
+    return convertMinutesToLength(Math.floor((minutesA + minutesB) / 2));
+  }
+
+  function handleSetPreview(
+    mousePosition: number,
+    direction: string,
+    currentTask: Task,
+    times: { startTime: string; endTime: string }
+  ) {
+    const timelineRect = timeLine?.getBoundingClientRect();
+    const scrollTop = timeLine?.scrollTop ?? 0;
+    const absoluteY =
+      (mousePosition ?? 0) - (timelineRect?.top ?? 0) - 115 + scrollTop;
+    const currTaskStartPoint =
+      direction === "next" ? currentTask.endTime : currentTask.startTime;
+    timelineRef.current && timelineRef.current.getBoundingClientRect();
+    const centerPoint = findCenterBetweenTimes(
+      direction === "next" ? times?.startTime : times?.endTime,
+      currTaskStartPoint
+    );
+    if (
+      (direction === "next" && absoluteY > centerPoint) ||
+      (direction === "prev" && absoluteY < centerPoint)
+    ) {
+      const previewTask = {
+        ...currentTask,
+        startTime: times.startTime,
+        endTime: times.endTime,
+      };
+      handleSetPreviewTask(previewTask);
+      previewTaskRef.current = previewTask;
+    } else {
+      handleSetPreviewTask(null);
+      previewTaskRef.current = null;
+    }
+  }
+
   function handleCollided(
     direction: string,
     currentTask: Task,
     cardLength: number,
-    elementUnderMouse: Element | null,
-    mouseStartTime: string
+    mouseStartTime: string,
+    mousePosition: number
   ) {
     const newTimes = findSpaceBetweenTasks(
       direction as "next" | "prev",
@@ -241,15 +289,9 @@ export function useTaskCardControl({
       currentTasksRef.current,
       cardLength
     );
-
-    if (newTimes && elementUnderMouse?.closest(".calendar-task-card")) {
-      handleSetPreviewTask({
-        ...currentTask,
-        startTime: newTimes.startTime,
-        endTime: newTimes.endTime,
-      });
-    }
-
+    if (!newTimes) return;
+    handleSetPreview(mousePosition, direction, currentTask, newTimes);
+    console.log(previewTask);
     if (newTimes) {
       const mouseLocation = convertHHMMToMinutes(mouseStartTime);
       const newLocation = convertHHMMToMinutes(newTimes?.startTime);
@@ -278,6 +320,7 @@ export function useTaskCardControl({
       }
     }
   }
+
   function collisionCheck(
     selectedTaskIndex: number,
     sortedTasks: Task[],
