@@ -11,6 +11,7 @@ import {
   convertLengthToMinutes,
   getLengthFromTask,
   getPostionFromTask,
+  calculateLengthBetweenTasks,
 } from "../utils/timelineUtils";
 import { useEffect, useRef } from "react";
 import { getTimeDifferenceInMinutes, splitTimeHHMM } from "../utils/timeUtils";
@@ -78,17 +79,6 @@ export function useTaskCardControl({
   let animationFrameId: number | null = null;
   const timelineHeight = 1680;
   const buffer = 10;
-  function getSortedTasks(date: Date, tasks: Task[]) {
-    return [...tasks]
-      .sort((t1, t2) => {
-        return (
-          convertHHMMToMinutes(t1.startTime) -
-          convertHHMMToMinutes(t2.startTime)
-        );
-      })
-      .filter((t) => isSameDate(t.date, date));
-  }
-
   const [startHours, startMinutes, endHours, endMinutes] = splitTimeHHMM(
     currentTaskRef.current
   );
@@ -109,26 +99,6 @@ export function useTaskCardControl({
     }
   }, [draftAction]);
 
-  function handleCancel() {
-    const prevTask = tasks.find(
-      (taskA) => taskA.id === currentTaskRef.current.id
-    );
-    if (!prevTask) return;
-    const taskLength = getLengthFromTask(prevTask);
-    const taskPosition = getPostionFromTask(prevTask);
-
-    setTaskPosition(taskPosition);
-    setTaskLength(taskLength);
-    deleteDraftTasks();
-    handleDraftAction(null);
-  }
-
-  function handleSave() {
-    draftTasks && saveTasks(draftTasks);
-    deleteDraftTasks;
-    handleDraftAction(null);
-  }
-
   function onMouseDown(
     e: React.MouseEvent<HTMLButtonElement> | React.MouseEvent<HTMLDivElement>,
     type: "resize" | "move"
@@ -138,6 +108,7 @@ export function useTaskCardControl({
     isDragging = true;
     hasDraggedRef.current = false;
     const mousePrevY = e.pageY;
+    let currentTask = currentTaskRef.current;
     const [initialStartHours, initialStartMinutes] = task.startTime
       .split(":")
       .map(Number);
@@ -145,10 +116,9 @@ export function useTaskCardControl({
       initialStartHours,
       initialStartMinutes
     );
-    const findSpaceBetweenTasksThrottled = throttle(findSpaceBetweenTasks, 0);
+
     window.addEventListener("mouseup", onMouseUp);
     window.addEventListener("mousemove", onMouseMove);
-    let currentTask = currentTaskRef.current;
 
     function onMouseMove(event: MouseEvent) {
       const sortedTasks = getSortedTasks(
@@ -161,6 +131,11 @@ export function useTaskCardControl({
       difference = mouseCurrentY - mousePrevY;
       const selectedIndex = sortedTasks.findIndex((t) => t.id === task.id);
       const nextTaskTime = checkNextTaskStartTime(currentTask);
+      const mouseStartTime = convertLengthToTime(
+        difference,
+        startHours,
+        startMinutes
+      );
       let cardLength = calculateLength(
         startHours,
         startMinutes,
@@ -168,11 +143,7 @@ export function useTaskCardControl({
         endMinutes
       );
       const newLength = cardLength + difference;
-      const mouseStartTime = convertLengthToTime(
-        difference,
-        startHours,
-        startMinutes
-      );
+
       if (type === "move") {
         const { hasCollided, setStart, setEnd, direction } = collisionCheck(
           selectedIndex,
@@ -182,6 +153,7 @@ export function useTaskCardControl({
         );
 
         if (hasCollided) {
+          if (!isDragging) return;
           let elementUnderMouse;
           if (draggedEl) {
             draggedEl.style.pointerEvents = "none";
@@ -210,50 +182,13 @@ export function useTaskCardControl({
             setEndTime: newTime.endTime,
           });
 
-          if (!isDragging) return;
-
-          const newTimes = findSpaceBetweenTasksThrottled(
-            direction as "next" | "prev",
+          handleCollided(
+            direction,
             currentTask,
-            currentTasksRef.current,
-            cardLength
+            cardLength,
+            elementUnderMouse as Element,
+            mouseStartTime
           );
-
-          if (newTimes && elementUnderMouse?.closest(".calendar-task-card")) {
-            handleSetPreviewTask({
-              ...currentTask,
-              startTime: newTimes.startTime,
-              endTime: newTimes.endTime,
-            });
-          }
-
-          if (newTimes) {
-            const mouseLocation = convertHHMMToMinutes(mouseStartTime);
-            const newLocation = convertHHMMToMinutes(newTimes?.startTime);
-            if (
-              direction === "next" &&
-              newTimes?.startTime &&
-              mouseLocation > newLocation - buffer
-            ) {
-              handleMove({
-                currentTask,
-                setStartTime: newTimes.startTime,
-                setEndTime: newTimes.endTime,
-              });
-              handleSetPreviewTask(null);
-            } else if (
-              direction === "prev" &&
-              newTimes?.startTime &&
-              mouseLocation < newLocation + buffer
-            ) {
-              handleMove({
-                currentTask,
-                setStartTime: newTimes.startTime,
-                setEndTime: newTimes.endTime,
-              });
-              handleSetPreviewTask(null);
-            }
-          }
         } else {
           handleMove({ currentTask, difference, startPosition });
           handleSetPreviewTask(null);
@@ -261,21 +196,7 @@ export function useTaskCardControl({
       }
 
       if (type === "resize") {
-        if (newLength > 3) hasDraggedRef.current = true;
-        if (
-          nextTaskTime !== undefined &&
-          startPosition + newLength > nextTaskTime
-        ) {
-          handleResize(nextTaskTime - startPosition + 1);
-        } else if (startPosition + newLength >= timelineHeight) {
-          handleResize(timelineHeight - startPosition);
-        } else if (
-          taskRef.current &&
-          newLength > 5.83 &&
-          startPosition + newLength < timelineHeight
-        ) {
-          handleResize(newLength);
-        }
+        handleResize(newLength, nextTaskTime, startPosition);
       }
     }
 
@@ -288,162 +209,113 @@ export function useTaskCardControl({
       window.removeEventListener("mouseup", onMouseUp);
       window.removeEventListener("mousemove", onMouseMove);
     }
+  }
 
-    function getSnappedTimesFromCollision(
-      taskA: Task,
-      taskBTime: string,
-      type: "next" | "prev"
-    ) {
-      const duration = getTimeDifferenceInMinutes(
-        taskA.startTime,
-        taskA.endTime
-      );
-      if (type === "next") {
-        const selectedTaskEndInMinutes = convertHHMMToMinutes(taskBTime);
-        const newStartTimeInMinutes = selectedTaskEndInMinutes - duration;
-        return convertMinutesToHHMM(newStartTimeInMinutes);
-      }
-      if (type === "prev") {
-        const startMinutes = convertHHMMToMinutes(taskBTime);
-        const newEndMinutes = startMinutes + duration;
-        return convertMinutesToHHMM(newEndMinutes);
-      }
+  function getSnappedTimesFromCollision(
+    taskA: Task,
+    taskBTime: string,
+    type: "next" | "prev"
+  ) {
+    const duration = getTimeDifferenceInMinutes(taskA.startTime, taskA.endTime);
+    if (type === "next") {
+      const selectedTaskEndInMinutes = convertHHMMToMinutes(taskBTime);
+      const newStartTimeInMinutes = selectedTaskEndInMinutes - duration;
+      return convertMinutesToHHMM(newStartTimeInMinutes);
     }
-
-    function collisionCheck(
-      selectedTaskIndex: number,
-      sortedTasks: Task[],
-      difference: number,
-      task: Task
-    ) {
-      const nextTask = sortedTasks[selectedTaskIndex + 1];
-      const prevTask = sortedTasks[selectedTaskIndex - 1];
-      const differenceMinutes = convertPixelsToMinutes(difference);
-      const currentEnd = convertHHMMToMinutes(task.endTime) + differenceMinutes;
-      const currentStart =
-        convertHHMMToMinutes(task.startTime) + differenceMinutes;
-      const nextStart = convertHHMMToMinutes(
-        nextTask ? nextTask.startTime : TIMELINE_END
-      );
-
-      const prevEnd = convertHHMMToMinutes(
-        prevTask ? prevTask.endTime : TIMELINE_START
-      );
-
-      if (currentEnd > nextStart) {
-        return {
-          hasCollided: true,
-          setStart: nextTask?.startTime ?? TIMELINE_END,
-          setEnd: nextTask?.endTime ?? TIMELINE_END,
-          direction: "next",
-        };
-      } else if (currentStart < prevEnd) {
-        return {
-          hasCollided: true,
-          setStart: prevTask?.startTime ?? TIMELINE_START,
-          setEnd: prevTask?.endTime ?? TIMELINE_START,
-          direction: "prev",
-        };
-      }
-      return {
-        check: false,
-      };
+    if (type === "prev") {
+      const startMinutes = convertHHMMToMinutes(taskBTime);
+      const newEndMinutes = startMinutes + duration;
+      return convertMinutesToHHMM(newEndMinutes);
     }
+  }
+  function handleCollided(
+    direction: string,
+    currentTask: Task,
+    cardLength: number,
+    elementUnderMouse: Element | null,
+    mouseStartTime: string
+  ) {
+    const newTimes = findSpaceBetweenTasks(
+      direction as "next" | "prev",
+      currentTask,
+      currentTasksRef.current,
+      cardLength
+    );
 
-    function calculateResize(height: number) {
-      const pixelsPerMinute = 70 / 60;
-      const durationMinutes = Math.floor(height / pixelsPerMinute);
-
-      const startTotalMinutes = startHours * 60 + startMinutes;
-      const endTotalMinutes = startTotalMinutes + durationMinutes;
-
-      const hours24 = Math.floor(endTotalMinutes / 60);
-      const minutes = endTotalMinutes % 60;
-
-      return `${String(hours24).padStart(2, "0")}:${String(minutes).padStart(
-        2,
-        "0"
-      )}`;
-    }
-
-    function handleResize(height: number) {
-      if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
-      }
-      const newEndTime = calculateResize(height);
-      const newTask: Task = { ...task, endTime: newEndTime };
-
-      animationFrameId = requestAnimationFrame(() => {
-        editDraftTask(newTask);
-        setTaskLength(height);
-        animationFrameId = null;
+    if (newTimes && elementUnderMouse?.closest(".calendar-task-card")) {
+      handleSetPreviewTask({
+        ...currentTask,
+        startTime: newTimes.startTime,
+        endTime: newTimes.endTime,
       });
     }
 
-    function checkNextTaskStartTime(task: Task) {
-      if (draftTasks) {
-        const tasksPastCurrent = draftTasks
-          .filter((storedTask) => {
-            if (
-              isSameDate(task.date, storedTask.date) &&
-              convertHHMMToMinutes(storedTask.startTime) >
-                convertHHMMToMinutes(task.endTime) - 1
-            )
-              return task;
-          })
-          .sort(
-            (a, b) =>
-              convertHHMMToMinutes(a.startTime) -
-              convertHHMMToMinutes(b.startTime)
-          );
-
-        if (tasksPastCurrent.length > 0) {
-          const [startHours, startMinutes] =
-            tasksPastCurrent[0].startTime.split(":");
-          return calculateStartingPosition(
-            Number(startHours),
-            Number(startMinutes)
-          );
-        }
+    if (newTimes) {
+      const mouseLocation = convertHHMMToMinutes(mouseStartTime);
+      const newLocation = convertHHMMToMinutes(newTimes?.startTime);
+      if (
+        direction === "next" &&
+        newTimes?.startTime &&
+        mouseLocation > newLocation - buffer
+      ) {
+        handleMove({
+          currentTask,
+          setStartTime: newTimes.startTime,
+          setEndTime: newTimes.endTime,
+        });
+        handleSetPreviewTask(null);
+      } else if (
+        direction === "prev" &&
+        newTimes?.startTime &&
+        mouseLocation < newLocation + buffer
+      ) {
+        handleMove({
+          currentTask,
+          setStartTime: newTimes.startTime,
+          setEndTime: newTimes.endTime,
+        });
+        handleSetPreviewTask(null);
       }
     }
   }
-
-  function handleMove(params: MoveParams) {
-    let startTime;
-    let endTime;
-    let position;
-    if ("setStartTime" in params && "setEndTime" in params) {
-      const { setStartTime, setEndTime } = params as MoveByTime;
-      startTime = setStartTime;
-      endTime = setEndTime;
-      const [startHours, startMinutes] = startTime.split(":").map(Number);
-      position = calculateStartingPosition(startHours, startMinutes);
-    } else {
-      startTime = convertLengthToTime(
-        params.difference,
-        startHours,
-        startMinutes
-      );
-      position = Math.floor(params.startPosition) + params.difference;
-      endTime = convertLengthToTime(params.difference, endHours, endMinutes);
-    }
-    const newTask: Task = {
-      ...params.currentTask,
-      startTime: startTime,
-      endTime: endTime,
-    };
-
-    currentTaskRef.current = newTask;
-    currentTasksRef.current = currentTasksRef.current.map((t) =>
-      t.id === newTask.id ? newTask : t
+  function collisionCheck(
+    selectedTaskIndex: number,
+    sortedTasks: Task[],
+    difference: number,
+    task: Task
+  ) {
+    const nextTask = sortedTasks[selectedTaskIndex + 1];
+    const prevTask = sortedTasks[selectedTaskIndex - 1];
+    const differenceMinutes = convertPixelsToMinutes(difference);
+    const currentEnd = convertHHMMToMinutes(task.endTime) + differenceMinutes;
+    const currentStart =
+      convertHHMMToMinutes(task.startTime) + differenceMinutes;
+    const nextStart = convertHHMMToMinutes(
+      nextTask ? nextTask.startTime : TIMELINE_END
     );
 
-    animationFrameId = requestAnimationFrame(() => {
-      setTaskPosition(position);
-      editDraftTask(newTask);
-      animationFrameId = null;
-    });
+    const prevEnd = convertHHMMToMinutes(
+      prevTask ? prevTask.endTime : TIMELINE_START
+    );
+
+    if (currentEnd > nextStart) {
+      return {
+        hasCollided: true,
+        setStart: nextTask?.startTime ?? TIMELINE_END,
+        setEnd: nextTask?.endTime ?? TIMELINE_END,
+        direction: "next",
+      };
+    } else if (currentStart < prevEnd) {
+      return {
+        hasCollided: true,
+        setStart: prevTask?.startTime ?? TIMELINE_START,
+        setEnd: prevTask?.endTime ?? TIMELINE_START,
+        direction: "prev",
+      };
+    }
+    return {
+      check: false,
+    };
   }
 
   function findSpaceBetweenTasks(
@@ -486,14 +358,6 @@ export function useTaskCardControl({
     }
   }
 
-  function calculateLengthBetweenTasks(timeA: string, timeB: string) {
-    const taskAMinutes = convertHHMMToMinutes(timeA);
-    const taskBMinutes = convertHHMMToMinutes(timeB);
-    const differenceMinutes = Math.abs(taskAMinutes - taskBMinutes);
-    const conversion = 70 / 60;
-    return Math.round(differenceMinutes * conversion);
-  }
-
   function calculateNewTimes(
     direction: "next" | "prev",
     currentTask: Task,
@@ -519,6 +383,185 @@ export function useTaskCardControl({
     }
   }
 
+  function handleMove(params: MoveParams) {
+    let startTime;
+    let endTime;
+    let position;
+    if ("setStartTime" in params && "setEndTime" in params) {
+      const { setStartTime, setEndTime } = params as MoveByTime;
+      startTime = setStartTime;
+      endTime = setEndTime;
+      const [startHours, startMinutes] = startTime.split(":").map(Number);
+      position = calculateStartingPosition(startHours, startMinutes);
+    } else {
+      startTime = convertLengthToTime(
+        params.difference,
+        startHours,
+        startMinutes
+      );
+      position = Math.floor(params.startPosition) + params.difference;
+      endTime = convertLengthToTime(params.difference, endHours, endMinutes);
+    }
+    const newTask: Task = {
+      ...params.currentTask,
+      startTime: startTime,
+      endTime: endTime,
+    };
+
+    currentTaskRef.current = newTask;
+    currentTasksRef.current = currentTasksRef.current.map((t) =>
+      t.id === newTask.id ? newTask : t
+    );
+
+    animationFrameId = requestAnimationFrame(() => {
+      setTaskPosition(position);
+      editDraftTask(newTask);
+      animationFrameId = null;
+    });
+  }
+
+  function handleResize(
+    newLength: number,
+    nextTaskTime: number | undefined,
+    startPosition: number
+  ) {
+    if (newLength > 3) hasDraggedRef.current = true;
+    if (
+      nextTaskTime !== undefined &&
+      startPosition + newLength > nextTaskTime
+    ) {
+      applyResize(nextTaskTime - startPosition + 1);
+    } else if (startPosition + newLength >= timelineHeight) {
+      applyResize(timelineHeight - startPosition);
+    } else if (
+      taskRef.current &&
+      newLength > 5.83 &&
+      startPosition + newLength < timelineHeight
+    ) {
+      applyResize(newLength);
+    }
+  }
+
+  function applyResize(height: number) {
+    if (animationFrameId) {
+      cancelAnimationFrame(animationFrameId);
+    }
+    const newEndTime = calculateResize(height);
+    const newTask: Task = { ...task, endTime: newEndTime };
+
+    animationFrameId = requestAnimationFrame(() => {
+      editDraftTask(newTask);
+      setTaskLength(height);
+      animationFrameId = null;
+    });
+  }
+
+  function calculateResize(height: number) {
+    const pixelsPerMinute = 70 / 60;
+    const durationMinutes = Math.floor(height / pixelsPerMinute);
+
+    const startTotalMinutes = startHours * 60 + startMinutes;
+    const endTotalMinutes = startTotalMinutes + durationMinutes;
+
+    const hours24 = Math.floor(endTotalMinutes / 60);
+    const minutes = endTotalMinutes % 60;
+
+    return `${String(hours24).padStart(2, "0")}:${String(minutes).padStart(
+      2,
+      "0"
+    )}`;
+  }
+
+  function checkNextTaskStartTime(task: Task) {
+    if (draftTasks) {
+      const tasksPastCurrent = draftTasks
+        .filter((storedTask) => {
+          if (
+            isSameDate(task.date, storedTask.date) &&
+            convertHHMMToMinutes(storedTask.startTime) >
+              convertHHMMToMinutes(task.endTime) - 1
+          )
+            return task;
+        })
+        .sort(
+          (a, b) =>
+            convertHHMMToMinutes(a.startTime) -
+            convertHHMMToMinutes(b.startTime)
+        );
+
+      if (tasksPastCurrent.length > 0) {
+        const [startHours, startMinutes] =
+          tasksPastCurrent[0].startTime.split(":");
+        return calculateStartingPosition(
+          Number(startHours),
+          Number(startMinutes)
+        );
+      }
+    }
+  }
+
+  function handleChangeDay(direction: "prev" | "next") {
+    let currentTask = { ...currentTaskRef.current };
+    currentTask.date = setDayOfDate(currentTask.date, direction, 1);
+
+    const tasksArray = currentTasksRef.current.map((task) => {
+      return task.id === currentTask.id ? currentTask : task;
+    });
+    const sortedTaskIncludingCurrent = getSortedTasks(
+      currentTask.date,
+      tasksArray
+    );
+    const taskIndex = sortedTaskIncludingCurrent.findIndex(
+      (t) => currentTask.id === t.id
+    );
+    const sortedTasks = sortedTaskIncludingCurrent.filter(
+      (taskB) => task.id !== taskB.id
+    );
+
+    const hasSpace = checkSpace(sortedTaskIncludingCurrent, taskIndex);
+    if (hasSpace) {
+      handleMove({
+        currentTask,
+        setStartTime: currentTask.startTime,
+        setEndTime: currentTask.endTime,
+      });
+      return;
+    }
+
+    const availableSpaces = findAllSpaces(sortedTasks);
+    const newTimes = findClosestSpace(availableSpaces, currentTask);
+
+    if (newTimes) {
+      handleMove({
+        currentTask,
+        setStartTime: newTimes.startTime,
+        setEndTime: newTimes.endTime,
+      });
+    }
+  }
+
+  function checkSpace(tasks: Task[], taskIndex: number) {
+    const prevTask = tasks[taskIndex - 1];
+    const currentTask = tasks[taskIndex];
+    const nextTask = tasks[taskIndex + 1];
+    const spaceStartMinutes = convertHHMMToMinutes(
+      prevTask ? prevTask.endTime : TIMELINE_START
+    );
+    const spaceEndMinutes = convertHHMMToMinutes(
+      nextTask ? nextTask.startTime : TIMELINE_END
+    );
+    const taskStartMinutes = convertHHMMToMinutes(currentTask.startTime);
+    const taskEndMinutes = convertHHMMToMinutes(currentTask.endTime);
+    if (
+      spaceStartMinutes <= taskStartMinutes &&
+      spaceEndMinutes >= taskEndMinutes
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   function calculateSpace(startTime: string, endTime: string) {
     const startMinutes = convertHHMMToMinutes(startTime);
     const endMinutes = convertHHMMToMinutes(endTime);
@@ -538,19 +581,6 @@ export function useTaskCardControl({
       timeSpots.push(times);
     }
     return timeSpots;
-  }
-
-  function getValidTimeSlots(timeSpots: TimeSpot[], length: number) {
-    let index: number[] = [];
-    for (let i = 0; i < timeSpots.length; i++) {
-      const spaceLength = convertMinutesToLength(
-        timeSpots[i].startMinutes - timeSpots[i].endMinutes
-      );
-      if (spaceLength >= length) {
-        index.push(i);
-      }
-    }
-    return index;
   }
 
   function findClosestSpace(timeSpots: TimeSpot[], task: Task) {
@@ -603,66 +633,48 @@ export function useTaskCardControl({
     }
   }
 
-  function checkSpace(tasks: Task[], taskIndex: number) {
-    const prevTask = tasks[taskIndex - 1];
-    const currentTask = tasks[taskIndex];
-    const nextTask = tasks[taskIndex + 1];
-    const spaceStartMinutes = convertHHMMToMinutes(
-      prevTask ? prevTask.endTime : TIMELINE_START
-    );
-    const spaceEndMinutes = convertHHMMToMinutes(
-      nextTask ? nextTask.startTime : TIMELINE_END
-    );
-    const taskStartMinutes = convertHHMMToMinutes(currentTask.startTime);
-    const taskEndMinutes = convertHHMMToMinutes(currentTask.endTime);
-    if (
-      spaceStartMinutes <= taskStartMinutes &&
-      spaceEndMinutes >= taskEndMinutes
-    ) {
-      return true;
-    } else {
-      return false;
+  function getValidTimeSlots(timeSpots: TimeSpot[], length: number) {
+    let index: number[] = [];
+    for (let i = 0; i < timeSpots.length; i++) {
+      const spaceLength = convertMinutesToLength(
+        timeSpots[i].startMinutes - timeSpots[i].endMinutes
+      );
+      if (spaceLength >= length) {
+        index.push(i);
+      }
     }
+    return index;
   }
 
-  function handleChangeDay(direction: "prev" | "next") {
-    let currentTask = { ...currentTaskRef.current };
-    currentTask.date = setDayOfDate(currentTask.date, direction, 1);
-
-    const tasksArray = currentTasksRef.current.map((task) => {
-      return task.id === currentTask.id ? currentTask : task;
-    });
-    const sortedTaskIncludingCurrent = getSortedTasks(
-      currentTask.date,
-      tasksArray
+  function handleCancel() {
+    const prevTask = tasks.find(
+      (taskA) => taskA.id === currentTaskRef.current.id
     );
-    const taskIndex = sortedTaskIncludingCurrent.findIndex(
-      (t) => currentTask.id === t.id
-    );
-    const sortedTasks = sortedTaskIncludingCurrent.filter(
-      (taskB) => task.id !== taskB.id
-    );
-
-    const hasSpace = checkSpace(sortedTaskIncludingCurrent, taskIndex);
-    if (hasSpace) {
-      handleMove({
-        currentTask,
-        setStartTime: currentTask.startTime,
-        setEndTime: currentTask.endTime,
-      });
-      return;
-    }
-
-    const availableSpaces = findAllSpaces(sortedTasks);
-    const newTimes = findClosestSpace(availableSpaces, currentTask);
-
-    if (newTimes) {
-      handleMove({
-        currentTask,
-        setStartTime: newTimes.startTime,
-        setEndTime: newTimes.endTime,
-      });
-    }
+    if (!prevTask) return;
+    const taskLength = getLengthFromTask(prevTask);
+    const taskPosition = getPostionFromTask(prevTask);
+    deleteDraftTasks();
+    handleDraftAction(null);
+    setTaskPosition(taskPosition);
+    setTaskLength(taskLength);
   }
+
+  function handleSave() {
+    draftTasks && saveTasks(draftTasks);
+    deleteDraftTasks;
+    handleDraftAction(null);
+  }
+
+  function getSortedTasks(date: Date, tasks: Task[]) {
+    return [...tasks]
+      .sort((t1, t2) => {
+        return (
+          convertHHMMToMinutes(t1.startTime) -
+          convertHHMMToMinutes(t2.startTime)
+        );
+      })
+      .filter((t) => isSameDate(t.date, date));
+  }
+
   return { onMouseDown, handleChangeDay };
 }

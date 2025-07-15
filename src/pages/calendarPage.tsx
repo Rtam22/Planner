@@ -2,7 +2,7 @@ import "./calendarPage.css";
 import MainNavigation from "../components/navigation/mainNavigation";
 import TopBar from "../components/navigation/topBar";
 import FilterBar from "../components/filters/filterBar";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import CalendarTimeline from "../components/calendar/calendarTimeline";
 import type { CalendarDayProps } from "../components/calendar/calendarTimeline";
 import { useTasksContext } from "../context/taskContext";
@@ -35,35 +35,27 @@ function CalendarPage() {
   );
   // const [previewTask, setPreviewTask] = useState<PreviewTask | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [filteredTasks, setfilteredTasks] = useState<Task[]>(tasks);
+  const [filters, setFilters] = useState<FilterProps>({
+    filters: {
+      search: "",
+      tags: [],
+    },
+  });
   const dates: CalendarDayProps[] = getDayAndDayNumber(selectedDate);
   const secondaryDates = getSecondaryDates(selectedDate, "forwards", 7);
-
-  useEffect(() => {
-    if (showModal === "create") {
-      setIsEditing(true);
-    }
-  }, [showModal]);
-
-  useEffect(() => {
-    if (isEditing) {
-      enableEditMode();
-    }
-  }, [isEditing]);
-
-  useEffect(() => {
-    if (isEditing && draftTasks) {
-      setfilteredTasks(draftTasks ?? []);
-    } else {
-      setfilteredTasks(tasks);
-    }
-  }, [draftTasks]);
+  const filteredTasks = useMemo(() => {
+    const baseTasks = isEditing && draftTasks ? draftTasks : tasks;
+    return applyFilter(baseTasks, filters);
+  }, [tasks, draftTasks, isEditing, filters]);
 
   function handleSelectDate(newDate: Date) {
     setselectedDate(newDate);
   }
 
   function handleShowModal(type: modalType) {
+    if (type === "create") {
+      setIsEditing(true);
+    }
     setShowModal(type);
   }
 
@@ -84,8 +76,7 @@ function CalendarPage() {
   }
 
   function handleFilterTasks(filters: FilterProps) {
-    const filteredTasks = applyFilter(tasks, filters);
-    setfilteredTasks(filteredTasks);
+    setFilters(filters);
   }
 
   return (
@@ -126,6 +117,7 @@ function CalendarPage() {
           isEditing={isEditing}
           setIsEditing={setIsEditing}
           handleDraftAction={handleDraftAction}
+          enableEditMode={enableEditMode}
         />
         <div className="horizontal">
           <CalendarTimeline

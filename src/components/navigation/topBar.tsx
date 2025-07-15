@@ -11,6 +11,7 @@ type filterBarProps = {
   isEditing: boolean;
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
   handleDraftAction: (action: "save" | "cancel" | null) => void;
+  enableEditMode: () => void;
 };
 
 function TopUtilityBar({
@@ -21,6 +22,7 @@ function TopUtilityBar({
   isEditing,
   setIsEditing,
   handleDraftAction,
+  enableEditMode,
 }: filterBarProps) {
   function handleDateChange(e: React.MouseEvent<HTMLDivElement>) {
     const button = e.currentTarget.textContent;
@@ -46,7 +48,12 @@ function TopUtilityBar({
 
   function handleCreateTask() {
     handleShowModal("create");
+    enableEditMode();
+  }
+
+  function handleSetEditing() {
     setIsEditing(true);
+    enableEditMode();
   }
   return (
     <div className="top-utility-bar" data-testid="top-utility-bar">
@@ -80,10 +87,7 @@ function TopUtilityBar({
               </Button>
             </>
           ) : (
-            <Button
-              className="btn-plain"
-              onClick={() => setIsEditing(!isEditing)}
-            >
+            <Button className="btn-plain" onClick={handleSetEditing}>
               To Plan
             </Button>
           )}

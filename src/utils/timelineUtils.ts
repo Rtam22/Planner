@@ -1,4 +1,6 @@
 import type { Task } from "../types/taskTypes";
+import { isSameDate } from "./dateUtils";
+import { convertHHMMToMinutes } from "./timeUtils";
 
 export function calculateLength(
   startHours: number,
@@ -94,4 +96,22 @@ export function getPostionFromTask(task: Task) {
   const pixelsPerMinute = 70 / 60;
   const startingPosition = startHours * 70 + startMinutes * pixelsPerMinute;
   return startingPosition;
+}
+
+export function calculateLengthBetweenTasks(timeA: string, timeB: string) {
+  const taskAMinutes = convertHHMMToMinutes(timeA);
+  const taskBMinutes = convertHHMMToMinutes(timeB);
+  const differenceMinutes = Math.abs(taskAMinutes - taskBMinutes);
+  const conversion = 70 / 60;
+  return Math.round(differenceMinutes * conversion);
+}
+
+export function getSortedTasks(date: Date, tasks: Task[]) {
+  return [...tasks]
+    .sort((t1, t2) => {
+      return (
+        convertHHMMToMinutes(t1.startTime) - convertHHMMToMinutes(t2.startTime)
+      );
+    })
+    .filter((t) => isSameDate(t.date, date));
 }
