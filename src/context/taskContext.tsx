@@ -13,11 +13,12 @@ type TasksContextType = {
   editTask: (selectedTask: Task) => void;
   addTag: () => void;
   handleSetPreviewTask: (task: Task | null) => void;
-  createDraftTasks: () => void;
+  enableEditMode: () => void;
   editDraftTask: (task: Task) => void;
   commitDraftTasks: () => void;
   deleteDraftTasks: () => void;
   handleDraftAction: (action: "save" | "cancel" | null) => void;
+  saveTasks: (tasks: Task[]) => void;
 };
 
 const TasksContext = createContext<TasksContextType | null>(null);
@@ -50,6 +51,10 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
     );
   }
 
+  function saveTasks(tasks: Task[]) {
+    setTasks([...tasks]);
+  }
+
   function handleSetPreviewTask(task: Task | null) {
     setPreviewTask(task);
   }
@@ -58,7 +63,7 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
     setTags([...tags]);
   }
 
-  function createDraftTasks() {
+  function enableEditMode() {
     setDraftTasks([...tasks]);
   }
 
@@ -96,11 +101,12 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
         editTask,
         addTag,
         handleSetPreviewTask,
-        createDraftTasks,
+        enableEditMode,
         editDraftTask,
         commitDraftTasks,
         deleteDraftTasks,
         handleDraftAction,
+        saveTasks,
       }}
     >
       {children}

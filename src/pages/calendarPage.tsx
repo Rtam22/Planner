@@ -24,7 +24,7 @@ function CalendarPage() {
     editTask,
     deleteTask,
     handleSetPreviewTask,
-    createDraftTasks,
+    enableEditMode,
     handleDraftAction,
   } = useTasksContext();
   const [selectedDate, setselectedDate] = useState<Date>(new Date());
@@ -47,7 +47,7 @@ function CalendarPage() {
 
   useEffect(() => {
     if (isEditing) {
-      createDraftTasks();
+      enableEditMode();
     }
   }, [isEditing]);
 
@@ -87,8 +87,6 @@ function CalendarPage() {
     const filteredTasks = applyFilter(tasks, filters);
     setfilteredTasks(filteredTasks);
   }
-
-  function handleSave() {}
 
   return (
     <div className="calendar-page">

@@ -39,6 +39,11 @@ function TopUtilityBar({
     handleDraftAction("cancel");
   }
 
+  function handleSave() {
+    setIsEditing(false);
+    handleDraftAction("save");
+  }
+
   function handleCreateTask() {
     handleShowModal("create");
     setIsEditing(true);
@@ -67,10 +72,7 @@ function TopUtilityBar({
           </Button>
           {isEditing ? (
             <>
-              <Button
-                className="btn-plain"
-                onClick={() => setIsEditing(!isEditing)}
-              >
+              <Button className="btn-plain" onClick={handleSave}>
                 Save
               </Button>
               <Button className="btn-plain" onClick={handleCancelEdit}>

@@ -82,3 +82,16 @@ export function convertMinutesToLength(minutes: number): number {
   const pixelsPerMinute = 70 / 60;
   return Math.round(Math.abs(minutes) * pixelsPerMinute);
 }
+
+export function getLengthFromTask(task: Task) {
+  const [startHours, startMinutes] = task.startTime.split(":").map(Number);
+  const [endHours, endMinutes] = task.endTime.split(":").map(Number);
+  return calculateLength(startHours, startMinutes, endHours, endMinutes);
+}
+
+export function getPostionFromTask(task: Task) {
+  const [startHours, startMinutes] = task.startTime.split(":").map(Number);
+  const pixelsPerMinute = 70 / 60;
+  const startingPosition = startHours * 70 + startMinutes * pixelsPerMinute;
+  return startingPosition;
+}

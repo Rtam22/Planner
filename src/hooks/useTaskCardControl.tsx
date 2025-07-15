@@ -9,6 +9,8 @@ import {
   convertPixelsToMinutes,
   convertMinutesToLength,
   convertLengthToMinutes,
+  getLengthFromTask,
+  getPostionFromTask,
 } from "../utils/timelineUtils";
 import { useEffect, useRef } from "react";
 import { getTimeDifferenceInMinutes, splitTimeHHMM } from "../utils/timeUtils";
@@ -17,11 +19,9 @@ import throttle from "lodash.throttle";
 export type UseTaskCardControlProps = {
   task: Task;
   hasDraggedRef: ReturnType<typeof useRef<boolean>>;
-  taskLength: number;
   setTaskLength: React.Dispatch<React.SetStateAction<number>>;
   setTaskPosition: React.Dispatch<React.SetStateAction<number>>;
   taskRef: ReturnType<typeof useRef<HTMLDivElement | null>>;
-  taskPosition: number;
 };
 
 type TimeSpot = {
@@ -59,22 +59,19 @@ export function useTaskCardControl({
   setTaskLength,
   setTaskPosition,
   taskRef,
-  taskLength,
-  taskPosition,
 }: UseTaskCardControlProps) {
   const TIMELINE_START = "00:00";
   const TIMELINE_END = "24:00";
   const {
     draftTasks,
     draftAction,
-    editTask,
+    saveTasks,
     handleSetPreviewTask,
     editDraftTask,
     deleteDraftTasks,
     handleDraftAction,
   } = useTasksContext();
-  const initialTaskPositionRef = useRef(taskPosition);
-  const initialLengthRef = useRef(taskLength);
+  const { tasks } = useTasksContext();
   let currentTaskRef = useRef(task);
   let currentTasksRef = useRef(draftTasks ? draftTasks : []);
   let isDragging = false;
@@ -107,17 +104,30 @@ export function useTaskCardControl({
   useEffect(() => {
     if (draftAction === "cancel") {
       handleCancel();
+    } else if (draftAction === "save") {
+      handleSave();
     }
   }, [draftAction]);
 
   function handleCancel() {
-    setTaskPosition(initialTaskPositionRef.current);
-    setTaskLength(initialLengthRef.current);
+    const prevTask = tasks.find(
+      (taskA) => taskA.id === currentTaskRef.current.id
+    );
+    if (!prevTask) return;
+    const taskLength = getLengthFromTask(prevTask);
+    const taskPosition = getPostionFromTask(prevTask);
+
+    setTaskPosition(taskPosition);
+    setTaskLength(taskLength);
     deleteDraftTasks();
     handleDraftAction(null);
   }
 
-  function handleSave() {}
+  function handleSave() {
+    draftTasks && saveTasks(draftTasks);
+    deleteDraftTasks;
+    handleDraftAction(null);
+  }
 
   function onMouseDown(
     e: React.MouseEvent<HTMLButtonElement> | React.MouseEvent<HTMLDivElement>,
@@ -199,12 +209,16 @@ export function useTaskCardControl({
             setStartTime: newTime.startTime,
             setEndTime: newTime.endTime,
           });
+
+          if (!isDragging) return;
+
           const newTimes = findSpaceBetweenTasksThrottled(
             direction as "next" | "prev",
             currentTask,
             currentTasksRef.current,
             cardLength
           );
+
           if (newTimes && elementUnderMouse?.closest(".calendar-task-card")) {
             handleSetPreviewTask({
               ...currentTask,
@@ -213,30 +227,32 @@ export function useTaskCardControl({
             });
           }
 
-          if (
-            direction === "next" &&
-            newTimes?.startTime &&
-            convertHHMMToMinutes(mouseStartTime) >
-              convertHHMMToMinutes(newTimes?.startTime) - buffer
-          ) {
-            handleMove({
-              currentTask,
-              setStartTime: newTimes.startTime,
-              setEndTime: newTimes.endTime,
-            });
-            handleSetPreviewTask(null);
-          } else if (
-            direction === "prev" &&
-            newTimes?.startTime &&
-            convertHHMMToMinutes(mouseStartTime) <
-              convertHHMMToMinutes(newTimes?.startTime) + buffer
-          ) {
-            handleMove({
-              currentTask,
-              setStartTime: newTimes.startTime,
-              setEndTime: newTimes.endTime,
-            });
-            handleSetPreviewTask(null);
+          if (newTimes) {
+            const mouseLocation = convertHHMMToMinutes(mouseStartTime);
+            const newLocation = convertHHMMToMinutes(newTimes?.startTime);
+            if (
+              direction === "next" &&
+              newTimes?.startTime &&
+              mouseLocation > newLocation - buffer
+            ) {
+              handleMove({
+                currentTask,
+                setStartTime: newTimes.startTime,
+                setEndTime: newTimes.endTime,
+              });
+              handleSetPreviewTask(null);
+            } else if (
+              direction === "prev" &&
+              newTimes?.startTime &&
+              mouseLocation < newLocation + buffer
+            ) {
+              handleMove({
+                currentTask,
+                setStartTime: newTimes.startTime,
+                setEndTime: newTimes.endTime,
+              });
+              handleSetPreviewTask(null);
+            }
           }
         } else {
           handleMove({ currentTask, difference, startPosition });
