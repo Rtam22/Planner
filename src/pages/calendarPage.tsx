@@ -30,10 +30,7 @@ function CalendarPage() {
   const [selectedDate, setselectedDate] = useState<Date>(new Date());
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const { applyFilter } = useFilters();
-  const [showModal, setShowModal] = useState<"none" | "view" | "create">(
-    "none"
-  );
-  // const [previewTask, setPreviewTask] = useState<PreviewTask | null>(null);
+  const [showModal, setShowModal] = useState<"none" | "view" | "create">("none");
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [filters, setFilters] = useState<FilterProps>({
     filters: {

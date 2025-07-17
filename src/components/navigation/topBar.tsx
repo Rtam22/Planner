@@ -42,8 +42,10 @@ function TopUtilityBar({
   }
 
   function handleSave() {
-    setIsEditing(false);
     handleDraftAction("save");
+    setTimeout(() => {
+      setIsEditing(false);
+    }, 80);
   }
 
   function handleCreateTask() {

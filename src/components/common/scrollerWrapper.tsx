@@ -14,7 +14,6 @@ function ScrollerWrapper({
   scrollTopPosition,
   selectedDate,
 }: ScrollerWrapperProps) {
-  console.log(selectedDate);
   useEffect(() => {
     if (elementRef.current) {
       elementRef.current.scrollTo({ left: 0, behavior: "smooth" });
