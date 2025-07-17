@@ -5,28 +5,35 @@ import type { modalType } from "../../types/modalTypes";
 type modalProps = {
   children: React.ReactNode;
   type: "right" | "middle" | "left";
-  showModal: "none" | "view" | "create";
-  handleShowModal: (type: modalType) => void;
+  showModal: "none" | "view" | "create" | boolean;
+  setClose: (type: any) => void;
   backDrop: boolean;
+  closeOnBackDrop?: boolean;
   width?: string;
   height?: string;
+  removeCloseButton?: boolean;
+  zIndexInput?: number;
 };
 
 function Modal({
   children,
   type,
   showModal,
-  handleShowModal,
+  setClose,
   backDrop,
   width,
   height,
+  closeOnBackDrop,
+  removeCloseButton,
+  zIndexInput,
 }: modalProps) {
   return (
     <div
-      onClick={() => handleShowModal("none")}
-      className={`${backDrop ? "back-drop" : ""} ${
-        showModal != "none" ? "" : "hidden"
-      }`}
+      onClick={() => {
+        if (closeOnBackDrop) setClose("none");
+      }}
+      className={`${backDrop ? "back-drop" : ""} ${showModal != "none" ? "" : "hidden"}`}
+      style={{ zIndex: zIndexInput }}
     >
       <div
         className={`modal ${type}`}
@@ -34,12 +41,15 @@ function Modal({
         onClick={(e) => e.stopPropagation()}
       >
         {showModal === "create" && <div className="header-color"></div>}
-        <Button
-          className="btn-plain btn-ext btn-right"
-          onClick={() => handleShowModal("none")}
-        >
-          X
-        </Button>
+        {!removeCloseButton && (
+          <Button
+            className="btn-plain btn-ext btn-right"
+            onClick={() => setClose("none")}
+          >
+            X
+          </Button>
+        )}
+
         {children}
       </div>
     </div>

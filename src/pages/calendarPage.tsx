@@ -14,6 +14,7 @@ import type { modalType } from "../types/modalTypes";
 import TaskView from "../components/tasks/taskView";
 import type { FilterProps } from "../hooks/useFilters";
 import { useFilters } from "../hooks/useFilters";
+import Confirmation from "../components/common/confirmation";
 
 function CalendarPage() {
   const {
@@ -31,6 +32,7 @@ function CalendarPage() {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const { applyFilter } = useFilters();
   const [showModal, setShowModal] = useState<"none" | "view" | "create">("none");
+  const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [filters, setFilters] = useState<FilterProps>({
     filters: {
@@ -57,9 +59,14 @@ function CalendarPage() {
   }
 
   function handleCancelModal(type: modalType) {
-    setShowModal(type);
-    handleDraftAction("cancel");
-    setIsEditing(false);
+    if (JSON.stringify(draftTasks) !== JSON.stringify(tasks)) {
+      setShowConfirmation(true);
+      setShowModal(type);
+    } else {
+      setShowModal(type);
+      handleDraftAction("cancel");
+      setIsEditing(false);
+    }
   }
 
   function handleSetPreview(task: Task | null) {
@@ -76,13 +83,31 @@ function CalendarPage() {
     setFilters(filters);
   }
 
+  function handleCreateSave() {
+    setShowModal("none");
+    handleDraftAction("save");
+    setIsEditing(false);
+  }
+
+  function handleShowConfirmation() {
+    setShowConfirmation(false);
+    handleDraftAction("cancel");
+    setIsEditing(false);
+  }
+
+  function handleConfirmationSave() {
+    setShowConfirmation(false);
+    handleDraftAction("save");
+    setIsEditing(false);
+  }
+
   return (
     <div className="calendar-page">
       {showModal === "view" && (
         <Modal
           showModal={showModal}
           type="middle"
-          handleShowModal={handleShowModal}
+          setClose={handleShowModal}
           backDrop={true}
           width="1000px"
           height="auto"
@@ -93,6 +118,28 @@ function CalendarPage() {
             onSave={editTask}
             onDelete={deleteTask}
           />
+        </Modal>
+      )}
+
+      {showConfirmation && (
+        <Modal
+          showModal={showConfirmation}
+          type="middle"
+          setClose={handleShowConfirmation}
+          backDrop={true}
+          removeCloseButton={true}
+          zIndexInput={21}
+          width="300px"
+          height="120px"
+        >
+          <Confirmation
+            buttonConfirmTitle="Save"
+            buttonCancelTitle="Cancel"
+            onClickConfirm={handleConfirmationSave}
+            onClickCancel={handleShowConfirmation}
+          >
+            Save changes to the timeline?
+          </Confirmation>
         </Modal>
       )}
       <MainNavigation />
@@ -131,12 +178,13 @@ function CalendarPage() {
             <Modal
               showModal={showModal}
               type="right"
-              handleShowModal={handleCancelModal}
+              setClose={handleCancelModal}
               backDrop={false}
             >
               <TaskForm
                 handleSelectDate={handleSelectDate}
                 handleSetPreview={handleSetPreview}
+                handleCreateSave={handleCreateSave}
               />
             </Modal>
           )}

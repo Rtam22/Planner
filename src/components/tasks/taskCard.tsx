@@ -87,14 +87,14 @@ function TaskCard({
       {isEditing && (
         <>
           <Button
-            color={task.tag?.color}
+            backgroundColor={task.tag?.color}
             className="btn-move-left"
             onClick={() => handleChangeDay("prev")}
           >
             ‹
           </Button>
           <Button
-            color={task.tag?.color}
+            backgroundColor={task.tag?.color}
             className="btn-move-right"
             onClick={() => handleChangeDay("next")}
           >
@@ -102,7 +102,7 @@ function TaskCard({
           </Button>
           <Button
             className="btn-resize"
-            color={adjustColor(task.tag?.color ?? "#ccc", -20)}
+            backgroundColor={adjustColor(task.tag?.color ?? "#ccc", -20)}
             onMouseDown={(e) => onMouseDown(e, "resize")}
             onClick={(e) => e.stopPropagation()}
           ></Button>

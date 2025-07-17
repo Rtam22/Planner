@@ -10,6 +10,7 @@ import type { Task } from "../../types/taskTypes";
 type createTaskModal = {
   handleSelectDate: (newDate: Date) => void;
   handleSetPreview: (task: Task | null) => void;
+  handleCreateSave: () => void;
 };
 
 type TagOption = {
@@ -41,11 +42,7 @@ const customStyles: StylesConfig<TagOption, false> = {
   }),
   option: (base, state) => ({
     ...base,
-    backgroundColor: state.isSelected
-      ? "#E5EAFF"
-      : state.isFocused
-      ? "#F3F5FF"
-      : "white",
+    backgroundColor: state.isSelected ? "#E5EAFF" : state.isFocused ? "#F3F5FF" : "white",
     color: state.isSelected ? "black" : "black",
     padding: "10px 12px",
     fontSize: "14px",
@@ -56,6 +53,7 @@ const customStyles: StylesConfig<TagOption, false> = {
 function CreateTaskModal({
   handleSelectDate,
   handleSetPreview,
+  handleCreateSave,
 }: createTaskModal) {
   const [title, setTitle] = useState<string>("");
   const [description, setDscription] = useState<string>("");
@@ -65,16 +63,14 @@ function CreateTaskModal({
   const [endTime, setEndTime] = useState<string>("");
   const [repeat, setRepeat] = useState<string>("");
 
-  const { addTask, tags } = useTasksContext();
+  const { addTask, addDraftTask, tags } = useTasksContext();
   const tagOptions = tags.map((tag) => {
     return { label: tag.label, value: tag.label.toLowerCase() };
   });
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     const [year, month, day] = date.split("-");
-    const getTag = tags.find(
-      (t) => t.label.toLowerCase() === tag?.value.toLowerCase()
-    );
+    const getTag = tags.find((t) => t.label.toLowerCase() === tag?.value.toLowerCase());
 
     e.preventDefault();
     const newTask = {
@@ -88,7 +84,8 @@ function CreateTaskModal({
       repeat: repeat,
     };
     handleSetPreview(null);
-    addTask(newTask);
+    addDraftTask(newTask);
+    handleCreateSave();
   }
 
   function handlePreview() {
@@ -101,9 +98,7 @@ function CreateTaskModal({
     }
     const [year, month, day] = date.split("-");
     const previewDate = new Date(Number(year), Number(month) - 1, Number(day));
-    const getTag = tags.find(
-      (t) => t.label.toLowerCase() === tag?.value.toLowerCase()
-    );
+    const getTag = tags.find((t) => t.label.toLowerCase() === tag?.value.toLowerCase());
     handleSelectDate(previewDate);
     const previewTask = {
       id: uuidv4(),
@@ -187,11 +182,7 @@ function CreateTaskModal({
             onChange={(e) => setEndTime(e.currentTarget.value)}
             required
           />
-          <Button
-            type="button"
-            className="btn-secondary"
-            onClick={handlePreview}
-          >
+          <Button type="button" className="btn-secondary" onClick={handlePreview}>
             Preview
           </Button>
         </div>
