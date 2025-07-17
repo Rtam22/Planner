@@ -13,6 +13,7 @@ type filterBarProps = {
   handleSelectDate: (newDate: Date) => void;
   highlightSecondary?: Date[];
   handleFilter: (filters: FilterProps) => void;
+  filteredTasks: Task[];
 };
 
 function FilterBar({
@@ -22,6 +23,7 @@ function FilterBar({
   selectedDate,
   handleSelectDate,
   highlightSecondary,
+  filteredTasks,
 }: filterBarProps) {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -42,6 +44,7 @@ function FilterBar({
         selectedDate={selectedDate}
         handleSelectDate={handleSelectDate}
         highlightSecondary={highlightSecondary}
+        showTaskInCell={filteredTasks ? filteredTasks : tasks}
       />
       <Search onSearch={setSearchQuery} useButton={false} />
 

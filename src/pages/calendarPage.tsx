@@ -2,11 +2,11 @@ import "./calendarPage.css";
 import MainNavigation from "../components/navigation/mainNavigation";
 import TopBar from "../components/navigation/topBar";
 import FilterBar from "../components/filters/filterBar";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import CalendarTimeline from "../components/calendar/calendarTimeline";
 import type { CalendarDayProps } from "../components/calendar/calendarTimeline";
 import { useTasksContext } from "../context/taskContext";
-import type { PreviewTask, Task } from "../types/taskTypes";
+import type { Task } from "../types/taskTypes";
 import TaskForm from "../components/tasks/taskForm";
 import Modal from "../components/common/modal";
 import { getDayAndDayNumber, getSecondaryDates } from "../utils/dateUtils";
@@ -16,31 +16,50 @@ import type { FilterProps } from "../hooks/useFilters";
 import { useFilters } from "../hooks/useFilters";
 
 function CalendarPage() {
-  const [selectedDate, setselectedDate] = useState(new Date());
-  const { applyFilter } = useFilters();
-  const [showModal, setShowModal] = useState<"none" | "view" | "create">(
-    "none"
-  );
   const {
     tasks,
+    draftTasks,
     tags,
     previewTask,
     editTask,
     deleteTask,
     handleSetPreviewTask,
+    enableEditMode,
+    handleDraftAction,
   } = useTasksContext();
-  // const [previewTask, setPreviewTask] = useState<PreviewTask | null>(null);
+  const [selectedDate, setselectedDate] = useState<Date>(new Date());
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const { applyFilter } = useFilters();
+  const [showModal, setShowModal] = useState<"none" | "view" | "create">("none");
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [filteredTasks, setfilteredTasks] = useState<Task[]>(tasks);
+  const [filters, setFilters] = useState<FilterProps>({
+    filters: {
+      search: "",
+      tags: [],
+    },
+  });
   const dates: CalendarDayProps[] = getDayAndDayNumber(selectedDate);
   const secondaryDates = getSecondaryDates(selectedDate, "forwards", 7);
+  const filteredTasks = useMemo(() => {
+    const baseTasks = isEditing && draftTasks ? draftTasks : tasks;
+    return applyFilter(baseTasks, filters);
+  }, [tasks, draftTasks, isEditing, filters]);
 
   function handleSelectDate(newDate: Date) {
     setselectedDate(newDate);
   }
 
   function handleShowModal(type: modalType) {
+    if (type === "create") {
+      setIsEditing(true);
+    }
     setShowModal(type);
+  }
+
+  function handleCancelModal(type: modalType) {
+    setShowModal(type);
+    handleDraftAction("cancel");
+    setIsEditing(false);
   }
 
   function handleSetPreview(task: Task | null) {
@@ -54,8 +73,7 @@ function CalendarPage() {
   }
 
   function handleFilterTasks(filters: FilterProps) {
-    const filteredTasks = applyFilter(tasks, filters);
-    setfilteredTasks(filteredTasks);
+    setFilters(filters);
   }
 
   return (
@@ -86,6 +104,7 @@ function CalendarPage() {
         selectedDate={selectedDate}
         handleSelectDate={handleSelectDate}
         highlightSecondary={secondaryDates}
+        filteredTasks={filteredTasks}
       />
       <div className="content">
         <TopBar
@@ -93,6 +112,10 @@ function CalendarPage() {
           handleSelectDate={handleSelectDate}
           handleShowModal={handleShowModal}
           showModal={showModal}
+          isEditing={isEditing}
+          setIsEditing={setIsEditing}
+          handleDraftAction={handleDraftAction}
+          enableEditMode={enableEditMode}
         />
         <div className="horizontal">
           <CalendarTimeline
@@ -101,13 +124,14 @@ function CalendarPage() {
             selectedDate={selectedDate}
             previewTask={previewTask}
             onClick={handleTaskClick}
+            isEditing={isEditing}
           />
 
           {showModal === "create" && (
             <Modal
               showModal={showModal}
               type="right"
-              handleShowModal={handleShowModal}
+              handleShowModal={handleCancelModal}
               backDrop={false}
             >
               <TaskForm

@@ -32,8 +32,9 @@ function renderComponent() {
         dates={getDayAndDayNumber(date)}
         tasks={task}
         selectedDate={date}
-        previewTask={previewTask}
+        previewTask={task[0]}
         onClick={mockFn}
+        isEditing={false}
       />
     </TasksProvider>
   );

@@ -9,12 +9,14 @@ import {
   isSameDate,
   compareDateArrayToDate,
 } from "../../utils/dateUtils";
+import type { Task } from "../../types/taskTypes";
 
 export type calendarProps = {
   selectedDate: Date;
   handleSelectDate: (newDate: Date) => void;
   highlightSecondary?: Date[];
   showToday?: boolean;
+  showTaskInCell?: Task[];
 };
 
 function Calendar({
@@ -22,10 +24,11 @@ function Calendar({
   handleSelectDate,
   highlightSecondary,
   showToday = true,
+  showTaskInCell,
 }: calendarProps) {
   const [dateView, setDateView] = useState(new Date());
   const days = ["M", "T", "W", "T", "F", "S", "S"];
-
+  const taskList = showTaskInCell ? showTaskInCell : null;
   useEffect(() => {
     setDateView(selectedDate);
   }, [selectedDate]);
@@ -58,147 +61,142 @@ function Calendar({
     }
   }
 
-  function generateCells(date: Date) {
-    const prevMonth = setMonthOfDate(date, "prev", 1);
-    let numberOfDaysPrev = daysInMonth(
-      prevMonth.getFullYear(),
-      prevMonth.getMonth()
-    );
-    const preffix = getFirstDayOfMonth(date.getFullYear(), date.getMonth());
-    const numberOfDays = daysInMonth(date.getFullYear(), date.getMonth());
-    const suffix = 42 - (numberOfDays + preffix);
-    numberOfDaysPrev = numberOfDaysPrev - preffix + 1;
-    const today = new Date();
+  function getPrefixCells(
+    prefix: number,
+    prevMonthActive: Date,
+    nextMonthSelected: Date,
+    today: Date,
+    numberOfDaysPrev: number
+  ) {
     let cells: JSX.Element[] = [];
-
-    Array.from({ length: preffix }, (_, i) => {
+    Array.from({ length: prefix }, (_, i) => {
       const date = i + 1;
+      const prevMonthFindToday = new Date(
+        dateView.getFullYear(),
+        dateView.getMonth() - 1,
+        date
+      );
       cells.push(
         <div
           key={"preffix" + i}
           id={numberOfDaysPrev.toString()}
           data-testid="cal-cell"
           className={`cal-cell is-outside-month ${
-            isSameDate(
-              selectedDate,
-              new Date(
-                dateView.getFullYear(),
-                dateView.getMonth() - 1,
-                numberOfDaysPrev
-              )
-            )
-              ? "active"
-              : ""
+            isSameDate(selectedDate, prevMonthActive) ? "active" : ""
           } ${
-            compareDateArrayToDate(
-              highlightSecondary,
-              new Date(
-                dateView.getFullYear(),
-                dateView.getMonth() + 1,
-                numberOfDaysPrev
-              )
-            ) === true
+            compareDateArrayToDate(highlightSecondary, nextMonthSelected) === true
               ? "secondary"
               : ""
           } ${
-            isSameDate(
-              today,
-              new Date(dateView.getFullYear(), dateView.getMonth() - 1, date)
-            ) && showToday === true
-              ? "today"
-              : ""
+            isSameDate(today, prevMonthFindToday) && showToday === true ? "today" : ""
           }`}
-          onClick={(e: React.MouseEvent<HTMLDivElement>) =>
-            handleSelect(e, "prev")
-          }
+          onClick={(e: React.MouseEvent<HTMLDivElement>) => handleSelect(e, "prev")}
         >
           {numberOfDaysPrev}
         </div>
       );
       numberOfDaysPrev++;
     });
+    return cells;
+  }
 
+  function getDayCells(numberOfDays: number, today: Date) {
+    let cells: JSX.Element[] = [];
     Array.from({ length: numberOfDays }, (_, i) => {
       const date = i + 1;
+      const calendarDate = new Date(dateView.getFullYear(), dateView.getMonth(), date);
       cells.push(
         <div
           data-testid="cal-cell"
           key={`cells${i}`}
           id={date.toString()}
           className={`cal-cell ${
-            isSameDate(
-              selectedDate,
-              new Date(dateView.getFullYear(), dateView.getMonth(), date)
-            )
-              ? "active"
-              : ""
+            isSameDate(selectedDate, calendarDate) ? "active" : ""
           } ${
-            compareDateArrayToDate(
-              highlightSecondary,
-              new Date(dateView.getFullYear(), dateView.getMonth(), date)
-            ) === true
+            compareDateArrayToDate(highlightSecondary, calendarDate) === true
               ? "secondary"
               : ""
-          } ${
-            isSameDate(
-              today,
-              new Date(dateView.getFullYear(), dateView.getMonth(), date)
-            ) && showToday === true
-              ? "today"
-              : ""
-          }
+          } ${isSameDate(today, calendarDate) && showToday === true ? "today" : ""}
            `}
-          onClick={(e: React.MouseEvent<HTMLDivElement>) =>
-            handleSelect(e, "current")
-          }
+          onClick={(e: React.MouseEvent<HTMLDivElement>) => handleSelect(e, "current")}
         >
           {date}
+          <div className="container">
+            {showTaskInCell
+              ? taskList?.map((task, index) => {
+                  if (isSameDate(task.date, calendarDate)) {
+                    return (
+                      <div
+                        key={index}
+                        className="task-box"
+                        style={{ backgroundColor: task.tag?.color }}
+                      ></div>
+                    );
+                  }
+                })
+              : null}
+          </div>
         </div>
       );
     });
+    return cells;
+  }
 
+  function getSuffixCells(suffix: number, today: Date) {
+    let cells: JSX.Element[] = [];
     Array.from({ length: suffix }, (_, i) => {
       const date = i + 1;
+      const nextMonth = new Date(dateView.getFullYear(), dateView.getMonth() + 1, date);
       cells.push(
         <div
           id={date.toString()}
           key={"suffix" + i}
           data-testid="cal-cell"
           className={`cal-cell is-outside-month ${
-            isSameDate(
-              selectedDate,
-              new Date(
-                selectedDate.getFullYear(),
-                dateView.getMonth() + 1,
-                date
-              )
-            )
-              ? "active"
-              : ""
+            isSameDate(selectedDate, nextMonth) ? "active" : ""
           } ${
-            compareDateArrayToDate(
-              highlightSecondary,
-              new Date(dateView.getFullYear(), dateView.getMonth() + 1, date)
-            ) === true
+            compareDateArrayToDate(highlightSecondary, nextMonth) === true
               ? "secondary"
               : ""
-          } ${
-            isSameDate(
-              today,
-              new Date(dateView.getFullYear(), dateView.getMonth() + 1, date)
-            ) && showToday === true
-              ? "today"
-              : ""
-          }`}
-          onClick={(e: React.MouseEvent<HTMLDivElement>) =>
-            handleSelect(e, "next")
-          }
+          } ${isSameDate(today, nextMonth) && showToday === true ? "today" : ""}`}
+          onClick={(e: React.MouseEvent<HTMLDivElement>) => handleSelect(e, "next")}
         >
           {date}
         </div>
       );
     });
+    return cells;
+  }
 
+  function generateCells(date: Date) {
+    const prevMonth = setMonthOfDate(date, "prev", 1);
+    let numberOfDaysPrev = daysInMonth(prevMonth.getFullYear(), prevMonth.getMonth());
+    const prefix = getFirstDayOfMonth(date.getFullYear(), date.getMonth());
+    const numberOfDays = daysInMonth(date.getFullYear(), date.getMonth());
+    const prevMonthActive = new Date(
+      dateView.getFullYear(),
+      dateView.getMonth() - 1,
+      numberOfDaysPrev
+    );
+    const nextMonthSelected = new Date(
+      dateView.getFullYear(),
+      dateView.getMonth() + 1,
+      numberOfDaysPrev
+    );
+    const suffix = 42 - (numberOfDays + prefix);
+    numberOfDaysPrev = numberOfDaysPrev - prefix + 1;
+    const today = new Date();
+    let cells: JSX.Element[] = [
+      ...getPrefixCells(
+        prefix,
+        prevMonthActive,
+        nextMonthSelected,
+        today,
+        numberOfDaysPrev
+      ),
+      ...getDayCells(numberOfDays, today),
+      ...getSuffixCells(suffix, today),
+    ];
     return cells;
   }
 

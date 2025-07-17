@@ -4,18 +4,25 @@ import "./scrollerWrapper.css";
 type ScrollerWrapperProps = {
   children: React.ReactNode;
   elementRef: React.RefObject<HTMLDivElement | null>;
-  scrollPosition: number;
+  scrollTopPosition: number;
+  selectedDate?: Date;
 };
 
 function ScrollerWrapper({
   children,
   elementRef,
-  scrollPosition,
+  scrollTopPosition,
+  selectedDate,
 }: ScrollerWrapperProps) {
   useEffect(() => {
+    if (elementRef.current) {
+      elementRef.current.scrollTo({ left: 0, behavior: "smooth" });
+    }
+  }, [selectedDate]);
+  useEffect(() => {
     const element = elementRef?.current;
-    if (element && scrollPosition) {
-      element.scrollTop = scrollPosition;
+    if (element && scrollTopPosition) {
+      element.scrollTop = scrollTopPosition;
     }
     let isDragging = false;
     let startX: number;
@@ -24,9 +31,7 @@ function ScrollerWrapper({
     let scrollTop: number;
 
     function onMouseDown(event: MouseEvent) {
-      const isTaskCard = (event.target as HTMLElement).closest(
-        ".calendar-task-card"
-      );
+      const isTaskCard = (event.target as HTMLElement).closest(".calendar-task-card");
       const isButton = (event.target as HTMLElement).closest("button");
       if (isTaskCard || isButton) return;
       if (event.button !== 0) return;
