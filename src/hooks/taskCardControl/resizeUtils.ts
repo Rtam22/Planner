@@ -43,23 +43,23 @@ export function calculateResize(
 }
 
 export function checkNextTaskStartTime(task: Task, draftTasks: Task[]) {
-  if (draftTasks) {
-    const tasksPastCurrent = draftTasks
-      .filter((storedTask) => {
-        if (
-          isSameDate(task.date, storedTask.date) &&
-          convertHHMMToMinutes(storedTask.startTime) >
-            convertHHMMToMinutes(task.endTime) - 1
-        )
-          return task;
-      })
-      .sort(
-        (a, b) => convertHHMMToMinutes(a.startTime) - convertHHMMToMinutes(b.startTime)
-      );
+  const tasksAfterSelected = draftTasks
+    .filter((storedTask) => {
+      if (
+        isSameDate(task.date, storedTask.date) &&
+        convertHHMMToMinutes(storedTask.startTime) >
+          convertHHMMToMinutes(task.endTime) - 1
+      )
+        return task;
+    })
+    .sort(
+      (a, b) => convertHHMMToMinutes(a.startTime) - convertHHMMToMinutes(b.startTime)
+    );
 
-    if (tasksPastCurrent.length > 0) {
-      const [startHours, startMinutes] = tasksPastCurrent[0].startTime.split(":");
-      return calculateStartingPosition(Number(startHours), Number(startMinutes));
-    }
+  if (tasksAfterSelected.length > 0) {
+    const [startHours, startMinutes] = tasksAfterSelected[0].startTime.split(":");
+    return calculateStartingPosition(Number(startHours), Number(startMinutes));
+  } else {
+    return null;
   }
 }

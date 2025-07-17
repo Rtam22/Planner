@@ -18,7 +18,7 @@ import {
   findSpaceBetweenTasks,
   getSnappedTimesFromCollision,
 } from "./collisionUtils";
-import { buffer } from "./constants";
+import { BUFFER } from "./constants";
 import { findCenterBetweenTimes } from "./previewUtils";
 import type { MoveByTime, MoveParams } from "./types";
 export type UseTaskCardControlProps = {
@@ -194,7 +194,7 @@ export function useTaskCardControl({
     );
     const hasDraggedEnough = newLength > 3;
     const hasReachedNextTask =
-      nextTaskTime !== undefined && startPosition + newLength > nextTaskTime;
+      nextTaskTime !== null && startPosition + newLength > nextTaskTime;
     const overflowTimeLine = startPosition + newLength >= timelineHeight;
     const validHeightAndSpace =
       taskRef.current && newLength > 5.83 && startPosition + newLength < timelineHeight;
@@ -203,7 +203,6 @@ export function useTaskCardControl({
     if (nextTaskTime) {
       if (hasDraggedEnough) hasDraggedRef.current = true;
     }
-
     if (hasReachedNextTask) {
       height = nextTaskTime - startPosition + 1;
     } else if (overflowTimeLine) {
@@ -229,7 +228,9 @@ export function useTaskCardControl({
     let startTime;
     let endTime;
     let position;
-    if ("setStartTime" in params && "setEndTime" in params) {
+    const setTimesPassed = "setStartTime" in params && "setEndTime" in params;
+
+    if (setTimesPassed) {
       const { setStartTime, setEndTime } = params as MoveByTime;
       startTime = setStartTime;
       endTime = setEndTime;
@@ -271,27 +272,25 @@ export function useTaskCardControl({
       currentTasksRef.current,
       cardLength
     );
+
     if (!newTimes) return;
     handleSetPreview(mousePosition, direction, currentTask, newTimes);
     if (newTimes) {
       const mouseLocation = convertHHMMToMinutes(mouseStartTime);
       const newLocation = convertHHMMToMinutes(newTimes?.startTime);
-      if (
-        direction === "next" &&
-        newTimes?.startTime &&
-        mouseLocation > newLocation - buffer
-      ) {
+      const mousePassedNextTask =
+        direction === "next" && mouseLocation > newLocation - BUFFER;
+      const mousePassedPrevTask =
+        direction === "prev" && mouseLocation < newLocation + BUFFER;
+
+      if (mousePassedNextTask) {
         handleMove({
           currentTask,
           setStartTime: newTimes.startTime,
           setEndTime: newTimes.endTime,
         });
         handleSetPreviewTask(null);
-      } else if (
-        direction === "prev" &&
-        newTimes?.startTime &&
-        mouseLocation < newLocation + buffer
-      ) {
+      } else if (mousePassedPrevTask) {
         handleMove({
           currentTask,
           setStartTime: newTimes.startTime,
@@ -318,10 +317,11 @@ export function useTaskCardControl({
       direction === "next" ? times?.startTime : times?.endTime,
       currTaskStartPoint
     );
-    if (
+    const mouseCloserToNextLocation =
       (direction === "next" && absoluteY > centerPoint) ||
-      (direction === "prev" && absoluteY < centerPoint)
-    ) {
+      (direction === "prev" && absoluteY < centerPoint);
+
+    if (mouseCloserToNextLocation) {
       const previewTask = {
         ...currentTask,
         startTime: times.startTime,

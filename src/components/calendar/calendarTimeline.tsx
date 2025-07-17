@@ -30,7 +30,7 @@ function CalendarTimeline({
   onClick,
   isEditing,
 }: CalendarTimelineProps) {
-  const scrollTime = 6 * 70;
+  const scrollTopPosition = 6 * 70;
   const timelineRef = useRef<HTMLDivElement | null>(null);
   const timeStamps = [{ hour: 12, period: "pm" }];
   const daysInWeek = 7;
@@ -59,7 +59,11 @@ function CalendarTimeline({
   }
 
   return (
-    <ScrollerWrapper elementRef={timelineRef} scrollPosition={scrollTime}>
+    <ScrollerWrapper
+      elementRef={timelineRef}
+      scrollTopPosition={scrollTopPosition}
+      selectedDate={selectedDate}
+    >
       <div ref={timelineRef} className="calendar-timeline">
         <div className="calendar-day-display">
           {dates.map((date, index) => (
