@@ -50,7 +50,10 @@ function CalendarTimeline({
     timeStamps.push({ hour: hour12, period });
   }
 
-  function compareDate(taskDate: Date, date: Date) {
+  function compareDate(taskDateInput: Date, dateInput: Date) {
+    const taskDate =
+      taskDateInput instanceof Date ? taskDateInput : new Date(taskDateInput);
+    const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
     return (
       taskDate.getDate() === date.getDate() &&
       taskDate.getMonth() === date.getMonth() &&

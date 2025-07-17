@@ -1,4 +1,5 @@
 import type { CalendarDayProps } from "../components/calendar/calendarTimeline";
+import type { Task } from "../types/taskTypes";
 
 export function getMonthName(dateView: Date) {
   return dateView.toLocaleDateString("default", { month: "long" });
@@ -43,10 +44,11 @@ export function isSameDate(dateA: Date, dateB: Date) {
   return a === b;
 }
 
-export function convertToDDMMYYYY(date: Date) {
-  const day = date.getDate();
-  const month = date.getMonth();
-  const year = date.getFullYear();
+export function convertToDDMMYYYY(date: Date | string) {
+  const newDate = new Date(date);
+  const day = newDate.getDate();
+  const month = newDate.getMonth();
+  const year = newDate.getFullYear();
 
   return `${day.toString().padStart(2, "0")}/${month
     .toString()
@@ -113,4 +115,11 @@ export function getDateFromAddedDays(date: Date, days: number) {
   const newDate = new Date(date);
   newDate.setDate(newDate.getDate() + days);
   return newDate;
+}
+
+export function convertArrayDateStringToDate(dateArray: Task[]) {
+  return dateArray.map((task) => ({
+    ...task,
+    date: new Date(task.date),
+  }));
 }

@@ -1,6 +1,8 @@
 import { createContext, useContext, useState } from "react";
 import type { Task, Tag } from "../types/taskTypes";
 import { initialTags, initialTasks } from "../data/taskData";
+import useLocalStorage from "../hooks/useLocalStorage";
+import { convertArrayDateStringToDate } from "../utils/dateUtils";
 
 type TasksContextType = {
   tasks: Task[];
@@ -24,10 +26,12 @@ type TasksContextType = {
 const TasksContext = createContext<TasksContextType | null>(null);
 
 export function TasksProvider({ children }: { children: React.ReactNode }) {
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
-  const [draftAction, setDraftAction] = useState<"save" | "cancel" | null>(
-    null
-  );
+  const [tasks, setTasks] = useLocalStorage<Task[]>({
+    key: "tasks",
+    initialValue: initialTasks,
+    reviver: convertArrayDateStringToDate,
+  });
+  const [draftAction, setDraftAction] = useState<"save" | "cancel" | null>(null);
   const [draftTasks, setDraftTasks] = useState<Task[] | null>(null);
   const [tags, setTags] = useState<Tag[]>(initialTags);
   const [previewTask, setPreviewTask] = useState<Task | null>(null);
