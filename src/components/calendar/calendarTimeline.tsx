@@ -3,10 +3,7 @@ import "./calendarTimeline.css";
 import { useRef } from "react";
 import ScrollerWrapper from "../common/scrollerWrapper";
 import type { PreviewTask, Task } from "../../types/taskTypes";
-import {
-  calculateLength,
-  calculateStartingPosition,
-} from "../../utils/timelineUtils";
+import { calculateLength, calculateStartingPosition } from "../../utils/timelineUtils";
 
 import { convertToDDMMYYYY } from "../../utils/dateUtils";
 
@@ -33,18 +30,17 @@ function CalendarTimeline({
   onClick,
   isEditing,
 }: CalendarTimelineProps) {
+  const scrollTime = 6 * 70;
   const timelineRef = useRef<HTMLDivElement | null>(null);
   const timeStamps = [{ hour: 12, period: "pm" }];
   const daysInWeek = 7;
   let date = new Date(selectedDate);
   date.setDate(date.getDate() - 1);
 
-  const [startHours, startMinutes] = previewTask?.startTime
-    ?.split(":")
-    .map(Number) || [0, 0];
-  const [endHours, endMinutes] = previewTask?.endTime
-    ?.split(":")
-    .map(Number) || [0, 0];
+  const [startHours, startMinutes] = previewTask?.startTime?.split(":").map(Number) || [
+    0, 0,
+  ];
+  const [endHours, endMinutes] = previewTask?.endTime?.split(":").map(Number) || [0, 0];
 
   for (let i = 0; i < 25; i++) {
     const hour24 = i;
@@ -63,19 +59,13 @@ function CalendarTimeline({
   }
 
   return (
-    <ScrollerWrapper elementRef={timelineRef} scrollPosition={6 * 70}>
+    <ScrollerWrapper elementRef={timelineRef} scrollPosition={scrollTime}>
       <div ref={timelineRef} className="calendar-timeline">
         <div className="calendar-day-display">
           {dates.map((date, index) => (
-            <div
-              key={index}
-              className="calendar-day"
-              data-testid="calendar-day"
-            >
+            <div key={index} className="calendar-day" data-testid="calendar-day">
               <p>{date.day}</p>
-              <div
-                className={`center-container ${date.isToday ? "active" : ""} `}
-              >
+              <div className={`center-container ${date.isToday ? "active" : ""} `}>
                 <h3>{date.dayDate}</h3>
               </div>
             </div>
@@ -105,28 +95,22 @@ function CalendarTimeline({
                   className="cell-column"
                   data-testid={convertToDDMMYYYY(date)}
                 >
-                  {previewTask &&
-                    compareDate(date, previewTask.date) &&
-                    previewTask && (
-                      <div
-                        className="preview-task"
-                        style={{
-                          top: calculateStartingPosition(
-                            startHours,
-                            startMinutes
-                          ),
-                          height: `${calculateLength(
-                            startHours,
-                            startMinutes,
-                            endHours,
-                            endMinutes
-                          )}px`,
-                          maxHeight:
-                            1680 -
-                            calculateStartingPosition(startHours, startMinutes),
-                        }}
-                      ></div>
-                    )}
+                  {previewTask && compareDate(date, previewTask.date) && previewTask && (
+                    <div
+                      className="preview-task"
+                      style={{
+                        top: calculateStartingPosition(startHours, startMinutes),
+                        height: `${calculateLength(
+                          startHours,
+                          startMinutes,
+                          endHours,
+                          endMinutes
+                        )}px`,
+                        maxHeight:
+                          1680 - calculateStartingPosition(startHours, startMinutes),
+                      }}
+                    ></div>
+                  )}
                   {tasks.map((task) => {
                     if (compareDate(task.date, date)) {
                       return (

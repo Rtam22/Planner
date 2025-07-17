@@ -7,7 +7,7 @@ import {
 } from "../../utils/timelineUtils";
 import { convertTimeString24To12 } from "../../utils/dateUtils";
 import React, { useEffect, useRef, useState } from "react";
-import { useTaskCardControl } from "../../hooks/useTaskCardControl";
+import { useTaskCardControl } from "../../hooks/taskCardControl/useTaskCardControl";
 import Button from "../common/button";
 
 type calendarTaskCardProps = {
@@ -33,12 +33,7 @@ function TaskCard({
   const timelineHeight = 1680;
   const startTime = convertTimeString24To12(task.startTime);
   const endTime = convertTimeString24To12(task.endTime);
-  let cardLength = calculateLength(
-    startHours,
-    startMinutes,
-    endHours,
-    endMinutes
-  );
+  let cardLength = calculateLength(startHours, startMinutes, endHours, endMinutes);
 
   const [taskLength, setTaskLength] = useState<number>(cardLength);
   const [taskPosition, setTaskPosition] = useState<number>(startPosition);

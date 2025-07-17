@@ -107,6 +107,7 @@ function CalendarPage() {
         selectedDate={selectedDate}
         handleSelectDate={handleSelectDate}
         highlightSecondary={secondaryDates}
+        filteredTasks={filteredTasks}
       />
       <div className="content">
         <TopBar
