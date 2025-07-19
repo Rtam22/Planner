@@ -50,7 +50,9 @@ function TopUtilityBar({
 
   function handleCreateTask() {
     handleShowModal("create");
-    enableEditMode();
+    if (isEditing === false) {
+      enableEditMode();
+    }
   }
 
   function handleSetEditing() {

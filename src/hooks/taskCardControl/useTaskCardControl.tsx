@@ -88,7 +88,7 @@ export function useTaskCardControl({
 
   function handleSave() {
     draftTasks && saveTasks(draftTasks);
-    deleteDraftTasks;
+    deleteDraftTasks();
     handleDraftAction(null);
   }
 

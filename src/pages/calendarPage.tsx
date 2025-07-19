@@ -86,19 +86,25 @@ function CalendarPage() {
   function handleCreateSave() {
     setShowModal("none");
     handleDraftAction("save");
-    setIsEditing(false);
+    setTimeout(() => {
+      setIsEditing(false);
+    }, 80);
   }
 
   function handleShowConfirmation() {
     setShowConfirmation(false);
     handleDraftAction("cancel");
-    setIsEditing(false);
+    setTimeout(() => {
+      setIsEditing(false);
+    }, 80);
   }
 
   function handleConfirmationSave() {
     setShowConfirmation(false);
     handleDraftAction("save");
-    setIsEditing(false);
+    setTimeout(() => {
+      setIsEditing(false);
+    }, 80);
   }
 
   return (

@@ -63,7 +63,7 @@ function CreateTaskModal({
   const [endTime, setEndTime] = useState<string>("");
   const [repeat, setRepeat] = useState<string>("");
 
-  const { addTask, addDraftTask, tags } = useTasksContext();
+  const { addDraftTask, tags } = useTasksContext();
   const tagOptions = tags.map((tag) => {
     return { label: tag.label, value: tag.label.toLowerCase() };
   });
