@@ -66,11 +66,6 @@
   margin-top: 15px;
 }
 
-.horizontal.time {
-  gap: 10px;
-  display: flex;
-}
-
 @media (min-width: 1000px) {
   .modal.right {
     width: 400px;

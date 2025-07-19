@@ -2,3 +2,16 @@
   margin-top: 30px;
   padding: 0 10px;
 }
+
+.task-form fieldset {
+  gap: 8px;
+}
+
+.horizontal.time {
+  gap: 17px;
+  display: flex;
+}
+
+.task-form label {
+  font-size: 14px;
+}

@@ -55,6 +55,19 @@ export function convertToDDMMYYYY(date: Date | string) {
     .padStart(2, "0")}/${year}`;
 }
 
+export function formatDateToYYYYMMDD(date: Date): string {
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, "0");
+  const day = `${date.getDate()}`.padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+export function parseYYYYMMDDToDate(ymd: string): Date {
+  const [year, month, day] = ymd.split("-").map(Number);
+  return new Date(year, month - 1, day);
+}
+
 export function convertTimeString24To12(time: string) {
   const [h, m] = time.split(":").map(Number);
   const hour = h % 12 === 0 ? 12 : h % 12;

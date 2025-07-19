@@ -191,6 +191,8 @@ function CalendarPage() {
                 handleSelectDate={handleSelectDate}
                 handleSetPreview={handleSetPreview}
                 handleCreateSave={handleCreateSave}
+                selectedDate={selectedDate}
+                tasks={tasks}
               />
             </Modal>
           )}
