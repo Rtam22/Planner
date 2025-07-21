@@ -1,6 +1,7 @@
 import { isDisabled } from "@testing-library/user-event/dist/cjs/utils/index.js";
 import type { Task } from "../types/taskTypes";
 import { isSameDate } from "./dateUtils";
+import { TIME_INTERVAL } from "../hooks/taskCardControl/constants";
 
 // General utils
 
@@ -143,7 +144,7 @@ export function getAvailableTimes(date: Date, tasks: Task[], type: "start" | "en
       } else {
         availableTimes.push({ label, value: label });
       }
-      currentTime += 5;
+      currentTime += TIME_INTERVAL;
     }
     if (i > orderedTasks.length - 1) break;
 

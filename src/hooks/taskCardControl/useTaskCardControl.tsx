@@ -19,7 +19,7 @@ import {
   findSpaceBetweenTasks,
   getSnappedTimesFromCollision,
 } from "./collisionUtils";
-import { BUFFER } from "./constants";
+import { BUFFER, TIME_INTERVAL } from "./constants";
 import { findCenterBetweenTimes } from "./previewUtils";
 import type { MoveByTime, MoveParams } from "./types";
 export type UseTaskCardControlProps = {
@@ -122,15 +122,24 @@ export function useTaskCardControl({
       );
       document.body.style.cursor = "grabbing";
       currentTask = currentTaskRef.current;
+
       const mouseCurrentY = event.pageY;
       difference = mouseCurrentY - mousePrevY;
+
       const selectedIndex = sortedTasks.findIndex((t) => t.id === task.id);
       const mouseStartTime = convertLengthToTime(difference, startHours, startMinutes);
-      let cardLength = calculateLength(startHours, startMinutes, endHours, endMinutes);
+      const cardLength = calculateLength(startHours, startMinutes, endHours, endMinutes);
       const newLength = cardLength + difference;
       const differenceMinutes = convertLengthToMinutes(difference);
 
-      if (type === "move" && differenceMinutes % 5 === 0) {
+      if (type === "move") handleMoveType();
+      if (type === "resize") handleResizeType();
+
+      function handleMoveType() {
+        const movementNotWithinInterval =
+          type === "move" && differenceMinutes % TIME_INTERVAL !== 0;
+
+        if (movementNotWithinInterval) return;
         const { hasCollided, setStart, setEnd, direction } = collisionCheck(
           selectedIndex,
           sortedTasks,
@@ -164,7 +173,11 @@ export function useTaskCardControl({
         }
       }
 
-      if (type === "resize" && differenceMinutes % 5 === 0) {
+      function handleResizeType() {
+        const resizeNotWithinInterval =
+          type === "resize" && differenceMinutes % TIME_INTERVAL !== 0;
+
+        if (resizeNotWithinInterval) return;
         handleResize(newLength, currentTask, startPosition);
       }
     }

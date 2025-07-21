@@ -12,6 +12,7 @@ import {
   getTimesAfter,
   timeAMPMToMinutes,
 } from "../../utils/timeUtils";
+import { TIME_INTERVAL } from "../../hooks/taskCardControl/constants";
 type createTaskModal = {
   handleSelectDate: (newDate: Date) => void;
   handleSetPreview: (task: Task | null) => void;
@@ -140,7 +141,6 @@ function CreateTaskModal({
       parseYYYYMMDDToDate(date),
       draftTasks
     );
-    const timeIncrements = 5;
     if (type === "start") {
       if (endTime && startTime) {
         const startMinutes = timeAMPMToMinutes(startTime.value);
@@ -148,7 +148,7 @@ function CreateTaskModal({
         const endMinutes = timeAMPMToMinutes(endTime.value);
         if (newStartMinutes > endMinutes) {
           const difference = Math.abs(startMinutes - endMinutes);
-          const numberOfHops = difference / timeIncrements - 1;
+          const numberOfHops = difference / TIME_INTERVAL - 1;
           setEndTime(newEndTimeOptions[numberOfHops]);
         }
       }
