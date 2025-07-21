@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "./taskForm.css";
 import Button from "../common/button";
 import { useTasksContext } from "../../context/taskContext";
@@ -50,8 +50,14 @@ const customStyles: StylesConfig<TagOption, false> = {
   }),
   option: (base, state) => ({
     ...base,
-    backgroundColor: state.isSelected ? "#E5EAFF" : state.isFocused ? "#F3F5FF" : "white",
-    color: state.isSelected ? "black" : "black",
+    backgroundColor: state.isDisabled
+      ? "#f5f5f5"
+      : state.isSelected
+      ? "#E5EAFF"
+      : state.isFocused
+      ? "#F3F5FF"
+      : "white",
+    color: state.isDisabled ? "#999" : "black",
     padding: "10px 12px",
     fontSize: "14px",
     fontFamily: '"Inter", "Segoe UI", sans-serif',
@@ -64,7 +70,7 @@ function CreateTaskModal({
   handleCreateSave,
   selectedDate,
 }: createTaskModal) {
-  const { addDraftTask, tags, draftTasks } = useTasksContext();
+  const { addDraftTask, tags, draftTasks, isDragging } = useTasksContext();
   const [tasks, setTasks] = useState<Task[]>(draftTasks ?? []);
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
@@ -81,17 +87,48 @@ function CreateTaskModal({
   const tagOptions = tags.map((tag) => {
     return { label: tag.label, value: tag.label.toLowerCase() };
   });
-  const [endTimeOptions, setEndTimeOptions] = useState(
+
+  const [endTimeOptions, setEndTimeOptions] = useState(() =>
     getAvailableTimes(parseYYYYMMDDToDate(date), tasks, "end")
   );
-  let startTimeOptionsAll = getAvailableTimes(parseYYYYMMDDToDate(date), tasks, "start");
-  let endTimeOptionsAll = getAvailableTimes(parseYYYYMMDDToDate(date), tasks, "end");
+  const [startTimeOptionsAll, setStartTimeOptionsAll] = useState(() =>
+    getAvailableTimes(parseYYYYMMDDToDate(date), draftTasks ? draftTasks : tasks, "start")
+  );
+
+  const endTimeOptionsAll = useMemo(() => {
+    if (!isDragging) {
+      return getAvailableTimes(
+        parseYYYYMMDDToDate(date),
+        draftTasks ? draftTasks : tasks,
+        "end"
+      );
+    }
+    return [];
+  }, [isDragging]);
 
   useEffect(() => {
-    if (draftTasks) {
+    if (draftTasks && !isDragging) {
       setTasks(draftTasks);
+      setStartTimeOptionsAll(
+        getAvailableTimes(
+          parseYYYYMMDDToDate(date),
+          draftTasks ? draftTasks : tasks,
+          "start"
+        )
+      );
+
+      if (startTime && !isDragging) {
+        setEndTimeOptions(
+          getTimesAfter(
+            startTime.value,
+            endTimeOptionsAll,
+            parseYYYYMMDDToDate(date),
+            draftTasks
+          )
+        );
+      }
     }
-  }, [draftTasks]);
+  }, [isDragging]);
 
   function handleSetTime(type: "start" | "end", time: { label: string; value: string }) {
     if (!draftTasks) {

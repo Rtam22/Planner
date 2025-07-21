@@ -8,21 +8,13 @@ export function applyResize(
   startHours: number,
   startMinutes: number,
   task: Task,
-  animationFrameId: number | null,
   editDraftTask: (task: Task) => void,
   setTaskLength: (height: number) => void
 ) {
-  if (animationFrameId) {
-    cancelAnimationFrame(animationFrameId);
-  }
   const newEndTime = calculateResize(height, startHours, startMinutes);
   const newTask: Task = { ...task, endTime: newEndTime };
-
-  animationFrameId = requestAnimationFrame(() => {
-    editDraftTask(newTask);
-    setTaskLength(height);
-    animationFrameId = null;
-  });
+  editDraftTask(newTask);
+  setTaskLength(height);
 }
 
 export function calculateResize(
@@ -31,7 +23,7 @@ export function calculateResize(
   startMinutes: number
 ) {
   const pixelsPerMinute = 70 / 60;
-  const durationMinutes = Math.floor(height / pixelsPerMinute);
+  const durationMinutes = Math.round(height / pixelsPerMinute);
 
   const startTotalMinutes = startHours * 60 + startMinutes;
   const endTotalMinutes = startTotalMinutes + durationMinutes;

@@ -10,6 +10,7 @@ type TasksContextType = {
   draftTasks: Task[] | null;
   previewTask: Task | null;
   draftAction: "save" | "cancel" | null;
+  isDragging: boolean;
   addTask: (selectedTask: Task) => void;
   addDraftTask: (selectedTask: Task) => void;
   deleteTask: (selectedTask: Task) => void;
@@ -22,6 +23,7 @@ type TasksContextType = {
   deleteDraftTasks: () => void;
   handleDraftAction: (action: "save" | "cancel" | null) => void;
   saveTasks: (tasks: Task[]) => void;
+  editIsDragging: (boolean: boolean) => void;
 };
 
 const TasksContext = createContext<TasksContextType | null>(null);
@@ -36,6 +38,7 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
   const [draftTasks, setDraftTasks] = useState<Task[] | null>(null);
   const [tags, setTags] = useState<Tag[]>(initialTags);
   const [previewTask, setPreviewTask] = useState<Task | null>(null);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
   function addTask(selectedTask: Task) {
     setTasks([...tasks, selectedTask]);
   }
@@ -86,6 +89,10 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  function editIsDragging(boolean: boolean) {
+    setIsDragging(boolean);
+  }
+
   function commitDraftTasks() {
     if (draftTasks) {
       saveTasks(draftTasks);
@@ -105,6 +112,7 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
         previewTask,
         draftTasks,
         draftAction,
+        isDragging,
         addTask,
         addDraftTask,
         deleteTask,
@@ -117,6 +125,7 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
         deleteDraftTasks,
         handleDraftAction,
         saveTasks,
+        editIsDragging,
       }}
     >
       {children}

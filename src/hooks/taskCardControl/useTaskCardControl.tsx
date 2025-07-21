@@ -5,6 +5,7 @@ import { isSameDate, setDayOfDate } from "../../utils/dateUtils";
 import {
   calculateLength,
   calculateStartingPosition,
+  convertLengthToMinutes,
   convertLengthToTime,
   getLengthFromTask,
   getPostionFromTask,
@@ -46,6 +47,7 @@ export function useTaskCardControl({
     editDraftTask,
     deleteDraftTasks,
     handleDraftAction,
+    editIsDragging,
   } = useTasksContext();
   const { tasks } = useTasksContext();
   const timeLine = timelineRef.current;
@@ -53,7 +55,6 @@ export function useTaskCardControl({
   let currentTaskRef = useRef<Task>(task);
   let currentTasksRef = useRef<Task[]>(draftTasks ? draftTasks : []);
   let isDragging = false;
-  let animationFrameId: number | null = null;
   const timelineHeight = 1680;
   const [startHours, startMinutes, endHours, endMinutes] = splitTimeHHMM(
     currentTaskRef.current
@@ -99,6 +100,7 @@ export function useTaskCardControl({
     e.stopPropagation();
     let difference = 0;
     isDragging = true;
+    editIsDragging(true);
     hasDraggedRef.current = false;
     const mousePrevY = e.pageY;
     let currentTask = currentTaskRef.current;
@@ -126,8 +128,9 @@ export function useTaskCardControl({
       const mouseStartTime = convertLengthToTime(difference, startHours, startMinutes);
       let cardLength = calculateLength(startHours, startMinutes, endHours, endMinutes);
       const newLength = cardLength + difference;
+      const differenceMinutes = convertLengthToMinutes(difference);
 
-      if (type === "move") {
+      if (type === "move" && differenceMinutes % 5 === 0) {
         const { hasCollided, setStart, setEnd, direction } = collisionCheck(
           selectedIndex,
           sortedTasks,
@@ -161,13 +164,14 @@ export function useTaskCardControl({
         }
       }
 
-      if (type === "resize") {
+      if (type === "resize" && differenceMinutes % 5 === 0) {
         handleResize(newLength, currentTask, startPosition);
       }
     }
 
     function onMouseUp() {
       isDragging = false;
+      editIsDragging(false);
       if (previewTaskRef.current) {
         const newStartTime = previewTaskRef.current.startTime;
         const newEndTime = previewTaskRef.current.endTime;
@@ -217,7 +221,6 @@ export function useTaskCardControl({
         startHours,
         startMinutes,
         currentTask,
-        animationFrameId,
         editDraftTask,
         setTaskLength
       );
@@ -252,11 +255,8 @@ export function useTaskCardControl({
       t.id === newTask.id ? newTask : t
     );
 
-    animationFrameId = requestAnimationFrame(() => {
-      setTaskPosition(position);
-      editDraftTask(newTask);
-      animationFrameId = null;
-    });
+    setTaskPosition(position);
+    editDraftTask(newTask);
   }
 
   function handleCollided(

@@ -1,5 +1,8 @@
+import { isDisabled } from "@testing-library/user-event/dist/cjs/utils/index.js";
 import type { Task } from "../types/taskTypes";
 import { isSameDate } from "./dateUtils";
+
+// General utils
 
 export function getTimeDifferenceInMinutes(start: string, end: string): number {
   const [startH, startM] = start.split(":").map(Number);
@@ -66,6 +69,8 @@ export function timeAMPMToMinutes(time: string): number {
   return hours * 60 + minutes;
 }
 
+// Task utils
+
 export function getTimesAfter(
   filterTime: string,
   times: { label: string; value: string }[],
@@ -75,8 +80,13 @@ export function getTimesAfter(
   let found = false;
   const filterTimeMinutes = timeAMPMToMinutes(filterTime);
   const nextTaskTime = getClosestNextTaskTime(filterTimeMinutes, date, tasks);
+  const endTimeLimit = nextTaskTime && convertHHMMToMinutes(nextTaskTime?.startTime);
   const result = times.filter((option) => {
     const timeMinutes = timeAMPMToMinutes(option.value);
+
+    if (endTimeLimit && timeMinutes > endTimeLimit) {
+      return false;
+    }
     if (found) return true;
     if (filterTimeMinutes < timeMinutes) {
       found = true;
@@ -84,6 +94,7 @@ export function getTimesAfter(
     }
     return false;
   });
+
   return result;
 }
 
@@ -93,13 +104,11 @@ function getClosestNextTaskTime(time: number, date: Date, tasks: Task[]) {
 
   for (let i = 0; i < filteredTasks.length; i++) {
     const taskTime = convertHHMMToMinutes(filteredTasks[i].startTime);
-    console.log(time + " " + taskTime);
     const difference = Math.abs(taskTime - time);
     const closestNextTask =
       closestTask === null || (difference < closestTask.difference && taskTime > time);
-
     if (closestNextTask) {
-      closestTask = { id: filteredTasks[i].id, difference };
+      if (taskTime > time) closestTask = { id: filteredTasks[i].id, difference };
     }
   }
   return closestTask && tasks.find((task) => task.id === closestTask?.id);
@@ -111,17 +120,29 @@ export function getAvailableTimes(date: Date, tasks: Task[], type: "start" | "en
   const orderedTasks = filteredTasks.sort(
     (a, b) => convertHHMMToMinutes(a.startTime) - convertHHMMToMinutes(b.startTime)
   );
+
   let currentTime = 0;
   let availableTimes = [];
 
   for (let i = 0; i < orderedTasks.length + 1; i++) {
     const task = orderedTasks[i];
-    const boundary =
-      i < orderedTasks.length ? convertHHMMToMinutes(task.startTime) : END_MINUTES;
+    const compareStartMinutes = task && convertHHMMToMinutes(task.startTime);
+    const compareEndMinutes = task && convertHHMMToMinutes(task.endTime);
+    const boundary = i < orderedTasks.length ? compareEndMinutes : END_MINUTES;
     while (type === "start" ? currentTime < boundary : currentTime <= boundary) {
       const label = minutesToTimeAMPM(currentTime);
-      availableTimes.push({ label, value: label });
+      const endTimeReachedTask = type === "end" && currentTime >= compareStartMinutes;
+      const startTimeReachedTask = currentTime >= compareStartMinutes && type !== "end";
 
+      if (endTimeReachedTask) {
+        availableTimes.push({ label, value: label });
+        break;
+      }
+      if (startTimeReachedTask) {
+        availableTimes.push({ label, value: label, isDisabled: true });
+      } else {
+        availableTimes.push({ label, value: label });
+      }
       currentTime += 5;
     }
     if (i > orderedTasks.length - 1) break;
