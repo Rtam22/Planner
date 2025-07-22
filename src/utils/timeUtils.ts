@@ -1,8 +1,6 @@
-import { isDisabled } from "@testing-library/user-event/dist/cjs/utils/index.js";
 import type { Task } from "../types/taskTypes";
 import { isSameDate } from "./dateUtils";
 import { TIME_INTERVAL } from "../hooks/taskCardControl/constants";
-
 // General utils
 
 export function getTimeDifferenceInMinutes(start: string, end: string): number {
@@ -72,7 +70,7 @@ export function timeAMPMToMinutes(time: string): number {
 
 // Task utils
 
-export function getTimesAfter(
+export function getEndTimesAfterStart(
   filterTime: string,
   times: { label: string; value: string }[],
   date: Date,
@@ -115,7 +113,7 @@ function getClosestNextTaskTime(time: number, date: Date, tasks: Task[]) {
   return closestTask && tasks.find((task) => task.id === closestTask?.id);
 }
 
-export function getAvailableTimes(date: Date, tasks: Task[], type: "start" | "end") {
+export function getAllTimeOptions(date: Date, tasks: Task[], type: "start" | "end") {
   const filteredTasks = getTasksByDate(date, tasks);
   const END_MINUTES = 1440;
   const orderedTasks = filteredTasks.sort(
@@ -156,4 +154,24 @@ export function getAvailableTimes(date: Date, tasks: Task[], type: "start" | "en
 
 export function getTasksByDate(date: Date, tasks: Task[]) {
   return tasks.filter((task) => isSameDate(task.date, date));
+}
+
+export function getAvailableEndTimes(
+  time: string,
+  timeSlots: { label: string; value: string }[],
+  startTime: { label: string; value: string } | null,
+  endTime: { label: string; value: string } | null
+) {
+  if (endTime && startTime) {
+    const startMinutes = timeAMPMToMinutes(startTime.value);
+    const newStartMinutes = timeAMPMToMinutes(time);
+    const endMinutes = timeAMPMToMinutes(endTime.value);
+
+    if (newStartMinutes > endMinutes) {
+      const difference = Math.abs(startMinutes - endMinutes);
+      const numberOfHops = Math.floor(difference / TIME_INTERVAL - 1);
+      return timeSlots[numberOfHops];
+    }
+    return null;
+  }
 }

@@ -36,6 +36,7 @@ export function findSpaceBetweenTasks(
     } else if (i === AT_TASK_END && direction === "next") {
       taskB = TIMELINE_END;
     } else {
+      console.log(i + step + step);
       taskB =
         direction === "next"
           ? sortedTasks[i + step + step].startTime
@@ -127,4 +128,26 @@ export function getSnappedTimesFromCollision(
     const newEndMinutes = startMinutes + duration;
     return convertMinutesToHHMM(newEndMinutes);
   }
+}
+
+export function getCollisionTime(
+  hasCollided: boolean,
+  direction: string,
+  currentTask: Task,
+  setStart: string,
+  setEnd: string
+) {
+  let collidedTimes = null;
+  if (hasCollided) {
+    const start =
+      direction === "next"
+        ? getSnappedTimesFromCollision(currentTask, setStart, "next")
+        : setEnd;
+    const end =
+      direction === "prev"
+        ? getSnappedTimesFromCollision(currentTask, setEnd, "prev")
+        : setStart;
+    if (start && end) collidedTimes = { startTime: start, endTime: end };
+  }
+  return collidedTimes;
 }

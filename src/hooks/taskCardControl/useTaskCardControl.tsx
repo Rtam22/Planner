@@ -17,6 +17,7 @@ import { applyResize, checkNextTaskStartTime } from "./resizeUtils";
 import {
   collisionCheck,
   findSpaceBetweenTasks,
+  getCollisionTime,
   getSnappedTimesFromCollision,
 } from "./collisionUtils";
 import { BUFFER, TIME_INTERVAL } from "./constants";
@@ -116,70 +117,43 @@ export function useTaskCardControl({
     window.addEventListener("mousemove", onMouseMove);
 
     function onMouseMove(event: MouseEvent) {
+      currentTask = currentTaskRef.current;
+      const mouseCurrentY = event.pageY;
+      difference = mouseCurrentY - mousePrevY;
+      const cardLength = calculateLength(startHours, startMinutes, endHours, endMinutes);
+      const newLength = cardLength + difference;
+      const differenceMinutes = convertLengthToMinutes(difference);
+      const movementNotWithinInterval =
+        type === "move" && differenceMinutes % TIME_INTERVAL !== 0;
       const sortedTasks = getSortedTasks(
         currentTaskRef.current.date,
         currentTasksRef.current
       );
-      document.body.style.cursor = "grabbing";
-      currentTask = currentTaskRef.current;
-
-      const mouseCurrentY = event.pageY;
-      difference = mouseCurrentY - mousePrevY;
-
       const selectedIndex = sortedTasks.findIndex((t) => t.id === task.id);
-      const mouseStartTime = convertLengthToTime(difference, startHours, startMinutes);
-      const cardLength = calculateLength(startHours, startMinutes, endHours, endMinutes);
-      const newLength = cardLength + difference;
-      const differenceMinutes = convertLengthToMinutes(difference);
 
-      if (type === "move") handleMoveType();
-      if (type === "resize") handleResizeType();
+      if (movementNotWithinInterval) return;
+      const { hasCollided, setStart, setEnd, direction } = collisionCheck(
+        selectedIndex,
+        sortedTasks,
+        difference,
+        task
+      );
+      const collidedTimes = hasCollided
+        ? getCollisionTime(hasCollided, direction, currentTask, setStart, setEnd)
+        : null;
 
-      function handleMoveType() {
-        const movementNotWithinInterval =
-          type === "move" && differenceMinutes % TIME_INTERVAL !== 0;
-
-        if (movementNotWithinInterval) return;
-        const { hasCollided, setStart, setEnd, direction } = collisionCheck(
-          selectedIndex,
-          sortedTasks,
+      if (type === "move")
+        handleMoveType(
+          collidedTimes,
+          direction,
+          currentTask,
           difference,
-          task
+          cardLength,
+          startPosition,
+          event.pageY
         );
-
-        if (hasCollided) {
-          const newTime = {
-            startTime:
-              direction === "next"
-                ? getSnappedTimesFromCollision(currentTask, setStart, "next")
-                : setEnd,
-            endTime:
-              direction === "prev"
-                ? getSnappedTimesFromCollision(currentTask, setEnd, "prev")
-                : setStart,
-          };
-
-          if (!newTime?.startTime || !newTime?.endTime) return;
-          handleMove({
-            currentTask,
-            setStartTime: newTime.startTime,
-            setEndTime: newTime.endTime,
-          });
-          handleCollided(direction, currentTask, cardLength, mouseStartTime, event.pageY);
-        } else {
-          handleMove({ currentTask, difference, startPosition });
-          handleSetPreviewTask(null);
-          previewTaskRef.current = null;
-        }
-      }
-
-      function handleResizeType() {
-        const resizeNotWithinInterval =
-          type === "resize" && differenceMinutes % TIME_INTERVAL !== 0;
-
-        if (resizeNotWithinInterval) return;
-        handleResize(newLength, currentTask, startPosition);
-      }
+      if (type === "resize")
+        handleResizeType(differenceMinutes, newLength, type, currentTask, startPosition);
     }
 
     function onMouseUp() {
@@ -204,6 +178,20 @@ export function useTaskCardControl({
     }
   }
 
+  function handleResizeType(
+    differenceMinutes: number,
+    newLength: number,
+    type: string,
+    currentTask: Task,
+    startPosition: number
+  ) {
+    const resizeNotWithinInterval =
+      type === "resize" && differenceMinutes % TIME_INTERVAL !== 0;
+
+    if (resizeNotWithinInterval) return;
+    handleResize(newLength, currentTask, startPosition);
+  }
+
   function handleResize(newLength: number, currentTask: Task, startPosition: number) {
     const nextTaskTime = checkNextTaskStartTime(
       currentTask,
@@ -216,12 +204,12 @@ export function useTaskCardControl({
     const validHeightAndSpace =
       taskRef.current && newLength > 5.83 && startPosition + newLength < timelineHeight;
     let height: number | null = null;
-
+    console.log(nextTaskTime);
     if (nextTaskTime) {
       if (hasDraggedEnough) hasDraggedRef.current = true;
     }
     if (hasReachedNextTask) {
-      height = nextTaskTime - startPosition + 1;
+      height = Math.round(nextTaskTime) - startPosition;
     } else if (overflowTimeLine) {
       height = timelineHeight - startPosition;
     } else if (validHeightAndSpace) {
@@ -237,6 +225,34 @@ export function useTaskCardControl({
         editDraftTask,
         setTaskLength
       );
+    }
+  }
+
+  function handleMoveType(
+    collidedTimes: {
+      startTime: string;
+      endTime: string;
+    } | null,
+    direction: string | undefined,
+    currentTask: Task,
+    difference: number,
+    cardLength: number,
+    startPosition: number,
+    mouseY: number
+  ) {
+    if (collidedTimes && direction) {
+      if (!collidedTimes?.startTime || !collidedTimes?.endTime) return;
+      handleMove({
+        currentTask,
+        setStartTime: collidedTimes.startTime,
+        setEndTime: collidedTimes.endTime,
+      });
+      const mouseStartTime = convertLengthToTime(difference, startHours, startMinutes);
+      handleCollided(direction, currentTask, cardLength, mouseStartTime, mouseY);
+    } else {
+      handleMove({ currentTask, difference, startPosition });
+      handleSetPreviewTask(null);
+      previewTaskRef.current = null;
     }
   }
 

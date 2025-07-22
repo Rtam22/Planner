@@ -8,11 +8,13 @@ import type { StylesConfig } from "react-select";
 import type { Task } from "../../types/taskTypes";
 import { formatDateToYYYYMMDD, parseYYYYMMDDToDate } from "../../utils/dateUtils";
 import {
-  getAvailableTimes,
-  getTimesAfter,
+  getAllTimeOptions,
+  getAvailableEndTimes,
+  getEndTimesAfterStart,
   timeAMPMToMinutes,
 } from "../../utils/timeUtils";
 import { TIME_INTERVAL } from "../../hooks/taskCardControl/constants";
+import { preview } from "vite";
 type createTaskModal = {
   handleSelectDate: (newDate: Date) => void;
   handleSetPreview: (task: Task | null) => void;
@@ -72,6 +74,7 @@ function CreateTaskModal({
   selectedDate,
 }: createTaskModal) {
   const { addDraftTask, tags, draftTasks, isDragging } = useTasksContext();
+  const [id, setId] = useState<string>(uuidv4());
   const [tasks, setTasks] = useState<Task[]>(draftTasks ?? []);
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
@@ -90,15 +93,15 @@ function CreateTaskModal({
   });
 
   const [endTimeOptions, setEndTimeOptions] = useState(() =>
-    getAvailableTimes(parseYYYYMMDDToDate(date), tasks, "end")
+    getAllTimeOptions(parseYYYYMMDDToDate(date), tasks, "end")
   );
   const [startTimeOptionsAll, setStartTimeOptionsAll] = useState(() =>
-    getAvailableTimes(parseYYYYMMDDToDate(date), draftTasks ? draftTasks : tasks, "start")
+    getAllTimeOptions(parseYYYYMMDDToDate(date), draftTasks ? draftTasks : tasks, "start")
   );
 
   const endTimeOptionsAll = useMemo(() => {
     if (!isDragging) {
-      return getAvailableTimes(
+      return getAllTimeOptions(
         parseYYYYMMDDToDate(date),
         draftTasks ? draftTasks : tasks,
         "end"
@@ -111,7 +114,7 @@ function CreateTaskModal({
     if (draftTasks && !isDragging) {
       setTasks(draftTasks);
       setStartTimeOptionsAll(
-        getAvailableTimes(
+        getAllTimeOptions(
           parseYYYYMMDDToDate(date),
           draftTasks ? draftTasks : tasks,
           "start"
@@ -120,7 +123,7 @@ function CreateTaskModal({
 
       if (startTime && !isDragging) {
         setEndTimeOptions(
-          getTimesAfter(
+          getEndTimesAfterStart(
             startTime.value,
             endTimeOptionsAll,
             parseYYYYMMDDToDate(date),
@@ -135,22 +138,22 @@ function CreateTaskModal({
     if (!draftTasks) {
       return;
     }
-    const newEndTimeOptions = getTimesAfter(
+    const newEndTimeOptions = getEndTimesAfterStart(
       time.value,
       endTimeOptionsAll,
       parseYYYYMMDDToDate(date),
-      draftTasks
+      tasks
     );
+
     if (type === "start") {
-      if (endTime && startTime) {
-        const startMinutes = timeAMPMToMinutes(startTime.value);
-        const newStartMinutes = timeAMPMToMinutes(time.value);
-        const endMinutes = timeAMPMToMinutes(endTime.value);
-        if (newStartMinutes > endMinutes) {
-          const difference = Math.abs(startMinutes - endMinutes);
-          const numberOfHops = difference / TIME_INTERVAL - 1;
-          setEndTime(newEndTimeOptions[numberOfHops]);
-        }
+      const newEndTime = getAvailableEndTimes(
+        time.value,
+        newEndTimeOptions,
+        startTime,
+        endTime
+      );
+      if (newEndTime) {
+        setEndTime(newEndTime);
       }
       setStartTime(time);
       setEndTimeOptions(newEndTimeOptions);
@@ -159,21 +162,28 @@ function CreateTaskModal({
     }
   }
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function getTaskDetails(preview: boolean) {
+    if (!startTime || !endTime) return;
     const [year, month, day] = date.split("-");
     const getTag = tags.find((t) => t.label.toLowerCase() === tag?.value.toLowerCase());
-    if (!startTime || !endTime) return;
-    e.preventDefault();
-    const newTask = {
-      id: uuidv4(),
+    return {
+      id: id,
       title: title,
       description: description,
       tag: getTag,
       date: new Date(Number(year), Number(month) - 1, Number(day)),
-      startTime: startTime?.value,
-      endTime: startTime?.value,
+      startTime: startTime.value,
+      endTime: startTime.value,
       repeat: repeat,
+      preview: preview,
     };
+  }
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    if (!startTime || !endTime) return;
+    e.preventDefault();
+    const newTask = getTaskDetails(false);
+    if (!newTask) return;
     handleSetPreview(null);
     addDraftTask(newTask);
     handleCreateSave();
@@ -265,12 +275,14 @@ function CreateTaskModal({
             placeholder="Select..."
             name="startTime"
             value={startTime}
+            required
             onChange={(selected) => {
               selected && handleSetTime("start", selected);
             }}
           />
           <p>to</p>
           <Select
+            required
             styles={customStyles}
             id="endTime"
             options={endTimeOptions}
