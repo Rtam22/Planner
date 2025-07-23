@@ -11,6 +11,7 @@ type ButtonProps = {
   onMouseDown?: (e: React.MouseEvent<any>) => void;
   width?: string;
   height?: string;
+  minHeight?: string;
   border?: string;
   color?: string;
 };
@@ -26,6 +27,7 @@ function Button({
   height,
   border,
   color,
+  minHeight,
 }: ButtonProps) {
   const [isHovered, setIsHovered] = useState<boolean>(false);
 
@@ -37,10 +39,11 @@ function Button({
             ? adjustColor(backgroundColor, -20)
             : backgroundColor
           : backgroundColor,
-        width: width && width,
-        height: height && height,
+        width: width && width + "px",
+        height: height && height + "px",
         border: border ? border : undefined,
         color: color && color,
+        minHeight: minHeight && minHeight + "px",
       }}
       type={type}
       onClick={(e) => onClick?.(e)}

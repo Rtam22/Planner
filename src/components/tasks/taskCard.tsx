@@ -90,6 +90,7 @@ function TaskCard({
             backgroundColor={task.tag?.color}
             className="btn-move-left"
             onClick={() => handleChangeDay("prev")}
+            minHeight={taskLength < 18 ? "16" : ""}
           >
             ‹
           </Button>
@@ -97,6 +98,7 @@ function TaskCard({
             backgroundColor={task.tag?.color}
             className="btn-move-right"
             onClick={() => handleChangeDay("next")}
+            minHeight={taskLength < 18 ? "16" : ""}
           >
             ›
           </Button>
@@ -109,7 +111,7 @@ function TaskCard({
         </>
       )}
 
-      <div className="container">
+      <div className="container" style={{ paddingTop: taskLength < 18 ? "1%" : "3%" }}>
         <h3>{title}</h3>
         <p>{`${startTime} - ${endTime}`}</p>
       </div>
