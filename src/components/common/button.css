@@ -58,11 +58,11 @@ button.warn {
   padding: 0 20px;
 }
 .btn-filter:hover {
-  background-color: rgb(233, 239, 248);
+  background-color: rgb(220, 229, 243);
 }
 
 .selected {
-  background-color: rgb(242, 247, 252);
+  background-color: rgb(230, 236, 247);
 }
 
 .btn-search {
