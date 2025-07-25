@@ -24,7 +24,6 @@ function CalendarPage() {
     previewTask,
     editTask,
     deleteTask,
-    handleSetPreviewTask,
     enableEditMode,
     handleDraftAction,
   } = useTasksContext();
@@ -67,10 +66,6 @@ function CalendarPage() {
       handleDraftAction("cancel");
       setIsEditing(false);
     }
-  }
-
-  function handleSetPreview(task: Task | null) {
-    handleSetPreviewTask(task);
   }
 
   function handleTaskClick(taskId: string) {
@@ -189,7 +184,6 @@ function CalendarPage() {
             >
               <TaskForm
                 handleSelectDate={handleSelectDate}
-                handleSetPreview={handleSetPreview}
                 handleCreateSave={handleCreateSave}
                 selectedDate={selectedDate}
                 tasks={tasks}

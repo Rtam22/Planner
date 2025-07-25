@@ -1,7 +1,7 @@
 import type { Task } from "../../types/taskTypes";
 import { useTasksContext } from "../../context/taskContext";
 import { convertHHMMToMinutes } from "../../utils/timeUtils";
-import { isSameDate, setDayOfDate } from "../../utils/dateUtils";
+import { setDayOfDate } from "../../utils/dateUtils";
 import {
   calculateLength,
   calculateStartingPosition,

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import "./taskForm.css";
 import Button from "../common/button";
 import { useTasksContext } from "../../context/taskContext";
@@ -14,14 +14,11 @@ import {
   getAllTimeOptions,
   getAvailableEndTimes,
   getEndTimesAfterStart,
-  timeAMPMToMinutes,
 } from "../../utils/timeUtils";
-import { TIME_INTERVAL } from "../../hooks/taskCardControl/constants";
-import { preview } from "vite";
+
 import { calculateChangeDateTimes } from "../../hooks/taskCardControl/dayChangeUtils";
 type createTaskModal = {
   handleSelectDate: (newDate: Date) => void;
-  handleSetPreview: (task: Task | null) => void;
   handleCreateSave: () => void;
   selectedDate: Date;
   tasks: Task[];
@@ -71,14 +68,9 @@ const customStyles: StylesConfig<TagOption, false> = {
   }),
 };
 
-function CreateTaskModal({
-  handleSelectDate,
-  handleSetPreview,
-  handleCreateSave,
-  selectedDate,
-}: createTaskModal) {
+function CreateTaskModal({ handleSelectDate, handleCreateSave }: createTaskModal) {
   const { addDraftTask, editDraftTask, tags, draftTasks, isDragging } = useTasksContext();
-  const [id, setId] = useState<string>(uuidv4());
+  const id = useRef(uuidv4());
   const [tasks, setTasks] = useState<Task[]>(draftTasks ?? []);
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
@@ -195,7 +187,7 @@ function CreateTaskModal({
       const jumpedPrevTask = checkStartTimeJumpPrevTask(
         parseYYYYMMDDToDate(date),
         draftTasks,
-        id,
+        id.current,
         time.value
       );
 
@@ -240,7 +232,7 @@ function CreateTaskModal({
     if (!resolvedStartTime || !resolvedEndTime) return;
 
     return {
-      id: id,
+      id: id.current,
       title: title,
       description: description,
       tag: getTag,
@@ -272,7 +264,7 @@ function CreateTaskModal({
     const previewTask = dateInput
       ? getTaskDetails(true, startPrev, endPrev, dateInput)
       : getTaskDetails(true, startPrev, endPrev);
-    const taskExists = checkTaskExist(id);
+    const taskExists = checkTaskExist(id.current);
 
     if (!previewTask) return;
     if (previewTask && taskExists) {
