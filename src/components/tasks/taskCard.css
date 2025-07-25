@@ -5,10 +5,9 @@
   width: 165px;
   min-height: 16px;
   height: 200px;
-  background-color: rgb(226, 226, 226);
+  background-color: rgb(100, 100, 100);
   cursor: pointer;
   border-radius: 10px;
-
   font-size: 12px;
   font-weight: 800;
   color: white;
@@ -24,6 +23,15 @@
   pointer-events: none;
   z-index: 2;
   padding: 3% 7px;
+}
+
+.calendar-task-card.preview {
+  background-color: rgb(224, 224, 224);
+  color: black;
+}
+.calendar-task-card.preview p,
+.calendar-task-card.preview h3 {
+  color: rgb(44, 44, 44);
 }
 
 .calendar-task-card p {

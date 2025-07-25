@@ -85,6 +85,26 @@ button.warn {
   cursor: n-resize;
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
+  background-color: rgb(73, 73, 73);
+}
+
+.btn-move-left.preview,
+.btn-move-right.preview {
+  background-color: rgb(224, 224, 224);
+  color: black;
+}
+
+/* .btn-resize.preview {
+  background-color: rgb(188, 187, 187);
+}
+
+.btn-resize.preview:hover {
+  background-color: rgb(158, 158, 158);
+} */
+
+.btn-move-left.preview:hover,
+.btn-move-right.preview:hover {
+  background-color: rgb(189, 189, 189);
 }
 
 .btn-move-right,
@@ -93,7 +113,7 @@ button.warn {
   height: 50%;
   min-height: 30px;
   max-height: 50px;
-  background-color: rgb(143, 161, 250);
+  background-color: rgb(100, 100, 100);
   top: 50%;
   transform: translateY(-50%);
   width: 14px;

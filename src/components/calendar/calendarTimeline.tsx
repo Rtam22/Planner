@@ -30,6 +30,7 @@ function CalendarTimeline({
   onClick,
   isEditing,
 }: CalendarTimelineProps) {
+  const editPreviewTask = previewTask;
   const scrollTopPosition = 6 * 70;
   const timelineRef = useRef<HTMLDivElement | null>(null);
   const timeStamps = [{ hour: 12, period: "pm" }];
@@ -102,26 +103,29 @@ function CalendarTimeline({
                   className="cell-column"
                   data-testid={convertToDDMMYYYY(date)}
                 >
-                  {previewTask && compareDate(date, previewTask.date) && previewTask && (
-                    <div
-                      className="preview-task"
-                      style={{
-                        top: calculateStartingPosition(startHours, startMinutes),
-                        height: `${calculateLength(
-                          startHours,
-                          startMinutes,
-                          endHours,
-                          endMinutes
-                        )}px`,
-                        maxHeight:
-                          1680 - calculateStartingPosition(startHours, startMinutes),
-                      }}
-                    ></div>
-                  )}
+                  {editPreviewTask &&
+                    compareDate(date, editPreviewTask.date) &&
+                    editPreviewTask && (
+                      <div
+                        className="preview-task"
+                        style={{
+                          top: calculateStartingPosition(startHours, startMinutes),
+                          height: `${calculateLength(
+                            startHours,
+                            startMinutes,
+                            endHours,
+                            endMinutes
+                          )}px`,
+                          maxHeight:
+                            1680 - calculateStartingPosition(startHours, startMinutes),
+                        }}
+                      ></div>
+                    )}
                   {tasks.map((task) => {
                     if (compareDate(task.date, date)) {
                       return (
                         <TaskCard
+                          preview={task.preview}
                           key={task.id}
                           onClick={onClick}
                           title={task.title}

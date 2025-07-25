@@ -9,6 +9,7 @@ import { convertTimeString24To12 } from "../../utils/dateUtils";
 import React, { useEffect, useRef, useState } from "react";
 import { useTaskCardControl } from "../../hooks/taskCardControl/useTaskCardControl";
 import Button from "../common/button";
+import { useTasksContext } from "../../context/taskContext";
 
 type calendarTaskCardProps = {
   title: string;
@@ -16,7 +17,7 @@ type calendarTaskCardProps = {
   task: Task;
   isEditing: boolean;
   timelineRef: React.RefObject<HTMLDivElement | null>;
-  type?: "preview";
+  preview: boolean;
 };
 
 function TaskCard({
@@ -25,7 +26,9 @@ function TaskCard({
   task,
   isEditing,
   timelineRef,
+  preview,
 }: calendarTaskCardProps) {
+  const { draftTasks } = useTasksContext();
   const taskRef = useRef<HTMLDivElement | null>(null);
   const [startHours, startMinutes] = task.startTime.split(":").map(Number);
   const [endHours, endMinutes] = task.endTime.split(":").map(Number);
@@ -34,7 +37,6 @@ function TaskCard({
   const startTime = convertTimeString24To12(task.startTime);
   const endTime = convertTimeString24To12(task.endTime);
   let cardLength = calculateLength(startHours, startMinutes, endHours, endMinutes);
-
   const [taskLength, setTaskLength] = useState<number>(cardLength);
   const [taskPosition, setTaskPosition] = useState<number>(startPosition);
   const hasDraggedRef = useRef(false);
@@ -54,6 +56,14 @@ function TaskCard({
     taskRef,
     timelineRef,
   });
+
+  useEffect(() => {
+    if (!draftTasks) return;
+    const previewTask = draftTasks.find((task) => task.preview === true);
+    if (!previewTask) return;
+    setTaskLength(calculateLength(startHours, startMinutes, endHours, endMinutes));
+    setTaskPosition(calculateStartingPosition(startHours, startMinutes));
+  }, [draftTasks]);
 
   function handleClick(e: React.MouseEvent<HTMLDivElement>) {
     if (!onClick) return;
@@ -76,7 +86,7 @@ function TaskCard({
       ref={taskRef}
       data-testid="calendar-task-card"
       onMouseDown={isEditing ? handleMouseDown : undefined}
-      className="calendar-task-card"
+      className={`calendar-task-card ${preview ? "preview" : ""}`}
       style={{
         top: taskPosition,
         height: `${taskLength}px`,
@@ -88,7 +98,7 @@ function TaskCard({
         <>
           <Button
             backgroundColor={task.tag?.color}
-            className="btn-move-left"
+            className={`btn-move-left ${preview ? "preview" : ""}`}
             onClick={() => handleChangeDay("prev")}
             minHeight={taskLength < 18 ? "16" : ""}
           >
@@ -96,15 +106,17 @@ function TaskCard({
           </Button>
           <Button
             backgroundColor={task.tag?.color}
-            className="btn-move-right"
+            className={`btn-move-right ${preview ? "preview" : ""}`}
             onClick={() => handleChangeDay("next")}
             minHeight={taskLength < 18 ? "16" : ""}
           >
             ›
           </Button>
           <Button
-            className="btn-resize"
-            backgroundColor={adjustColor(task.tag?.color ?? "#ccc", -20)}
+            className={`btn-resize ${preview ? "preview" : ""}`}
+            backgroundColor={
+              preview ? "#BCBBBB" : adjustColor(task.tag?.color ?? "#646464", -20)
+            }
             onMouseDown={(e) => onMouseDown(e, "resize")}
             onClick={(e) => e.stopPropagation()}
           ></Button>

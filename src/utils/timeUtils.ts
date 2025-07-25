@@ -68,6 +68,16 @@ export function timeAMPMToMinutes(time: string): number {
   return hours * 60 + minutes;
 }
 
+export function convert24To12HourTime(time: string): string {
+  const [hourStr, minute] = time.split(":");
+  let hour = parseInt(hourStr, 10);
+  const suffix = hour >= 12 ? "pm" : "am";
+  hour = hour % 12;
+  if (hour === 0) hour = 12;
+
+  return `${hour}:${minute}${suffix}`;
+}
+
 // Task utils
 
 export function getEndTimesAfterStart(
@@ -81,7 +91,7 @@ export function getEndTimesAfterStart(
   const nextTaskTime = getClosestNextTaskTime(filterTimeMinutes, date, tasks);
   const endTimeLimit = nextTaskTime && convertHHMMToMinutes(nextTaskTime?.startTime);
   const result = times.filter((option) => {
-    const timeMinutes = timeAMPMToMinutes(option.value);
+    const timeMinutes = timeAMPMToMinutes(option.label);
 
     if (endTimeLimit && timeMinutes > endTimeLimit) {
       return false;
@@ -113,13 +123,16 @@ function getClosestNextTaskTime(time: number, date: Date, tasks: Task[]) {
   return closestTask && tasks.find((task) => task.id === closestTask?.id);
 }
 
-export function getAllTimeOptions(date: Date, tasks: Task[], type: "start" | "end") {
+export function filterArrayByDateAndTime(date: Date, tasks: Task[]) {
   const filteredTasks = getTasksByDate(date, tasks);
-  const END_MINUTES = 1440;
-  const orderedTasks = filteredTasks.sort(
+  return filteredTasks.sort(
     (a, b) => convertHHMMToMinutes(a.startTime) - convertHHMMToMinutes(b.startTime)
   );
+}
 
+export function getAllTimeOptions(date: Date, tasks: Task[], type: "start" | "end") {
+  const END_MINUTES = 1440;
+  const orderedTasks = filterArrayByDateAndTime(date, tasks);
   let currentTime = 0;
   let availableTimes = [];
 
@@ -130,24 +143,26 @@ export function getAllTimeOptions(date: Date, tasks: Task[], type: "start" | "en
     const boundary = i < orderedTasks.length ? compareEndMinutes : END_MINUTES;
     while (type === "start" ? currentTime < boundary : currentTime <= boundary) {
       const label = minutesToTimeAMPM(currentTime);
+      const value = convertMinutesToHHMM(currentTime);
       const endTimeReachedTask = type === "end" && currentTime >= compareStartMinutes;
-      const startTimeReachedTask = currentTime >= compareStartMinutes && type !== "end";
+      const startTimeReachedTask =
+        currentTime >= compareStartMinutes && type !== "end" && !task.preview;
 
       if (endTimeReachedTask) {
-        availableTimes.push({ label, value: label });
+        availableTimes.push({ label: label, value: value });
         break;
       }
       if (startTimeReachedTask) {
-        availableTimes.push({ label, value: label, isDisabled: true });
+        availableTimes.push({ label: label, value: value, isDisabled: true });
       } else {
-        availableTimes.push({ label, value: label });
+        availableTimes.push({ label: label, value: value });
       }
       currentTime += TIME_INTERVAL;
     }
     if (i > orderedTasks.length - 1) break;
 
     const newTime = convertHHMMToMinutes(orderedTasks[i].endTime);
-    currentTime = type === "start" ? newTime : newTime + 5;
+    currentTime = type === "start" ? newTime : newTime + TIME_INTERVAL;
   }
   return availableTimes;
 }
@@ -163,13 +178,14 @@ export function getAvailableEndTimes(
   endTime: { label: string; value: string } | null
 ) {
   if (endTime && startTime) {
-    const startMinutes = timeAMPMToMinutes(startTime.value);
+    const startMinutes = timeAMPMToMinutes(startTime.label);
     const newStartMinutes = timeAMPMToMinutes(time);
-    const endMinutes = timeAMPMToMinutes(endTime.value);
+    const endMinutes = timeAMPMToMinutes(endTime.label);
 
-    if (newStartMinutes > endMinutes) {
+    if (newStartMinutes >= endMinutes) {
       const difference = Math.abs(startMinutes - endMinutes);
-      const numberOfHops = Math.floor(difference / TIME_INTERVAL - 1);
+      let numberOfHops = Math.floor(difference / TIME_INTERVAL - 1);
+      if (numberOfHops > timeSlots.length) numberOfHops = timeSlots.length - 1;
       return timeSlots[numberOfHops];
     }
     return null;

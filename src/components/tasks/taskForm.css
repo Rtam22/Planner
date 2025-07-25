@@ -10,6 +10,11 @@
 .horizontal.time {
   gap: 17px;
   display: flex;
+  align-items: center;
+}
+
+.horizontal.time p {
+  min-width: 20px;
 }
 
 .task-form label {

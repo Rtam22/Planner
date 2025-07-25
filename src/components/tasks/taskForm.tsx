@@ -8,6 +8,9 @@ import type { StylesConfig } from "react-select";
 import type { Task } from "../../types/taskTypes";
 import { formatDateToYYYYMMDD, parseYYYYMMDDToDate } from "../../utils/dateUtils";
 import {
+  convert24To12HourTime,
+  convertHHMMToMinutes,
+  filterArrayByDateAndTime,
   getAllTimeOptions,
   getAvailableEndTimes,
   getEndTimesAfterStart,
@@ -15,6 +18,7 @@ import {
 } from "../../utils/timeUtils";
 import { TIME_INTERVAL } from "../../hooks/taskCardControl/constants";
 import { preview } from "vite";
+import { calculateChangeDateTimes } from "../../hooks/taskCardControl/dayChangeUtils";
 type createTaskModal = {
   handleSelectDate: (newDate: Date) => void;
   handleSetPreview: (task: Task | null) => void;
@@ -73,25 +77,23 @@ function CreateTaskModal({
   handleCreateSave,
   selectedDate,
 }: createTaskModal) {
-  const { addDraftTask, tags, draftTasks, isDragging } = useTasksContext();
+  const { addDraftTask, editDraftTask, tags, draftTasks, isDragging } = useTasksContext();
   const [id, setId] = useState<string>(uuidv4());
   const [tasks, setTasks] = useState<Task[]>(draftTasks ?? []);
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [tag, setTag] = useState<TagOption | null>();
   const [date, setDate] = useState<string>(() => {
-    return formatDateToYYYYMMDD(new Date(selectedDate));
+    return formatDateToYYYYMMDD(new Date());
   });
   const [startTime, setStartTime] = useState<{ label: string; value: string } | null>(
     null
   );
   const [endTime, setEndTime] = useState<{ label: string; value: string } | null>(null);
   const [repeat, setRepeat] = useState<string>("");
-
   const tagOptions = tags.map((tag) => {
     return { label: tag.label, value: tag.label.toLowerCase() };
   });
-
   const [endTimeOptions, setEndTimeOptions] = useState(() =>
     getAllTimeOptions(parseYYYYMMDDToDate(date), tasks, "end")
   );
@@ -110,6 +112,10 @@ function CreateTaskModal({
     return [];
   }, [isDragging]);
 
+  const draftTaskDates = useMemo(() => {
+    return draftTasks?.map((task) => task.date.toISOString()) ?? [];
+  }, [draftTasks]);
+
   useEffect(() => {
     if (draftTasks && !isDragging) {
       setTasks(draftTasks);
@@ -124,7 +130,7 @@ function CreateTaskModal({
       if (startTime && !isDragging) {
         setEndTimeOptions(
           getEndTimesAfterStart(
-            startTime.value,
+            startTime.label,
             endTimeOptionsAll,
             parseYYYYMMDDToDate(date),
             draftTasks
@@ -132,51 +138,122 @@ function CreateTaskModal({
         );
       }
     }
-  }, [isDragging]);
+  }, [isDragging, date, draftTaskDates]);
+
+  function handleSetDate(newDate: string) {
+    setDate(newDate);
+
+    const newTask = getTaskDetails(false, undefined, undefined, newDate);
+    if (!newTask || !draftTasks) return;
+    const newTimes = calculateChangeDateTimes(newTask, draftTasks);
+    if (newTimes) {
+      setStartTime({
+        label: convert24To12HourTime(newTimes?.startTime),
+        value: newTimes?.startTime,
+      });
+      setEndTime({
+        label: convert24To12HourTime(newTimes?.endTime),
+        value: newTimes?.endTime,
+      });
+      handlePreview(newTimes.startTime, newTimes.endTime, newDate);
+    }
+  }
+
+  function checkStartTimeJumpPrevTask(
+    date: Date,
+    tasks: Task[],
+    id: string,
+    startTime: string
+  ) {
+    const orderedTasks = filterArrayByDateAndTime(date, tasks);
+    const indexOfPrev = orderedTasks.findIndex((task) => task.id === id) - 1;
+    if (indexOfPrev < 0) return false;
+    const prevTaskStartMinutes = convertHHMMToMinutes(
+      orderedTasks[indexOfPrev].startTime
+    );
+    const newStartMinutes = convertHHMMToMinutes(startTime);
+    return prevTaskStartMinutes > newStartMinutes ? true : false;
+  }
 
   function handleSetTime(type: "start" | "end", time: { label: string; value: string }) {
-    if (!draftTasks) {
-      return;
-    }
-    const newEndTimeOptions = getEndTimesAfterStart(
-      time.value,
-      endTimeOptionsAll,
-      parseYYYYMMDDToDate(date),
-      tasks
-    );
+    if (!draftTasks) return;
 
     if (type === "start") {
+      const newEndTimeOptions = getEndTimesAfterStart(
+        time.label,
+        endTimeOptionsAll,
+        parseYYYYMMDDToDate(date),
+        tasks
+      );
+
       const newEndTime = getAvailableEndTimes(
-        time.value,
+        time.label,
         newEndTimeOptions,
         startTime,
         endTime
       );
+      const jumpedPrevTask = checkStartTimeJumpPrevTask(
+        parseYYYYMMDDToDate(date),
+        draftTasks,
+        id,
+        time.value
+      );
+
       if (newEndTime) {
         setEndTime(newEndTime);
       }
+
+      if (!startTime) {
+        setEndTime(newEndTimeOptions[0]);
+        const [year, month, day] = date.split("-");
+        const previewDate = new Date(Number(year), Number(month) - 1, Number(day));
+        handleSelectDate(previewDate);
+        handlePreview(time.value, newEndTimeOptions[0].value);
+      }
       setStartTime(time);
       setEndTimeOptions(newEndTimeOptions);
-    } else if (type === "end") {
+
+      if (!endTime) return;
+      if (jumpedPrevTask) {
+        const jumpedEndTime = newEndTimeOptions[newEndTimeOptions.length - 1];
+        setEndTime(jumpedEndTime);
+        handlePreview(time.value, jumpedEndTime.value);
+        return;
+      }
+      handlePreview(time.value, newEndTime ? newEndTime.value : endTime.value);
+    } else if (type === "end" && startTime) {
       setEndTime(time);
+      handlePreview(startTime?.value, time.value);
     }
   }
 
-  function getTaskDetails(preview: boolean) {
-    if (!startTime || !endTime) return;
-    const [year, month, day] = date.split("-");
+  function getTaskDetails(
+    preview: boolean,
+    startPrev?: string,
+    endPrev?: string,
+    dateInput?: string
+  ) {
+    const [year, month, day] = dateInput ? dateInput.split("-") : date.split("-");
     const getTag = tags.find((t) => t.label.toLowerCase() === tag?.value.toLowerCase());
+    const resolvedStartTime = preview ? startPrev : startTime?.value;
+    const resolvedEndTime = preview ? endPrev : endTime?.value;
+    if (!resolvedStartTime || !resolvedEndTime) return;
+
     return {
       id: id,
       title: title,
       description: description,
       tag: getTag,
       date: new Date(Number(year), Number(month) - 1, Number(day)),
-      startTime: startTime.value,
-      endTime: startTime.value,
+      startTime: resolvedStartTime,
+      endTime: resolvedEndTime,
       repeat: repeat,
       preview: preview,
     };
+  }
+
+  function checkTaskExist(taskId: string) {
+    return draftTasks?.find((task) => task.id === taskId);
   }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -184,35 +261,26 @@ function CreateTaskModal({
     e.preventDefault();
     const newTask = getTaskDetails(false);
     if (!newTask) return;
-    handleSetPreview(null);
     addDraftTask(newTask);
     handleCreateSave();
   }
-  /* 
-  function handlePreview() {
-    if (date === "" && startTime === "" && endTime === "") {
-      return;
-    }
 
-    if (startTime === endTime) {
-      return;
+  function handlePreview(startPrev: string, endPrev: string, dateInput?: string) {
+    if (!dateInput) {
+      if (!date) return;
     }
-    const [year, month, day] = date.split("-");
-    const previewDate = new Date(Number(year), Number(month) - 1, Number(day));
-    const getTag = tags.find((t) => t.label.toLowerCase() === tag?.value.toLowerCase());
-    handleSelectDate(previewDate);
-    const previewTask = {
-      id: uuidv4(),
-      title: title,
-      description: description,
-      tag: getTag,
-      date: new Date(Number(year), Number(month) - 1, Number(day)),
-      startTime: startTime,
-      endTime: endTime,
-      repeat: repeat,
-    };
-    handleSetPreview(previewTask);
-  } */
+    const previewTask = dateInput
+      ? getTaskDetails(true, startPrev, endPrev, dateInput)
+      : getTaskDetails(true, startPrev, endPrev);
+    const taskExists = checkTaskExist(id);
+
+    if (!previewTask) return;
+    if (previewTask && taskExists) {
+      editDraftTask(previewTask);
+    } else {
+      addDraftTask(previewTask);
+    }
+  }
 
   return (
     <form
@@ -261,7 +329,7 @@ function CreateTaskModal({
           id="date"
           name="date"
           value={date?.toString()}
-          onChange={(e) => setDate(e.currentTarget.value)}
+          onChange={(e) => handleSetDate(e.currentTarget.value)}
           required
         />
       </fieldset>
@@ -274,7 +342,10 @@ function CreateTaskModal({
             options={startTimeOptionsAll}
             placeholder="Select..."
             name="startTime"
-            value={startTime}
+            value={
+              startTimeOptionsAll.find((option) => option.value === startTime?.value) ||
+              startTime
+            }
             required
             onChange={(selected) => {
               selected && handleSetTime("start", selected);
@@ -289,7 +360,9 @@ function CreateTaskModal({
             placeholder="Select..."
             name="endTime"
             isDisabled={!startTime}
-            value={endTime}
+            value={
+              endTimeOptions.find((option) => option.value === endTime?.value) || endTime
+            }
             onChange={(selected) => {
               selected && handleSetTime("end", selected);
             }}

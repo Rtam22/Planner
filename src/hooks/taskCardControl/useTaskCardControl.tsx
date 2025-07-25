@@ -9,16 +9,16 @@ import {
   convertLengthToTime,
   getLengthFromTask,
   getPostionFromTask,
+  getSortedTasks,
 } from "../../utils/timelineUtils";
 import { useEffect, useRef } from "react";
 import { splitTimeHHMM } from "../../utils/timeUtils";
-import { checkSpace, findAllSpaces, findClosestSpace } from "./dayChangeUtils";
+import { calculateChangeDateTimes } from "./dayChangeUtils";
 import { applyResize, checkNextTaskStartTime } from "./resizeUtils";
 import {
   collisionCheck,
   findSpaceBetweenTasks,
   getCollisionTime,
-  getSnappedTimesFromCollision,
 } from "./collisionUtils";
 import { BUFFER, TIME_INTERVAL } from "./constants";
 import { findCenterBetweenTimes } from "./previewUtils";
@@ -204,7 +204,6 @@ export function useTaskCardControl({
     const validHeightAndSpace =
       taskRef.current && newLength > 5.83 && startPosition + newLength < timelineHeight;
     let height: number | null = null;
-    console.log(nextTaskTime);
     if (nextTaskTime) {
       if (hasDraggedEnough) hasDraggedRef.current = true;
     }
@@ -367,29 +366,7 @@ export function useTaskCardControl({
   function handleChangeDay(direction: "prev" | "next") {
     let currentTask = { ...currentTaskRef.current };
     currentTask.date = setDayOfDate(currentTask.date, direction, 1);
-
-    const tasksArray = currentTasksRef.current.map((task) => {
-      return task.id === currentTask.id ? currentTask : task;
-    });
-    const sortedTaskIncludingCurrent = getSortedTasks(currentTask.date, tasksArray);
-    const taskIndex = sortedTaskIncludingCurrent.findIndex(
-      (t) => currentTask.id === t.id
-    );
-    const sortedTasks = sortedTaskIncludingCurrent.filter(
-      (taskB) => task.id !== taskB.id
-    );
-
-    const hasSpace = checkSpace(sortedTaskIncludingCurrent, taskIndex);
-    if (hasSpace) {
-      handleMove({
-        currentTask,
-        setStartTime: currentTask.startTime,
-        setEndTime: currentTask.endTime,
-      });
-      return;
-    }
-    const availableSpaces = findAllSpaces(sortedTasks);
-    const newTimes = findClosestSpace(availableSpaces, currentTask);
+    const newTimes = calculateChangeDateTimes(currentTask, currentTasksRef.current);
 
     if (newTimes) {
       handleMove({
@@ -398,14 +375,6 @@ export function useTaskCardControl({
         setEndTime: newTimes.endTime,
       });
     }
-  }
-
-  function getSortedTasks(date: Date, tasks: Task[]) {
-    return [...tasks]
-      .sort((t1, t2) => {
-        return convertHHMMToMinutes(t1.startTime) - convertHHMMToMinutes(t2.startTime);
-      })
-      .filter((t) => isSameDate(t.date, date));
   }
 
   return { onMouseDown, handleChangeDay };
