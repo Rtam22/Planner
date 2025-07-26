@@ -11,8 +11,8 @@ import {
   convert24To12HourTime,
   convertHHMMToMinutes,
   filterArrayByDateAndTime,
+  getAdjustedEndTime,
   getAllTimeOptions,
-  getAvailableEndTimes,
   getEndTimesAfterStart,
 } from "../../utils/timeUtils";
 
@@ -93,6 +93,14 @@ function CreateTaskModal({ handleSelectDate, handleCreateSave }: createTaskModal
     getAllTimeOptions(parseYYYYMMDDToDate(date), draftTasks ? draftTasks : tasks, "start")
   );
 
+  const draftTaskDates = useMemo(() => {
+    return JSON.stringify(
+      draftTasks
+        ?.filter((task) => task.id !== id.current)
+        .map((task) => task.date.toISOString()) ?? []
+    );
+  }, [draftTasks]);
+
   const endTimeOptionsAll = useMemo(() => {
     if (!isDragging) {
       return getAllTimeOptions(
@@ -102,11 +110,7 @@ function CreateTaskModal({ handleSelectDate, handleCreateSave }: createTaskModal
       );
     }
     return [];
-  }, [isDragging]);
-
-  const draftTaskDates = useMemo(() => {
-    return draftTasks?.map((task) => task.date.toISOString()) ?? [];
-  }, [draftTasks]);
+  }, [isDragging, date, draftTaskDates]);
 
   useEffect(() => {
     if (draftTasks && !isDragging) {
@@ -120,20 +124,40 @@ function CreateTaskModal({ handleSelectDate, handleCreateSave }: createTaskModal
       );
 
       if (startTime && !isDragging) {
+        /* const newAllEndTimes = getAllTimeOptions(
+          parseYYYYMMDDToDate(date),
+          draftTasks ? draftTasks : tasks,
+          "end"
+        ); */
         setEndTimeOptions(
           getEndTimesAfterStart(
             startTime.label,
             endTimeOptionsAll,
             parseYYYYMMDDToDate(date),
-            draftTasks
+            draftTasks,
+            id.current
           )
         );
       }
     }
-  }, [isDragging, date, draftTaskDates]);
+  }, [isDragging, draftTaskDates]);
 
   function handleSetDate(newDate: string) {
+    const newAllEndTimes = getAllTimeOptions(
+      parseYYYYMMDDToDate(newDate),
+      draftTasks ? draftTasks : tasks,
+      "start"
+    );
+    const newEndTimeOptions = getEndTimesAfterStart(
+      startTime ? startTime.label : "12:00am",
+      newAllEndTimes,
+      parseYYYYMMDDToDate(newDate),
+      tasks,
+      id.current
+    );
     setDate(newDate);
+    setStartTimeOptionsAll(newAllEndTimes);
+    setEndTimeOptions(newEndTimeOptions);
 
     const newTask = getTaskDetails(false, undefined, undefined, newDate);
     if (!newTask || !draftTasks) return;
@@ -175,15 +199,17 @@ function CreateTaskModal({ handleSelectDate, handleCreateSave }: createTaskModal
         time.label,
         endTimeOptionsAll,
         parseYYYYMMDDToDate(date),
-        tasks
+        draftTasks,
+        id.current
       );
 
-      const newEndTime = getAvailableEndTimes(
+      const newEndTime = getAdjustedEndTime(
         time.label,
         newEndTimeOptions,
         startTime,
         endTime
       );
+
       const jumpedPrevTask = checkStartTimeJumpPrevTask(
         parseYYYYMMDDToDate(date),
         draftTasks,

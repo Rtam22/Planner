@@ -40,6 +40,8 @@ export function convertMinutesToHHMM(totalMinutes: number): string {
 }
 
 export function minutesToTimeAMPM(totalMinutes: number): string {
+  totalMinutes = totalMinutes % 1440;
+
   const hours24 = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
 
@@ -84,15 +86,16 @@ export function getEndTimesAfterStart(
   filterTime: string,
   times: { label: string; value: string }[],
   date: Date,
-  tasks: Task[]
+  tasks: Task[],
+  id: string
 ) {
   let found = false;
+
   const filterTimeMinutes = timeAMPMToMinutes(filterTime);
-  const nextTaskTime = getClosestNextTaskTime(filterTimeMinutes, date, tasks);
+  const nextTaskTime = getClosestNextTaskTime(filterTimeMinutes, date, tasks, id);
   const endTimeLimit = nextTaskTime && convertHHMMToMinutes(nextTaskTime?.startTime);
   const result = times.filter((option) => {
-    const timeMinutes = timeAMPMToMinutes(option.label);
-
+    const timeMinutes = convertHHMMToMinutes(option.value);
     if (endTimeLimit && timeMinutes > endTimeLimit) {
       return false;
     }
@@ -107,8 +110,10 @@ export function getEndTimesAfterStart(
   return result;
 }
 
-function getClosestNextTaskTime(time: number, date: Date, tasks: Task[]) {
-  const filteredTasks = tasks.filter((task) => isSameDate(task.date, date));
+function getClosestNextTaskTime(time: number, date: Date, tasks: Task[], id: string) {
+  const filteredTasks = tasks.filter(
+    (task) => task.id !== id && isSameDate(task.date, date)
+  );
   let closestTask: { id: string; difference: number } | null = null;
 
   for (let i = 0; i < filteredTasks.length; i++) {
@@ -171,7 +176,7 @@ export function getTasksByDate(date: Date, tasks: Task[]) {
   return tasks.filter((task) => isSameDate(task.date, date));
 }
 
-export function getAvailableEndTimes(
+export function getAdjustedEndTime(
   time: string,
   timeSlots: { label: string; value: string }[],
   startTime: { label: string; value: string } | null,
@@ -185,7 +190,10 @@ export function getAvailableEndTimes(
     if (newStartMinutes >= endMinutes) {
       const difference = Math.abs(startMinutes - endMinutes);
       let numberOfHops = Math.floor(difference / TIME_INTERVAL - 1);
-      if (numberOfHops > timeSlots.length) numberOfHops = timeSlots.length - 1;
+      if (numberOfHops >= timeSlots.length) {
+        numberOfHops = timeSlots.length - 1;
+      }
+
       return timeSlots[numberOfHops];
     }
     return null;
