@@ -7,17 +7,18 @@ import Select from "react-select";
 import type { StylesConfig } from "react-select";
 import type { Task } from "../../types/taskTypes";
 import { formatDateToYYYYMMDD, parseYYYYMMDDToDate } from "../../utils/dateUtils";
+import { convert24To12HourTime } from "../../utils/timeUtils";
 import {
-  convert24To12HourTime,
-  convertHHMMToMinutes,
-  filterArrayByDateAndTime,
+  checkStartTimeJumpPrevTask,
+  checkTaskExist,
+  filterOutPreviewTask,
   getAdjustedEndTime,
   getAllTimeOptions,
   getEndTimesAfterStart,
-} from "../../utils/timeUtils";
-
+} from "../../utils/taskFormUtils";
 import { calculateChangeDateTimes } from "../../hooks/taskCardControl/dayChangeUtils";
-type createTaskModal = {
+
+type CreateTaskModal = {
   handleSelectDate: (newDate: Date) => void;
   handleCreateSave: () => void;
   selectedDate: Date;
@@ -27,6 +28,14 @@ type createTaskModal = {
 type TagOption = {
   label: string;
   value: string;
+  highlight?: boolean;
+};
+
+export type TimeOption = {
+  label: string;
+  value: string;
+  isDisabled?: boolean;
+  highlight?: boolean;
 };
 
 const customStyles: StylesConfig<TagOption, false> = {
@@ -52,23 +61,29 @@ const customStyles: StylesConfig<TagOption, false> = {
     fontFamily: '"Inter", "Segoe UI", sans-serif',
     color: "black",
   }),
-  option: (base, state) => ({
-    ...base,
-    backgroundColor: state.isDisabled
-      ? "#f5f5f5"
-      : state.isSelected
-      ? "#E5EAFF"
-      : state.isFocused
-      ? "#F3F5FF"
-      : "white",
-    color: state.isDisabled ? "#999" : "black",
-    padding: "10px 12px",
-    fontSize: "14px",
-    fontFamily: '"Inter", "Segoe UI", sans-serif',
-  }),
+  option: (base, state) => {
+    return {
+      ...base,
+      backgroundColor: state.data.highlight
+        ? state.isFocused
+          ? "rgb(237, 240, 253)"
+          : "rgb(255, 245, 231)"
+        : state.isDisabled
+        ? "rgb(245, 245, 245)"
+        : state.isSelected
+        ? "rgb(221, 227, 252)"
+        : state.isFocused
+        ? "rgb(237, 240, 255)"
+        : "white",
+      color: state.isDisabled ? "#999" : "black",
+      padding: "10px 12px",
+      fontSize: "14px",
+      fontFamily: '"Inter", "Segoe UI", sans-serif',
+    };
+  },
 };
 
-function CreateTaskModal({ handleSelectDate, handleCreateSave }: createTaskModal) {
+function TaskForm({ handleSelectDate, handleCreateSave }: CreateTaskModal) {
   const { addDraftTask, editDraftTask, tags, draftTasks, isDragging } = useTasksContext();
   const id = useRef(uuidv4());
   const [tasks, setTasks] = useState<Task[]>(draftTasks ?? []);
@@ -86,12 +101,6 @@ function CreateTaskModal({ handleSelectDate, handleCreateSave }: createTaskModal
   const tagOptions = tags.map((tag) => {
     return { label: tag.label, value: tag.label.toLowerCase() };
   });
-  const [endTimeOptions, setEndTimeOptions] = useState(() =>
-    getAllTimeOptions(parseYYYYMMDDToDate(date), tasks, "end")
-  );
-  const [startTimeOptionsAll, setStartTimeOptionsAll] = useState(() =>
-    getAllTimeOptions(parseYYYYMMDDToDate(date), draftTasks ? draftTasks : tasks, "start")
-  );
 
   const draftTaskDates = useMemo(() => {
     return JSON.stringify(
@@ -101,64 +110,76 @@ function CreateTaskModal({ handleSelectDate, handleCreateSave }: createTaskModal
     );
   }, [draftTasks]);
 
+  const startTimeOptionsAll = useMemo(() => {
+    return getAllTimeOptions(
+      parseYYYYMMDDToDate(date),
+      draftTasks ? draftTasks : tasks,
+      "start",
+      startTime ? startTime.value : undefined,
+      endTime ? endTime.value : undefined
+    );
+  }, [startTime, endTime, date, isDragging, draftTaskDates]);
+
   const endTimeOptionsAll = useMemo(() => {
     if (!isDragging) {
       return getAllTimeOptions(
         parseYYYYMMDDToDate(date),
-        draftTasks ? draftTasks : tasks,
+        draftTasks ? filterOutPreviewTask(draftTasks, id.current) : tasks,
         "end"
       );
     }
     return [];
   }, [isDragging, date, draftTaskDates]);
 
+  function highlightEndTimeOptions(
+    times: TimeOption,
+    startTime: string,
+    endTime: string
+  ) {}
+
+  const endTimeOptions = useMemo(() => {
+    return getEndTimesAfterStart(
+      startTime ? startTime.label : "12:00am",
+      endTimeOptionsAll,
+      parseYYYYMMDDToDate(date),
+      draftTasks ? draftTasks : tasks,
+      id.current
+    );
+  }, [startTime, endTime, endTimeOptionsAll]);
+
   useEffect(() => {
     if (draftTasks && !isDragging) {
       setTasks(draftTasks);
-      setStartTimeOptionsAll(
-        getAllTimeOptions(
-          parseYYYYMMDDToDate(date),
-          draftTasks ? draftTasks : tasks,
-          "start"
-        )
-      );
-
-      if (startTime && !isDragging) {
-        /* const newAllEndTimes = getAllTimeOptions(
-          parseYYYYMMDDToDate(date),
-          draftTasks ? draftTasks : tasks,
-          "end"
-        ); */
-        setEndTimeOptions(
-          getEndTimesAfterStart(
-            startTime.label,
-            endTimeOptionsAll,
-            parseYYYYMMDDToDate(date),
-            draftTasks,
-            id.current
-          )
-        );
-      }
     }
   }, [isDragging, draftTaskDates]);
 
-  function handleSetDate(newDate: string) {
-    const newAllEndTimes = getAllTimeOptions(
-      parseYYYYMMDDToDate(newDate),
-      draftTasks ? draftTasks : tasks,
-      "start"
-    );
-    const newEndTimeOptions = getEndTimesAfterStart(
-      startTime ? startTime.label : "12:00am",
-      newAllEndTimes,
-      parseYYYYMMDDToDate(newDate),
-      tasks,
-      id.current
-    );
-    setDate(newDate);
-    setStartTimeOptionsAll(newAllEndTimes);
-    setEndTimeOptions(newEndTimeOptions);
+  function getTaskDetails(
+    preview: boolean,
+    startPrev?: string,
+    endPrev?: string,
+    dateInput?: string
+  ) {
+    const [year, month, day] = dateInput ? dateInput.split("-") : date.split("-");
+    const getTag = tags.find((t) => t.label.toLowerCase() === tag?.value.toLowerCase());
+    const resolvedStartTime = preview ? startPrev : startTime?.value;
+    const resolvedEndTime = preview ? endPrev : endTime?.value;
+    if (!resolvedStartTime || !resolvedEndTime) return;
 
+    return {
+      id: id.current,
+      title: title,
+      description: description,
+      tag: getTag,
+      date: new Date(Number(year), Number(month) - 1, Number(day)),
+      startTime: resolvedStartTime,
+      endTime: resolvedEndTime,
+      repeat: repeat,
+      preview: preview,
+    };
+  }
+
+  function handleSetDate(newDate: string) {
+    setDate(newDate);
     const newTask = getTaskDetails(false, undefined, undefined, newDate);
     if (!newTask || !draftTasks) return;
     const newTimes = calculateChangeDateTimes(newTask, draftTasks);
@@ -173,22 +194,6 @@ function CreateTaskModal({ handleSelectDate, handleCreateSave }: createTaskModal
       });
       handlePreview(newTimes.startTime, newTimes.endTime, newDate);
     }
-  }
-
-  function checkStartTimeJumpPrevTask(
-    date: Date,
-    tasks: Task[],
-    id: string,
-    startTime: string
-  ) {
-    const orderedTasks = filterArrayByDateAndTime(date, tasks);
-    const indexOfPrev = orderedTasks.findIndex((task) => task.id === id) - 1;
-    if (indexOfPrev < 0) return false;
-    const prevTaskStartMinutes = convertHHMMToMinutes(
-      orderedTasks[indexOfPrev].startTime
-    );
-    const newStartMinutes = convertHHMMToMinutes(startTime);
-    return prevTaskStartMinutes > newStartMinutes ? true : false;
   }
 
   function handleSetTime(type: "start" | "end", time: { label: string; value: string }) {
@@ -229,8 +234,6 @@ function CreateTaskModal({ handleSelectDate, handleCreateSave }: createTaskModal
         handlePreview(time.value, newEndTimeOptions[0].value);
       }
       setStartTime(time);
-      setEndTimeOptions(newEndTimeOptions);
-
       if (!endTime) return;
       if (jumpedPrevTask) {
         const jumpedEndTime = newEndTimeOptions[newEndTimeOptions.length - 1];
@@ -243,35 +246,6 @@ function CreateTaskModal({ handleSelectDate, handleCreateSave }: createTaskModal
       setEndTime(time);
       handlePreview(startTime?.value, time.value);
     }
-  }
-
-  function getTaskDetails(
-    preview: boolean,
-    startPrev?: string,
-    endPrev?: string,
-    dateInput?: string
-  ) {
-    const [year, month, day] = dateInput ? dateInput.split("-") : date.split("-");
-    const getTag = tags.find((t) => t.label.toLowerCase() === tag?.value.toLowerCase());
-    const resolvedStartTime = preview ? startPrev : startTime?.value;
-    const resolvedEndTime = preview ? endPrev : endTime?.value;
-    if (!resolvedStartTime || !resolvedEndTime) return;
-
-    return {
-      id: id.current,
-      title: title,
-      description: description,
-      tag: getTag,
-      date: new Date(Number(year), Number(month) - 1, Number(day)),
-      startTime: resolvedStartTime,
-      endTime: resolvedEndTime,
-      repeat: repeat,
-      preview: preview,
-    };
-  }
-
-  function checkTaskExist(taskId: string) {
-    return draftTasks?.find((task) => task.id === taskId);
   }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -290,7 +264,7 @@ function CreateTaskModal({ handleSelectDate, handleCreateSave }: createTaskModal
     const previewTask = dateInput
       ? getTaskDetails(true, startPrev, endPrev, dateInput)
       : getTaskDetails(true, startPrev, endPrev);
-    const taskExists = checkTaskExist(id.current);
+    const taskExists = checkTaskExist(id.current, draftTasks ? draftTasks : tasks);
 
     if (!previewTask) return;
     if (previewTask && taskExists) {
@@ -410,4 +384,4 @@ function CreateTaskModal({ handleSelectDate, handleCreateSave }: createTaskModal
   );
 }
 
-export default CreateTaskModal;
+export default TaskForm;
