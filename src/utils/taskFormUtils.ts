@@ -97,13 +97,22 @@ export function getAllTimeOptions(
         selectedStartMinutes != undefined &&
         selectedEndMinutes != undefined &&
         currentTime > selectedStartMinutes &&
-        currentTime < selectedEndMinutes;
+        currentTime <= selectedEndMinutes;
+      const selectedEndTimeDisabled =
+        currentTime === selectedEndMinutes && currentTime >= compareStartMinutes;
+      const selectedEndTime = currentTime === selectedEndMinutes;
 
       if (endTimeReachedTask) {
         availableTimes.push({ label: label, value: value });
         break;
       } else if (inSelectedTimeFrame) {
-        availableTimes.push({ label: label, value: value, highlight: true });
+        availableTimes.push({
+          label: label,
+          value: value,
+          highlight: true,
+          isDisabled: selectedEndTimeDisabled || startTimeReachedTask ? true : false,
+          endHighlight: selectedEndTime ? true : false,
+        });
       } else if (startTimeReachedTask) {
         availableTimes.push({ label: label, value: value, isDisabled: true });
       } else {

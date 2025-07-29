@@ -1,6 +1,6 @@
 import type { Task } from "../../types/taskTypes";
 import { useTasksContext } from "../../context/taskContext";
-import { convertHHMMToMinutes } from "../../utils/timeUtils";
+import { convert24To12HourTime, convertHHMMToMinutes } from "../../utils/timeUtils";
 import { setDayOfDate } from "../../utils/dateUtils";
 import {
   calculateLength,
@@ -27,6 +27,8 @@ export type UseTaskCardControlProps = {
   task: Task;
   hasDraggedRef: ReturnType<typeof useRef<boolean>>;
   setTaskLength: React.Dispatch<React.SetStateAction<number>>;
+  setStartTime: React.Dispatch<React.SetStateAction<string>>;
+  setEndTime: React.Dispatch<React.SetStateAction<string>>;
   setTaskPosition: React.Dispatch<React.SetStateAction<number>>;
   taskRef: ReturnType<typeof useRef<HTMLDivElement | null>>;
   timelineRef: React.RefObject<HTMLDivElement | null>;
@@ -37,6 +39,8 @@ export function useTaskCardControl({
   hasDraggedRef,
   setTaskLength,
   setTaskPosition,
+  setStartTime,
+  setEndTime,
   taskRef,
   timelineRef,
 }: UseTaskCardControlProps) {
@@ -72,8 +76,8 @@ export function useTaskCardControl({
   useEffect(() => {
     if (draftAction === "cancel") {
       handleCancel();
-    } else if (draftAction === "save") {
-      handleSave();
+    } else if (draftAction === "save" || draftAction === "saveTimeline") {
+      handleSave(draftAction);
     }
   }, [draftAction]);
 
@@ -88,8 +92,13 @@ export function useTaskCardControl({
     setTaskLength(taskLength);
   }
 
-  function handleSave() {
-    draftTasks && saveTasks(draftTasks);
+  function handleSave(type: "save" | "saveTimeline") {
+    if (!draftTasks) return;
+    if (type === "save") {
+      saveTasks(draftTasks);
+    } else if (type === "saveTimeline") {
+      saveTasks(draftTasks?.filter((task) => task.preview === false));
+    }
     deleteDraftTasks();
     handleDraftAction(null);
   }
@@ -168,6 +177,7 @@ export function useTaskCardControl({
           setEndTime: newEndTime,
         });
       }
+      editDraftTask(currentTaskRef.current);
       setTimeout(() => {
         handleSetPreviewTask(null);
         previewTaskRef.current = null;
@@ -215,14 +225,15 @@ export function useTaskCardControl({
       height = newLength;
     }
 
-    if (height) {
+    if (height && currentTaskRef?.current) {
       applyResize(
         height,
         startHours,
         startMinutes,
         currentTask,
-        editDraftTask,
-        setTaskLength
+        currentTaskRef,
+        setTaskLength,
+        setEndTime
       );
     }
   }
@@ -283,8 +294,12 @@ export function useTaskCardControl({
       t.id === newTask.id ? newTask : t
     );
 
+    if (params.type === "date") {
+      editDraftTask(newTask);
+    }
     setTaskPosition(position);
-    editDraftTask(newTask);
+    setStartTime(convert24To12HourTime(newTask.startTime));
+    setEndTime(convert24To12HourTime(newTask.endTime));
   }
 
   function handleCollided(
@@ -366,13 +381,14 @@ export function useTaskCardControl({
   function handleChangeDay(direction: "prev" | "next") {
     let currentTask = { ...currentTaskRef.current };
     currentTask.date = setDayOfDate(currentTask.date, direction, 1);
-    const newTimes = calculateChangeDateTimes(currentTask, currentTasksRef.current);
 
+    const newTimes = calculateChangeDateTimes(currentTask, currentTasksRef.current);
     if (newTimes) {
       handleMove({
         currentTask,
         setStartTime: newTimes.startTime,
         setEndTime: newTimes.endTime,
+        type: "date",
       });
     }
   }

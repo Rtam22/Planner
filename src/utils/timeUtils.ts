@@ -76,3 +76,21 @@ export function convert24To12HourTime(time: string): string {
 
   return `${hour}:${minute}${suffix}`;
 }
+
+export function convert12To24HourTime(time: string): string {
+  const match = time.match(/^(\d{1,2}):(\d{2})(am|pm)$/i);
+  if (!match) {
+    throw new Error("Invalid time format. Expected format: HH:MMam or HH:MMpm");
+  }
+
+  let [_, hourStr, minute, suffix] = match;
+  let hour = parseInt(hourStr, 10);
+
+  if (suffix.toLowerCase() === "pm" && hour !== 12) {
+    hour += 12;
+  } else if (suffix.toLowerCase() === "am" && hour === 12) {
+    hour = 0;
+  }
+
+  return `${String(hour).padStart(2, "0")}:${minute}`;
+}

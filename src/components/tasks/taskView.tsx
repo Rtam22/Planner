@@ -16,13 +16,8 @@ function TaskView({ task, onCancel, onSave, onDelete }: TaskViewProps) {
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const [title, setTitle] = useState<string>(task?.title ?? "");
-  const [description, setDescription] = useState<string>(
-    task ? task.description : ""
-  );
-  const [startTime, setStartTime] = useState<string>(
-    task ? task.startTime : ""
-  );
-  console.log(task?.endTime);
+  const [description, setDescription] = useState<string>(task ? task.description : "");
+  const [startTime, setStartTime] = useState<string>(task ? task.startTime : "");
   const [endTime, setEndTime] = useState<string>(task?.endTime ?? "");
   const [date, setDate] = useState<Date>(task?.date ?? new Date());
   const [repeat, setRepeat] = useState<string>(task?.repeat ?? "");
@@ -39,6 +34,7 @@ function TaskView({ task, onCancel, onSave, onDelete }: TaskViewProps) {
       endTime: endTime,
       repeat: repeat,
       tag: task.tag,
+      preview: task.preview,
     };
     onSave(updatedTask);
     onCancel("none");
@@ -168,11 +164,7 @@ function TaskView({ task, onCancel, onSave, onDelete }: TaskViewProps) {
               >
                 Cancel
               </Button>
-              <Button
-                onClick={handleDelete}
-                type="button"
-                className="btn-plain-lg warn"
-              >
+              <Button onClick={handleDelete} type="button" className="btn-plain-lg warn">
                 Delete
               </Button>
             </div>

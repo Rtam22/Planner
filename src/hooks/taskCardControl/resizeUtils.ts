@@ -1,20 +1,22 @@
 import type { Task } from "../../types/taskTypes";
 import { isSameDate } from "../../utils/dateUtils";
 import { calculateStartingPosition } from "../../utils/timelineUtils";
-import { convertHHMMToMinutes } from "../../utils/timeUtils";
+import { convert24To12HourTime, convertHHMMToMinutes } from "../../utils/timeUtils";
 
 export function applyResize(
   height: number,
   startHours: number,
   startMinutes: number,
   task: Task,
-  editDraftTask: (task: Task) => void,
-  setTaskLength: (height: number) => void
+  currentTaskRef: React.RefObject<Task>,
+  setTaskLength: (height: number) => void,
+  setEndTime: (time: string) => void
 ) {
   const newEndTime = calculateResize(height, startHours, startMinutes);
   const newTask: Task = { ...task, endTime: newEndTime };
-  editDraftTask(newTask);
+  currentTaskRef.current = newTask;
   setTaskLength(height);
+  setEndTime(convert24To12HourTime(newTask.endTime));
 }
 
 export function calculateResize(

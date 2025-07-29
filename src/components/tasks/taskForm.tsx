@@ -29,6 +29,7 @@ type TagOption = {
   label: string;
   value: string;
   highlight?: boolean;
+  endHighlight?: boolean;
 };
 
 export type TimeOption = {
@@ -36,6 +37,7 @@ export type TimeOption = {
   value: string;
   isDisabled?: boolean;
   highlight?: boolean;
+  endHighlight?: boolean;
 };
 
 const customStyles: StylesConfig<TagOption, false> = {
@@ -62,23 +64,40 @@ const customStyles: StylesConfig<TagOption, false> = {
     color: "black",
   }),
   option: (base, state) => {
+    const { highlight, endHighlight } = state.data;
+    const isDisabled = state.isDisabled;
+    const isSelected = state.isSelected;
+    const isFocused = state.isFocused && !isDisabled;
+    let backgroundColor = "white";
+    if (isDisabled) {
+      backgroundColor = "rgb(245, 245, 245)";
+    } else if (isSelected) {
+      backgroundColor = "rgb(221, 227, 252)";
+    } else if (endHighlight) {
+      backgroundColor = "rgb(221, 227, 252)";
+    } else if (highlight) {
+      backgroundColor = "rgb(255, 245, 231)";
+    }
+
+    if (isFocused) {
+      if (highlight) backgroundColor = "rgb(237, 240, 253)";
+      else backgroundColor = "rgb(237, 240, 255)";
+    }
+
     return {
       ...base,
-      backgroundColor: state.data.highlight
-        ? state.isFocused
-          ? "rgb(237, 240, 253)"
-          : "rgb(255, 245, 231)"
-        : state.isDisabled
-        ? "rgb(245, 245, 245)"
-        : state.isSelected
-        ? "rgb(221, 227, 252)"
-        : state.isFocused
-        ? "rgb(237, 240, 255)"
-        : "white",
-      color: state.isDisabled ? "#999" : "black",
-      padding: "10px 12px",
+      backgroundColor,
+      color: isDisabled ? "#999" : "black",
       fontSize: "14px",
       fontFamily: '"Inter", "Segoe UI", sans-serif',
+      padding: "10px 12px",
+      borderLeft: endHighlight
+        ? "2px solid rgb(90, 165, 240)"
+        : highlight
+        ? "2px solid rgb(237, 180, 100)"
+        : isSelected
+        ? "2px solid rgb(90, 165, 240)"
+        : "2px solid transparent",
     };
   },
 };
@@ -86,10 +105,13 @@ const customStyles: StylesConfig<TagOption, false> = {
 function TaskForm({ handleSelectDate, handleCreateSave }: CreateTaskModal) {
   const { addDraftTask, editDraftTask, tags, draftTasks, isDragging } = useTasksContext();
   const id = useRef(uuidv4());
+  const tagOptions = tags.map((tag) => {
+    return { label: tag.label, value: tag.label.toLowerCase() };
+  });
   const [tasks, setTasks] = useState<Task[]>(draftTasks ?? []);
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
-  const [tag, setTag] = useState<TagOption | null>();
+  const [tag, setTag] = useState<TagOption | null>(tagOptions[0]);
   const [date, setDate] = useState<string>(() => {
     return formatDateToYYYYMMDD(new Date());
   });
@@ -98,9 +120,6 @@ function TaskForm({ handleSelectDate, handleCreateSave }: CreateTaskModal) {
   );
   const [endTime, setEndTime] = useState<{ label: string; value: string } | null>(null);
   const [repeat, setRepeat] = useState<string>("");
-  const tagOptions = tags.map((tag) => {
-    return { label: tag.label, value: tag.label.toLowerCase() };
-  });
 
   const draftTaskDates = useMemo(() => {
     return JSON.stringify(
@@ -131,11 +150,11 @@ function TaskForm({ handleSelectDate, handleCreateSave }: CreateTaskModal) {
     return [];
   }, [isDragging, date, draftTaskDates]);
 
-  function highlightEndTimeOptions(
-    times: TimeOption,
-    startTime: string,
-    endTime: string
-  ) {}
+  const draftPreview = useMemo(() => {
+    if (!isDragging) {
+      return draftTasks?.find((task) => task.id === id.current);
+    }
+  }, [isDragging, draftTasks]);
 
   const endTimeOptions = useMemo(() => {
     return getEndTimesAfterStart(
@@ -153,23 +172,43 @@ function TaskForm({ handleSelectDate, handleCreateSave }: CreateTaskModal) {
     }
   }, [isDragging, draftTaskDates]);
 
+  useEffect(() => {
+    if (!isDragging && draftPreview) {
+      setEndTime({
+        label: convert24To12HourTime(draftPreview.endTime),
+        value: draftPreview.endTime,
+      });
+      setStartTime({
+        label: convert24To12HourTime(draftPreview.startTime),
+        value: draftPreview.startTime,
+      });
+      setDate(formatDateToYYYYMMDD(draftPreview.date));
+    }
+  }, [isDragging, draftPreview]);
+
+  function handleSetTitle(value: string) {
+    setTitle(value);
+    if (!startTime || !endTime) return;
+    handlePreview(startTime?.value, endTime?.value, undefined, value);
+  }
+
   function getTaskDetails(
     preview: boolean,
     startPrev?: string,
     endPrev?: string,
-    dateInput?: string
+    dateInput?: string,
+    titleInput?: string
   ) {
     const [year, month, day] = dateInput ? dateInput.split("-") : date.split("-");
     const getTag = tags.find((t) => t.label.toLowerCase() === tag?.value.toLowerCase());
     const resolvedStartTime = preview ? startPrev : startTime?.value;
     const resolvedEndTime = preview ? endPrev : endTime?.value;
     if (!resolvedStartTime || !resolvedEndTime) return;
-
     return {
       id: id.current,
-      title: title,
+      title: titleInput ? titleInput : title,
       description: description,
-      tag: getTag,
+      tag: preview ? null : getTag,
       date: new Date(Number(year), Number(month) - 1, Number(day)),
       startTime: resolvedStartTime,
       endTime: resolvedEndTime,
@@ -228,9 +267,6 @@ function TaskForm({ handleSelectDate, handleCreateSave }: CreateTaskModal) {
 
       if (!startTime) {
         setEndTime(newEndTimeOptions[0]);
-        const [year, month, day] = date.split("-");
-        const previewDate = new Date(Number(year), Number(month) - 1, Number(day));
-        handleSelectDate(previewDate);
         handlePreview(time.value, newEndTimeOptions[0].value);
       }
       setStartTime(time);
@@ -253,16 +289,29 @@ function TaskForm({ handleSelectDate, handleCreateSave }: CreateTaskModal) {
     e.preventDefault();
     const newTask = getTaskDetails(false);
     if (!newTask) return;
-    addDraftTask(newTask);
+    if (draftPreview) {
+      editDraftTask(newTask);
+    } else {
+      addDraftTask(newTask);
+    }
+
     handleCreateSave();
   }
 
-  function handlePreview(startPrev: string, endPrev: string, dateInput?: string) {
+  function handlePreview(
+    startPrev: string,
+    endPrev: string,
+    dateInput?: string,
+    titleInput?: string
+  ) {
     if (!dateInput) {
       if (!date) return;
     }
+
     const previewTask = dateInput
       ? getTaskDetails(true, startPrev, endPrev, dateInput)
+      : titleInput
+      ? getTaskDetails(true, startPrev, endPrev, undefined, titleInput)
       : getTaskDetails(true, startPrev, endPrev);
     const taskExists = checkTaskExist(id.current, draftTasks ? draftTasks : tasks);
 
@@ -288,7 +337,7 @@ function TaskForm({ handleSelectDate, handleCreateSave }: CreateTaskModal) {
           id="title"
           name="title"
           value={title}
-          onChange={(e) => setTitle(e.currentTarget.value)}
+          onChange={(e) => handleSetTitle(e.currentTarget.value)}
           required
         />
       </fieldset>

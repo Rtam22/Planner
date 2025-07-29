@@ -58,7 +58,8 @@ function CalendarPage() {
   }
 
   function handleCancelModal(type: modalType) {
-    if (JSON.stringify(draftTasks) !== JSON.stringify(tasks)) {
+    const draft = draftTasks?.filter((task) => task.preview === false);
+    if (JSON.stringify(draft) !== JSON.stringify(tasks)) {
       setShowConfirmation(true);
       setShowModal(type);
     } else {
@@ -96,7 +97,7 @@ function CalendarPage() {
 
   function handleConfirmationSave() {
     setShowConfirmation(false);
-    handleDraftAction("save");
+    handleDraftAction("saveTimeline");
     setTimeout(() => {
       setIsEditing(false);
     }, 80);

@@ -207,6 +207,10 @@ export const initialTasks: Task[] = [
 
 export const initialTags: Tag[] = [
   {
+    label: "General",
+    color: "#646464",
+  },
+  {
     label: "Project",
     color: "#A89DFF",
   },

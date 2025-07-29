@@ -94,14 +94,6 @@ button.warn {
   color: black;
 }
 
-/* .btn-resize.preview {
-  background-color: rgb(188, 187, 187);
-}
-
-.btn-resize.preview:hover {
-  background-color: rgb(158, 158, 158);
-} */
-
 .btn-move-left.preview:hover,
 .btn-move-right.preview:hover {
   background-color: rgb(189, 189, 189);
@@ -110,6 +102,9 @@ button.warn {
 .btn-move-right,
 .btn-move-left {
   position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   height: 50%;
   min-height: 30px;
   max-height: 50px;

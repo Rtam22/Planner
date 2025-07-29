@@ -9,7 +9,7 @@ type TasksContextType = {
   tags: Tag[];
   draftTasks: Task[] | null;
   previewTask: Task | null;
-  draftAction: "save" | "cancel" | null;
+  draftAction: "save" | "cancel" | "saveTimeline" | null;
   isDragging: boolean;
   addTask: (selectedTask: Task) => void;
   addDraftTask: (selectedTask: Task) => void;
@@ -21,7 +21,7 @@ type TasksContextType = {
   editDraftTask: (task: Task) => void;
   commitDraftTasks: () => void;
   deleteDraftTasks: () => void;
-  handleDraftAction: (action: "save" | "cancel" | null) => void;
+  handleDraftAction: (action: "save" | "cancel" | "saveTimeline" | null) => void;
   saveTasks: (tasks: Task[]) => void;
   editIsDragging: (boolean: boolean) => void;
 };
@@ -34,7 +34,9 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
     initialValue: initialTasks,
     reviver: convertArrayDateStringToDate,
   });
-  const [draftAction, setDraftAction] = useState<"save" | "cancel" | null>(null);
+  const [draftAction, setDraftAction] = useState<
+    "save" | "cancel" | "saveTimeline" | null
+  >(null);
   const [draftTasks, setDraftTasks] = useState<Task[] | null>(null);
   const [tags, setTags] = useState<Tag[]>(initialTags);
   const [previewTask, setPreviewTask] = useState<Task | null>(null);
@@ -47,7 +49,7 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
     setTasks(tasks.filter((task) => task.id !== selectedTask.id));
   }
 
-  function handleDraftAction(action: "save" | "cancel" | null) {
+  function handleDraftAction(action: "save" | "cancel" | "saveTimeline" | null) {
     setDraftAction(action);
   }
 

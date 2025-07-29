@@ -34,8 +34,10 @@ function TaskCard({
   const [endHours, endMinutes] = task.endTime.split(":").map(Number);
   const startPosition = calculateStartingPosition(startHours, startMinutes);
   const timelineHeight = 1680;
-  const startTime = convertTimeString24To12(task.startTime);
-  const endTime = convertTimeString24To12(task.endTime);
+  const [startTime, setStartTime] = useState<string>(
+    convertTimeString24To12(task.startTime)
+  );
+  const [endTime, setEndTime] = useState<string>(convertTimeString24To12(task.endTime));
   let cardLength = calculateLength(startHours, startMinutes, endHours, endMinutes);
   const [taskLength, setTaskLength] = useState<number>(cardLength);
   const [taskPosition, setTaskPosition] = useState<number>(startPosition);
@@ -53,6 +55,8 @@ function TaskCard({
     hasDraggedRef,
     setTaskLength,
     setTaskPosition,
+    setStartTime,
+    setEndTime,
     taskRef,
     timelineRef,
   });
@@ -123,7 +127,7 @@ function TaskCard({
         </>
       )}
 
-      <div className="container" style={{ paddingTop: taskLength < 18 ? "1%" : "3%" }}>
+      <div className="container" style={{ paddingTop: taskLength < 50 ? ".3%" : "3%" }}>
         <h3>{title}</h3>
         <p>{`${startTime} - ${endTime}`}</p>
       </div>
