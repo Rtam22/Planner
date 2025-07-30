@@ -6,8 +6,13 @@
 .task-view .container {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 15px;
   padding-left: 0;
+}
+
+.task-view .time-input {
+  flex-direction: column;
+  gap: 5px;
 }
 
 .task-view input,
@@ -69,10 +74,10 @@
   margin-top: 5px;
 }
 
-.task-view .col-right {
+/* .task-view .col-right {
   min-width: 250px;
 }
-
+ */
 hr.full-width {
   margin: 0 -15px;
 }
@@ -129,6 +134,12 @@ hr.full-width-horizontal {
 
 .task-view select:hover {
   cursor: pointer;
+}
+
+@media (max-width: 300px) {
+  .task-view {
+    padding: 0;
+  }
 }
 
 @media (min-width: 600px) {

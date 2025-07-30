@@ -10,6 +10,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useTaskCardControl } from "../../hooks/taskCardControl/useTaskCardControl";
 import Button from "../common/button";
 import { useTasksContext } from "../../context/taskContext";
+import { convert24To12HourTime } from "../../utils/timeUtils";
 
 type calendarTaskCardProps = {
   title: string;
@@ -30,8 +31,8 @@ function TaskCard({
 }: calendarTaskCardProps) {
   const { draftTasks } = useTasksContext();
   const taskRef = useRef<HTMLDivElement | null>(null);
-  const [startHours, startMinutes] = task.startTime.split(":").map(Number);
-  const [endHours, endMinutes] = task.endTime.split(":").map(Number);
+  let [startHours, startMinutes] = task.startTime.split(":").map(Number);
+  let [endHours, endMinutes] = task.endTime.split(":").map(Number);
   const startPosition = calculateStartingPosition(startHours, startMinutes);
   const timelineHeight = 1680;
   const [startTime, setStartTime] = useState<string>(
@@ -62,12 +63,28 @@ function TaskCard({
   });
 
   useEffect(() => {
+    if (!draftTasks) {
+      initializeDataWithContext();
+    }
+  }, [task, draftTasks]);
+
+  useEffect(() => {
     if (!draftTasks) return;
     const previewTask = draftTasks.find((task) => task.preview === true);
     if (!previewTask) return;
     setTaskLength(calculateLength(startHours, startMinutes, endHours, endMinutes));
     setTaskPosition(calculateStartingPosition(startHours, startMinutes));
   }, [draftTasks]);
+
+  function initializeDataWithContext() {
+    setStartTime(convert24To12HourTime(task.startTime));
+    setEndTime(convert24To12HourTime(task.endTime));
+    [startHours, startMinutes] = task.startTime.split(":").map(Number);
+    [endHours, endMinutes] = task.endTime.split(":").map(Number);
+    cardLength = calculateLength(startHours, startMinutes, endHours, endMinutes);
+    setTaskLength(cardLength);
+    setTaskPosition(calculateStartingPosition(startHours, startMinutes));
+  }
 
   function handleClick(e: React.MouseEvent<HTMLDivElement>) {
     if (!onClick) return;
@@ -76,14 +93,8 @@ function TaskCard({
       e.stopPropagation();
       return;
     }
-
     onClick(task.id);
   }
-
-  useEffect(() => {
-    setTaskLength(cardLength);
-    setTaskPosition;
-  }, [task]);
 
   return (
     <div

@@ -92,7 +92,7 @@ function TopUtilityBar({
             </>
           ) : (
             <Button className="btn-plain" onClick={handleSetEditing}>
-              To Plan
+              Edit Timeline
             </Button>
           )}
         </div>

@@ -20,3 +20,8 @@
 .task-form label {
   font-size: 14px;
 }
+
+.time-input .horizontal.time {
+  display: flex;
+  justify-content: space-between;
+}

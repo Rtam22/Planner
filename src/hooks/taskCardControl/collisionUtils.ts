@@ -36,7 +36,6 @@ export function findSpaceBetweenTasks(
     } else if (i === AT_TASK_END && direction === "next") {
       taskB = TIMELINE_END;
     } else {
-      console.log(i + step + step);
       taskB =
         direction === "next"
           ? sortedTasks[i + step + step].startTime

@@ -18,6 +18,7 @@ function renderComponent() {
       startTime: "07:00",
       endTime: "07:45",
       repeat: "Sat",
+      preview: false,
     },
   ];
 

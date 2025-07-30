@@ -22,7 +22,6 @@ function CalendarPage() {
     draftTasks,
     tags,
     previewTask,
-    editTask,
     deleteTask,
     enableEditMode,
     handleDraftAction,
@@ -117,7 +116,6 @@ function CalendarPage() {
           <TaskView
             task={selectedTask}
             onCancel={handleShowModal}
-            onSave={editTask}
             onDelete={deleteTask}
           />
         </Modal>
