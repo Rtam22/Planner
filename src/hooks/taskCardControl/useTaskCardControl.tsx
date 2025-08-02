@@ -381,7 +381,6 @@ export function useTaskCardControl({
   function handleChangeDay(direction: "prev" | "next") {
     let currentTask = { ...currentTaskRef.current };
     currentTask.date = setDayOfDate(currentTask.date, direction, 1);
-
     const newTimes = calculateChangeDateTimes(currentTask, currentTasksRef.current);
     if (newTimes) {
       handleMove({

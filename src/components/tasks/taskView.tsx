@@ -34,6 +34,7 @@ function TaskView({ task, onCancel, onDelete }: TaskViewProps) {
     handleSetTime,
     handleSetRepeat,
     handleSubmit,
+    handleSetTag,
   } = useTaskForm({
     editTimelineMode: false,
     currentTask: task ? task : null,
@@ -48,11 +49,14 @@ function TaskView({ task, onCancel, onDelete }: TaskViewProps) {
         label: convert24To12HourTime(task.startTime),
         value: task.startTime,
       });
+      handleSetTag(
+        task.tag?.label ? { label: task.tag.label, value: task.tag.label } : null
+      );
+      handleSetRepeat(task.repeat);
       handleSetTime("end", {
         label: convert24To12HourTime(task.endTime),
         value: task.endTime,
       });
-      handleSetRepeat(task.repeat);
     }
   }, []);
 
@@ -68,6 +72,10 @@ function TaskView({ task, onCancel, onDelete }: TaskViewProps) {
     if (!task) return;
     onDelete(task);
     onCancel("none");
+  }
+
+  function handleDate(date: Date) {
+    handleSetDate(formatDateToYYYYMMDD(date));
   }
 
   function handleTextAreaSizing(e: React.FormEvent<HTMLTextAreaElement>) {
@@ -127,7 +135,7 @@ function TaskView({ task, onCancel, onDelete }: TaskViewProps) {
                     <Calendar
                       showToday={false}
                       selectedDate={parseYYYYMMDDToDate(date)}
-                      handleSelectDate={handleSetDate}
+                      handleSelectDate={handleDate}
                       highlightSecondary={currentTaskDate}
                       height="280"
                     />

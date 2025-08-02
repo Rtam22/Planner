@@ -165,6 +165,7 @@ export function checkStartTimeJumpPrevTask(
 ) {
   const orderedTasks = filterArrayByDateAndTime(date, tasks);
   const indexOfPrev = orderedTasks.findIndex((task) => task.id === id) - 1;
+  console.log(indexOfPrev);
   if (indexOfPrev < 0) return false;
   const prevTaskStartMinutes = convertHHMMToMinutes(orderedTasks[indexOfPrev].startTime);
   const newStartMinutes = convertHHMMToMinutes(startTime);

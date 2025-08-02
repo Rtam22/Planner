@@ -35,7 +35,6 @@ export function calculateChangeDateTimes(currentTask: Task, tasks: Task[]) {
   const sortedTasks = sortedTaskIncludingCurrent.filter(
     (taskB) => currentTask.id !== taskB.id
   );
-
   const hasSpace = checkSpace(sortedTaskIncludingCurrent, taskIndex);
   if (hasSpace) {
     return {
@@ -47,7 +46,7 @@ export function calculateChangeDateTimes(currentTask: Task, tasks: Task[]) {
   return findClosestSpace(availableSpaces, currentTask);
 }
 
-export function checkSpace(tasks: Task[], taskIndex: number) {
+function checkSpace(tasks: Task[], taskIndex: number) {
   const prevTask = tasks[taskIndex - 1];
   const currentTask = tasks[taskIndex];
   const nextTask = tasks[taskIndex + 1];

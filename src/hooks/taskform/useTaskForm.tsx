@@ -53,7 +53,7 @@ export function useTaskForm({
   );
   const [endTime, setEndTime] = useState<{ label: string; value: string } | null>(null);
   const [repeat, setRepeat] = useState<string>("");
-
+  let allTasksRef = useRef<Task[]>(tasks);
   const taskDates = useMemo(() => {
     const source = draftTasks ? draftTasks : tasks;
     return JSON.stringify(
@@ -136,8 +136,8 @@ export function useTaskForm({
   ) {
     const [year, month, day] = dateInput ? dateInput.split("-") : date.split("-");
     const getTag = tags.find((t) => t.label.toLowerCase() === tag?.value.toLowerCase());
-    const resolvedStartTime = preview ? startPrev : startTime?.value;
-    const resolvedEndTime = preview ? endPrev : endTime?.value;
+    const resolvedStartTime = startPrev ? startPrev : startTime?.value;
+    const resolvedEndTime = endPrev ? endPrev : endTime?.value;
     if (!resolvedStartTime || !resolvedEndTime) return;
     return {
       id: id.current,
@@ -153,73 +153,79 @@ export function useTaskForm({
   }
 
   function handleSetDate(newDate: string) {
+    const prevDate = date;
     setDate(newDate);
     const newTask = getTaskDetails(false, undefined, undefined, newDate);
     if (!newTask) return;
-    const newTimes = calculateChangeDateTimes(newTask, tasks);
 
-    if (newTimes) {
-      setStartTime({
-        label: convert24To12HourTime(newTimes?.startTime),
-        value: newTimes?.startTime,
+    const newTimes = calculateChangeDateTimes(
+      newTask,
+      editTimelineMode ? draftTasks ?? tasks : tasks
+    );
+    if (!newTimes) {
+      setDate(prevDate);
+      return;
+    }
+    setStartTime({
+      label: convert24To12HourTime(newTimes?.startTime),
+      value: newTimes?.startTime,
+    });
+    setEndTime({
+      label: convert24To12HourTime(newTimes?.endTime),
+      value: newTimes?.endTime,
+    });
+    if (editTimelineMode) handlePreview(newTimes.startTime, newTimes.endTime, newDate);
+
+    if (!editTimelineMode) {
+      allTasksRef.current = tasks.map((task) => {
+        if (task.id === id.current) {
+          return { ...task, date: new Date(newDate) };
+        }
+        return task;
       });
-      setEndTime({
-        label: convert24To12HourTime(newTimes?.endTime),
-        value: newTimes?.endTime,
-      });
-      if (!editTimelineMode) handlePreview(newTimes.startTime, newTimes.endTime, newDate);
     }
   }
 
   function handleSetTime(type: "start" | "end", time: { label: string; value: string }) {
-    if (!editTimeline) {
-      type === "start" ? setStartTime(time) : setEndTime(time);
-      return;
-    }
-    if (!draftTasks) return;
     if (type === "start") {
-      const newEndTimeOptions = getEndTimesAfterStart(
-        time.label,
-        endTimeOptionsAll,
-        parseYYYYMMDDToDate(date),
-        draftTasks,
-        id.current
-      );
-
-      const newEndTime = getAdjustedEndTime(
-        time.label,
-        newEndTimeOptions,
-        startTime,
-        endTime
-      );
-
-      const jumpedPrevTask = checkStartTimeJumpPrevTask(
-        parseYYYYMMDDToDate(date),
-        draftTasks,
-        id.current,
-        time.value
+      const { newEndTimeOptions, newEndTime, jumpedPrevTask } = calculateEndTime(
+        time,
+        draftTasks ? draftTasks : allTasksRef.current
       );
 
       if (newEndTime) {
         setEndTime(newEndTime);
       }
-
       if (!startTime) {
         setEndTime(newEndTimeOptions[0]);
-        handlePreview(time.value, newEndTimeOptions[0].value);
+        if (editTimelineMode) handlePreview(time.value, newEndTimeOptions[0].value);
       }
       setStartTime(time);
       if (!endTime) return;
+
       if (jumpedPrevTask) {
         const jumpedEndTime = newEndTimeOptions[newEndTimeOptions.length - 1];
         setEndTime(jumpedEndTime);
-        handlePreview(time.value, jumpedEndTime.value);
+        if (editTimelineMode) handlePreview(time.value, jumpedEndTime.value);
         return;
       }
       handlePreview(time.value, newEndTime ? newEndTime.value : endTime.value);
-    } else if (type === "end" && startTime) {
+    } else if ((type === "end" && startTime) || (type === "end" && !editTimelineMode)) {
       setEndTime(time);
-      handlePreview(startTime?.value, time.value);
+      if (editTimelineMode) handlePreview(startTime!.value, time.value);
+    }
+    if (!editTimelineMode) {
+      allTasksRef.current = tasks.map((task) => {
+        if (task.id === id.current) {
+          const updatedTask = getTaskDetails(
+            false,
+            type === "start" ? time.value : startTime?.value,
+            type === "end" ? time.value : endTime?.value
+          );
+          return updatedTask ?? task;
+        }
+        return task;
+      });
     }
   }
 
@@ -253,7 +259,6 @@ export function useTaskForm({
     if (!dateInput) {
       if (!date) return;
     }
-
     const previewTask = dateInput
       ? getTaskDetails(true, startPrev, endPrev, dateInput)
       : titleInput
@@ -268,6 +273,7 @@ export function useTaskForm({
       addDraftTask(previewTask);
     }
   }
+
   function handleSetDescription(string: string) {
     setDescription(string);
   }
@@ -279,6 +285,30 @@ export function useTaskForm({
     setTag(tag);
   }
 
+  function calculateEndTime(time: { label: string; value: string }, tasks: Task[]) {
+    const newEndTimeOptions = getEndTimesAfterStart(
+      time.label,
+      endTimeOptionsAll,
+      parseYYYYMMDDToDate(date),
+      tasks,
+      id.current
+    );
+
+    const newEndTime = getAdjustedEndTime(
+      time.label,
+      newEndTimeOptions,
+      startTime,
+      endTime
+    );
+
+    const jumpedPrevTask = checkStartTimeJumpPrevTask(
+      parseYYYYMMDDToDate(date),
+      tasks,
+      id.current,
+      time.value
+    );
+    return { newEndTimeOptions, newEndTime, jumpedPrevTask };
+  }
   return {
     title,
     description,

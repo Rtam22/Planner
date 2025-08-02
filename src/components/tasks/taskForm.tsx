@@ -87,7 +87,7 @@ export const customStyles: StylesConfig<TagOption, false> = {
   }),
 };
 
-function TaskForm({ handleSelectDate, handleCreateSave }: CreateTaskModal) {
+function TaskForm({ handleCreateSave }: CreateTaskModal) {
   const {
     title,
     description,

@@ -8,13 +8,12 @@ import {
   setMonthOfDate,
   isSameDate,
   compareDateArrayToDate,
-  formatDateToYYYYMMDD,
 } from "../../utils/dateUtils";
 import type { Task } from "../../types/taskTypes";
 
 export type calendarProps = {
   selectedDate: Date;
-  handleSelectDate: (newDate: string) => void;
+  handleSelectDate: (newDate: Date) => void;
   highlightSecondary?: Date[];
   showToday?: boolean;
   showTaskInCell?: Task[];
@@ -50,7 +49,7 @@ function Calendar({
       newDate.setMonth(newDate.getMonth() + 1);
     }
     newDate.setDate(selectDay);
-    handleSelectDate(formatDateToYYYYMMDD(newDate));
+    handleSelectDate(newDate);
   }
 
   function handleDateChange(e: React.MouseEvent<HTMLDivElement>) {

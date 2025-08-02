@@ -63,8 +63,8 @@ export function formatDateToYYYYMMDD(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
-export function parseYYYYMMDDToDate(ymd: string): Date {
-  const [year, month, day] = ymd.split("-").map(Number);
+export function parseYYYYMMDDToDate(date: string): Date {
+  const [year, month, day] = date.split("-").map(Number);
   return new Date(year, month - 1, day);
 }
 
