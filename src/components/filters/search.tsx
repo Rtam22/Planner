@@ -5,9 +5,11 @@ import "./search.css";
 type SearchProps = {
   onSearch: (search: string) => void;
   useButton?: boolean;
+  height?: string;
+  width?: string;
 };
 
-function Search({ onSearch, useButton = true }: SearchProps) {
+function Search({ onSearch, useButton = true, height, width }: SearchProps) {
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   function handleSearch(e: React.FormEvent<HTMLElement>, value?: string) {
@@ -26,6 +28,10 @@ function Search({ onSearch, useButton = true }: SearchProps) {
   return (
     <form className="search-container" onSubmit={handleSearch}>
       <input
+        style={{
+          height: height ? height + "px" : undefined,
+          width: width ? width + "px" : undefined,
+        }}
         className="search-bar"
         type="search"
         placeholder="search..."

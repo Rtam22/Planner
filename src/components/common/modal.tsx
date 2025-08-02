@@ -3,8 +3,8 @@ import "./modal.css";
 
 type modalProps = {
   children: React.ReactNode;
-  type: "right" | "middle" | "left";
-  showModal: "none" | "view" | "create" | boolean;
+  position: "right" | "middle" | "left";
+  showModal: "none" | "view" | "create" | "confirmation";
   setClose: (type: any) => void;
   backDrop: boolean;
   closeOnBackDrop?: boolean;
@@ -12,11 +12,12 @@ type modalProps = {
   height?: string;
   removeCloseButton?: boolean;
   zIndexInput?: number;
+  modalType: string;
 };
 
 function Modal({
   children,
-  type,
+  position,
   showModal,
   setClose,
   backDrop,
@@ -25,17 +26,20 @@ function Modal({
   closeOnBackDrop,
   removeCloseButton,
   zIndexInput,
+  modalType,
 }: modalProps) {
   return (
     <div
       onClick={() => {
         if (closeOnBackDrop) setClose("none");
       }}
-      className={`${backDrop ? "back-drop" : ""} ${showModal != "none" ? "" : "hidden"}`}
+      className={`${backDrop ? "back-drop" : ""} ${
+        showModal === modalType ? "" : "hidden"
+      }`}
       style={{ zIndex: zIndexInput }}
     >
       <div
-        className={`modal ${type}`}
+        className={`modal ${position} ${showModal === modalType ? "" : "hidden"}`}
         style={{ height: height, width: width ? width : "" }}
         onClick={(e) => e.stopPropagation()}
       >

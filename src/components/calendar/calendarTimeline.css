@@ -100,6 +100,8 @@
   place-items: center;
 }
 
+.calendar-day-display::after {
+}
 .calendar-day {
   width: 100%;
   display: flex;
@@ -133,7 +135,7 @@
 
 @media (min-width: 1000px) {
   .time-cells {
-    min-width: 60px;
+    min-width: 70px;
     max-width: 80px;
     grid-template-columns: repeat(1, 60px);
   }

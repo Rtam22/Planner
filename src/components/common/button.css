@@ -1,6 +1,7 @@
 button {
   font-size: 14px;
   font-weight: 300;
+  border-radius: 5px;
 }
 
 .btn-main {
@@ -128,4 +129,19 @@ button.warn {
 
 .btn-move-left {
   left: -16px;
+}
+
+.btn-filter-circle {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-radius: 100px;
+  border: 1px solid rgb(108, 108, 108);
+  right: -20px;
+  z-index: 12;
+  top: 505px;
+  background-color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

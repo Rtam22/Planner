@@ -30,7 +30,9 @@ function CalendarPage() {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const { applyFilter } = useFilters();
   const [showModal, setShowModal] = useState<"none" | "view" | "create">("none");
-  const [showConfirmation, setShowConfirmation] = useState<boolean>(false);
+  const [showConfirmation, setShowConfirmation] = useState<"none" | "confirmation">(
+    "none"
+  );
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [filters, setFilters] = useState<FilterProps>({
     filters: {
@@ -59,7 +61,7 @@ function CalendarPage() {
   function handleCancelModal(type: modalType) {
     const draft = draftTasks?.filter((task) => task.preview === false);
     if (JSON.stringify(draft) !== JSON.stringify(tasks)) {
-      setShowConfirmation(true);
+      setShowConfirmation("confirmation");
       setShowModal(type);
     } else {
       setShowModal(type);
@@ -87,7 +89,7 @@ function CalendarPage() {
   }
 
   function handleShowConfirmation() {
-    setShowConfirmation(false);
+    setShowConfirmation("none");
     handleDraftAction("cancel");
     setTimeout(() => {
       setIsEditing(false);
@@ -95,7 +97,7 @@ function CalendarPage() {
   }
 
   function handleConfirmationSave() {
-    setShowConfirmation(false);
+    setShowConfirmation("none");
     handleDraftAction("saveTimeline");
     setTimeout(() => {
       setIsEditing(false);
@@ -107,11 +109,12 @@ function CalendarPage() {
       {showModal === "view" && (
         <Modal
           showModal={showModal}
-          type="middle"
+          position="middle"
           setClose={handleShowModal}
           backDrop={true}
           width="1000px"
           height="auto"
+          modalType="view"
         >
           <TaskView
             task={selectedTask}
@@ -121,16 +124,17 @@ function CalendarPage() {
         </Modal>
       )}
 
-      {showConfirmation && (
+      {showConfirmation === "confirmation" && (
         <Modal
           showModal={showConfirmation}
-          type="middle"
+          position="middle"
           setClose={handleShowConfirmation}
           backDrop={true}
           removeCloseButton={true}
           zIndexInput={21}
           width="300px"
           height="120px"
+          modalType="confirmation"
         >
           <Confirmation
             buttonConfirmTitle="Save"
@@ -174,21 +178,21 @@ function CalendarPage() {
             isEditing={isEditing}
           />
 
-          {showModal === "create" && (
-            <Modal
-              showModal={showModal}
-              type="right"
-              setClose={handleCancelModal}
-              backDrop={false}
-            >
-              <TaskForm
-                handleSelectDate={handleSelectDate}
-                handleCreateSave={handleCreateSave}
-                selectedDate={selectedDate}
-                tasks={tasks}
-              />
-            </Modal>
-          )}
+          <Modal
+            showModal={showModal}
+            position="right"
+            setClose={handleCancelModal}
+            backDrop={false}
+            width="400"
+            modalType="create"
+          >
+            <TaskForm
+              handleSelectDate={handleSelectDate}
+              handleCreateSave={handleCreateSave}
+              selectedDate={selectedDate}
+              tasks={tasks}
+            />
+          </Modal>
         </div>
       </div>
     </div>
