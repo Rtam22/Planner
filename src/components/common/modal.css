@@ -26,6 +26,7 @@
   overflow-x: hidden;
   overflow-y: auto;
   height: auto;
+  width: auto;
 }
 
 .back-drop {
@@ -63,11 +64,6 @@
 
 .modal .btn-main {
   margin-top: 15px;
-}
-
-.horizontal.time {
-  gap: 10px;
-  display: flex;
 }
 
 @media (min-width: 1000px) {

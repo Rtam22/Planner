@@ -7,6 +7,7 @@ export type Task = {
   startTime: string;
   endTime: string;
   repeat: string;
+  preview: boolean;
 };
 
 export type Tag = {

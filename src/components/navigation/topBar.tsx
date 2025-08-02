@@ -28,10 +28,10 @@ function TopUtilityBar({
     const button = e.currentTarget.textContent;
     let newDate = new Date(selectedDate);
     if (button === "‹") {
-      newDate.setDate(selectedDate.getDate() - 7);
+      newDate.setDate(selectedDate.getDate() - 1);
       handleSelectDate(newDate);
     } else {
-      newDate.setDate(selectedDate.getDate() + 7);
+      newDate.setDate(selectedDate.getDate() + 1);
       handleSelectDate(newDate);
     }
   }
@@ -50,7 +50,9 @@ function TopUtilityBar({
 
   function handleCreateTask() {
     handleShowModal("create");
-    enableEditMode();
+    if (isEditing === false) {
+      enableEditMode();
+    }
   }
 
   function handleSetEditing() {
@@ -90,7 +92,7 @@ function TopUtilityBar({
             </>
           ) : (
             <Button className="btn-plain" onClick={handleSetEditing}>
-              To Plan
+              Edit Timeline
             </Button>
           )}
         </div>

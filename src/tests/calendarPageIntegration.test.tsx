@@ -1,5 +1,4 @@
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { describe, expect, test } from "vitest";
 import CalendarPage from "../pages/calendarPage";
 import { TasksProvider } from "../context/taskContext";

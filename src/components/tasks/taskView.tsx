@@ -1,46 +1,70 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import "./taskView.css";
 import type { Task } from "../../types/taskTypes";
 import Button from "../common/button";
 import type { modalType } from "../../types/modalTypes";
 import Calendar from "../calendar/calendar";
+import { useTaskForm } from "../../hooks/taskform/useTaskForm";
+import { customStyles } from "./taskForm";
+import { formatDateToYYYYMMDD, parseYYYYMMDDToDate } from "../../utils/dateUtils";
+import Select from "react-select";
+import { convert24To12HourTime } from "../../utils/timeUtils";
 
 type TaskViewProps = {
   task: Task | null;
   onCancel: (type: modalType) => void;
-  onSave: (task: Task) => void;
   onDelete: (task: Task) => void;
 };
 
-function TaskView({ task, onCancel, onSave, onDelete }: TaskViewProps) {
+function TaskView({ task, onCancel, onDelete }: TaskViewProps) {
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
 
-  const [title, setTitle] = useState<string>(task?.title ?? "");
-  const [description, setDescription] = useState<string>(
-    task ? task.description : ""
-  );
-  const [startTime, setStartTime] = useState<string>(
-    task ? task.startTime : ""
-  );
-  console.log(task?.endTime);
-  const [endTime, setEndTime] = useState<string>(task?.endTime ?? "");
-  const [date, setDate] = useState<Date>(task?.date ?? new Date());
-  const [repeat, setRepeat] = useState<string>(task?.repeat ?? "");
+  const {
+    title,
+    description,
+    startTime,
+    endTime,
+    date,
+    repeat,
+    startTimeOptionsAll,
+    endTimeOptions,
+    handleSetTitle,
+    handleSetDescription,
+    handleSetDate,
+    handleSetTime,
+    handleSetRepeat,
+    handleSubmit,
+    handleSetTag,
+  } = useTaskForm({
+    editTimelineMode: false,
+    currentTask: task ? task : null,
+  });
+
+  useEffect(() => {
+    if (task) {
+      handleSetTitle(task.title);
+      handleSetDescription(task.description);
+      handleSetDate(formatDateToYYYYMMDD(task.date));
+      handleSetTime("start", {
+        label: convert24To12HourTime(task.startTime),
+        value: task.startTime,
+      });
+      handleSetTag(
+        task.tag?.label ? { label: task.tag.label, value: task.tag.label } : null
+      );
+      handleSetRepeat(task.repeat);
+      handleSetTime("end", {
+        label: convert24To12HourTime(task.endTime),
+        value: task.endTime,
+      });
+    }
+  }, []);
+
   const currentTaskDate = task?.date ? [task.date] : [];
-  function handleSubmit(e: React.MouseEvent<any>) {
+
+  function handleSave(e: React.MouseEvent<any>) {
     e.preventDefault();
-    if (!task) return;
-    const updatedTask: Task = {
-      id: task.id,
-      title: title,
-      description: description,
-      date: date,
-      startTime: startTime,
-      endTime: endTime,
-      repeat: repeat,
-      tag: task.tag,
-    };
-    onSave(updatedTask);
+    handleSubmit(e);
     onCancel("none");
   }
 
@@ -50,8 +74,8 @@ function TaskView({ task, onCancel, onSave, onDelete }: TaskViewProps) {
     onCancel("none");
   }
 
-  function handleSelectDate(date: Date) {
-    setDate(date);
+  function handleDate(date: Date) {
+    handleSetDate(formatDateToYYYYMMDD(date));
   }
 
   function handleTextAreaSizing(e: React.FormEvent<HTMLTextAreaElement>) {
@@ -76,7 +100,7 @@ function TaskView({ task, onCancel, onSave, onDelete }: TaskViewProps) {
               </span>
             </div>
           )}
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSave}>
             <hr className="full-width"></hr>
             <input
               className="title"
@@ -84,7 +108,7 @@ function TaskView({ task, onCancel, onSave, onDelete }: TaskViewProps) {
               id="title"
               name="title"
               value={title}
-              onChange={(e) => setTitle(e.currentTarget.value)}
+              onChange={(e) => handleSetTitle(e.currentTarget.value)}
             ></input>
             <hr className="full-width"></hr>
             <div className="wrapper">
@@ -99,7 +123,7 @@ function TaskView({ task, onCancel, onSave, onDelete }: TaskViewProps) {
                     name="title"
                     value={description}
                     onChange={(e) => {
-                      setDescription(e.currentTarget.value);
+                      handleSetDescription(e.currentTarget.value);
                     }}
                   ></textarea>
                 </div>
@@ -110,34 +134,51 @@ function TaskView({ task, onCancel, onSave, onDelete }: TaskViewProps) {
                   <fieldset>
                     <Calendar
                       showToday={false}
-                      selectedDate={date}
-                      handleSelectDate={handleSelectDate}
+                      selectedDate={parseYYYYMMDDToDate(date)}
+                      handleSelectDate={handleDate}
                       highlightSecondary={currentTaskDate}
+                      height="280"
                     />
                   </fieldset>
-                  <fieldset>
-                    <label htmlFor="startTime">Start Time</label>
-                    <input
-                      type="time"
-                      name="startTime"
+                  <fieldset className="time-input">
+                    <Select
+                      styles={customStyles}
                       id="startTime"
-                      value={startTime}
-                      onChange={(e) => {
-                        setStartTime(e.currentTarget.value);
+                      options={startTimeOptionsAll}
+                      placeholder="Select..."
+                      name="startTime"
+                      value={
+                        startTimeOptionsAll.find(
+                          (option) => option.value === startTime?.value
+                        ) || startTime
+                      }
+                      menuPortalTarget={document.body}
+                      menuPosition="fixed"
+                      required
+                      onChange={(selected) => {
+                        selected && handleSetTime("start", selected);
                       }}
-                    ></input>
-                  </fieldset>
-                  <fieldset>
-                    <label htmlFor="endTime">End Time</label>
-                    <input
-                      type="time"
-                      name="endTime"
+                    />
+                    <p>to</p>
+                    <Select
+                      required
+                      styles={customStyles}
                       id="endTime"
-                      value={endTime}
-                      onChange={(e) => {
-                        setEndTime(e.currentTarget.value);
+                      options={endTimeOptions}
+                      placeholder="Select..."
+                      name="endTime"
+                      isDisabled={!startTime}
+                      menuPortalTarget={document.body}
+                      menuPosition="fixed"
+                      value={
+                        endTimeOptions.find(
+                          (option) => option.value === endTime?.value
+                        ) || endTime
+                      }
+                      onChange={(selected) => {
+                        selected && handleSetTime("end", selected);
                       }}
-                    ></input>
+                    />
                   </fieldset>
                   <fieldset>
                     <label htmlFor="repeat">Repeat</label>
@@ -145,7 +186,7 @@ function TaskView({ task, onCancel, onSave, onDelete }: TaskViewProps) {
                       name="repeat"
                       id="repeat"
                       value={repeat}
-                      onChange={(e) => setRepeat(e.currentTarget.value)}
+                      onChange={(e) => handleSetRepeat(e.currentTarget.value)}
                     >
                       <option value="None">None</option>
                       <option value="Daily">Daily</option>
@@ -168,11 +209,7 @@ function TaskView({ task, onCancel, onSave, onDelete }: TaskViewProps) {
               >
                 Cancel
               </Button>
-              <Button
-                onClick={handleDelete}
-                type="button"
-                className="btn-plain-lg warn"
-              >
+              <Button onClick={handleDelete} type="button" className="btn-plain-lg warn">
                 Delete
               </Button>
             </div>

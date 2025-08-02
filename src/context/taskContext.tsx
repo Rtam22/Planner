@@ -1,14 +1,18 @@
 import { createContext, useContext, useState } from "react";
 import type { Task, Tag } from "../types/taskTypes";
 import { initialTags, initialTasks } from "../data/taskData";
+import useLocalStorage from "../hooks/useLocalStorage";
+import { convertArrayDateStringToDate } from "../utils/dateUtils";
 
 type TasksContextType = {
   tasks: Task[];
   tags: Tag[];
   draftTasks: Task[] | null;
   previewTask: Task | null;
-  draftAction: "save" | "cancel" | null;
+  draftAction: "save" | "cancel" | "saveTimeline" | null;
+  isDragging: boolean;
   addTask: (selectedTask: Task) => void;
+  addDraftTask: (selectedTask: Task) => void;
   deleteTask: (selectedTask: Task) => void;
   editTask: (selectedTask: Task) => void;
   addTag: () => void;
@@ -17,20 +21,26 @@ type TasksContextType = {
   editDraftTask: (task: Task) => void;
   commitDraftTasks: () => void;
   deleteDraftTasks: () => void;
-  handleDraftAction: (action: "save" | "cancel" | null) => void;
+  handleDraftAction: (action: "save" | "cancel" | "saveTimeline" | null) => void;
   saveTasks: (tasks: Task[]) => void;
+  editIsDragging: (boolean: boolean) => void;
 };
 
 const TasksContext = createContext<TasksContextType | null>(null);
 
 export function TasksProvider({ children }: { children: React.ReactNode }) {
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
-  const [draftAction, setDraftAction] = useState<"save" | "cancel" | null>(
-    null
-  );
+  const [tasks, setTasks] = useLocalStorage<Task[]>({
+    key: "tasks",
+    initialValue: initialTasks,
+    reviver: convertArrayDateStringToDate,
+  });
+  const [draftAction, setDraftAction] = useState<
+    "save" | "cancel" | "saveTimeline" | null
+  >(null);
   const [draftTasks, setDraftTasks] = useState<Task[] | null>(null);
   const [tags, setTags] = useState<Tag[]>(initialTags);
   const [previewTask, setPreviewTask] = useState<Task | null>(null);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
   function addTask(selectedTask: Task) {
     setTasks([...tasks, selectedTask]);
   }
@@ -39,7 +49,7 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
     setTasks(tasks.filter((task) => task.id !== selectedTask.id));
   }
 
-  function handleDraftAction(action: "save" | "cancel" | null) {
+  function handleDraftAction(action: "save" | "cancel" | "saveTimeline" | null) {
     setDraftAction(action);
   }
 
@@ -67,6 +77,10 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
     setDraftTasks([...tasks]);
   }
 
+  function addDraftTask(selectedTask: Task) {
+    if (draftTasks) setDraftTasks([...draftTasks, selectedTask]);
+  }
+
   function editDraftTask(selectedTask: Task) {
     if (draftTasks) {
       setDraftTasks(
@@ -77,9 +91,13 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  function editIsDragging(boolean: boolean) {
+    setIsDragging(boolean);
+  }
+
   function commitDraftTasks() {
     if (draftTasks) {
-      setDraftTasks(draftTasks);
+      saveTasks(draftTasks);
     }
     deleteDraftTasks();
   }
@@ -96,7 +114,9 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
         previewTask,
         draftTasks,
         draftAction,
+        isDragging,
         addTask,
+        addDraftTask,
         deleteTask,
         editTask,
         addTag,
@@ -107,6 +127,7 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
         deleteDraftTasks,
         handleDraftAction,
         saveTasks,
+        editIsDragging,
       }}
     >
       {children}

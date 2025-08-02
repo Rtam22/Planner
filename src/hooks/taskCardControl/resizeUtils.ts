@@ -1,28 +1,22 @@
 import type { Task } from "../../types/taskTypes";
 import { isSameDate } from "../../utils/dateUtils";
 import { calculateStartingPosition } from "../../utils/timelineUtils";
-import { convertHHMMToMinutes } from "../../utils/timeUtils";
+import { convert24To12HourTime, convertHHMMToMinutes } from "../../utils/timeUtils";
 
 export function applyResize(
   height: number,
   startHours: number,
   startMinutes: number,
   task: Task,
-  animationFrameId: number | null,
-  editDraftTask: (task: Task) => void,
-  setTaskLength: (height: number) => void
+  currentTaskRef: React.RefObject<Task>,
+  setTaskLength: (height: number) => void,
+  setEndTime: (time: string) => void
 ) {
-  if (animationFrameId) {
-    cancelAnimationFrame(animationFrameId);
-  }
   const newEndTime = calculateResize(height, startHours, startMinutes);
   const newTask: Task = { ...task, endTime: newEndTime };
-
-  animationFrameId = requestAnimationFrame(() => {
-    editDraftTask(newTask);
-    setTaskLength(height);
-    animationFrameId = null;
-  });
+  currentTaskRef.current = newTask;
+  setTaskLength(height);
+  setEndTime(convert24To12HourTime(newTask.endTime));
 }
 
 export function calculateResize(
@@ -31,7 +25,7 @@ export function calculateResize(
   startMinutes: number
 ) {
   const pixelsPerMinute = 70 / 60;
-  const durationMinutes = Math.floor(height / pixelsPerMinute);
+  const durationMinutes = Math.round(height / pixelsPerMinute);
 
   const startTotalMinutes = startHours * 60 + startMinutes;
   const endTotalMinutes = startTotalMinutes + durationMinutes;

@@ -1,30 +1,34 @@
 import type { Task } from "../../types/taskTypes";
 import { useTasksContext } from "../../context/taskContext";
-import { convertHHMMToMinutes } from "../../utils/timeUtils";
-import { isSameDate, setDayOfDate } from "../../utils/dateUtils";
+import { convert24To12HourTime, convertHHMMToMinutes } from "../../utils/timeUtils";
+import { setDayOfDate } from "../../utils/dateUtils";
 import {
   calculateLength,
   calculateStartingPosition,
+  convertLengthToMinutes,
   convertLengthToTime,
   getLengthFromTask,
   getPostionFromTask,
+  getSortedTasks,
 } from "../../utils/timelineUtils";
 import { useEffect, useRef } from "react";
 import { splitTimeHHMM } from "../../utils/timeUtils";
-import { checkSpace, findAllSpaces, findClosestSpace } from "./dayChangeUtils";
+import { calculateChangeDateTimes } from "./dayChangeUtils";
 import { applyResize, checkNextTaskStartTime } from "./resizeUtils";
 import {
   collisionCheck,
   findSpaceBetweenTasks,
-  getSnappedTimesFromCollision,
+  getCollisionTime,
 } from "./collisionUtils";
-import { BUFFER } from "./constants";
+import { BUFFER, TIME_INTERVAL } from "./constants";
 import { findCenterBetweenTimes } from "./previewUtils";
 import type { MoveByTime, MoveParams } from "./types";
 export type UseTaskCardControlProps = {
   task: Task;
   hasDraggedRef: ReturnType<typeof useRef<boolean>>;
   setTaskLength: React.Dispatch<React.SetStateAction<number>>;
+  setStartTime: React.Dispatch<React.SetStateAction<string>>;
+  setEndTime: React.Dispatch<React.SetStateAction<string>>;
   setTaskPosition: React.Dispatch<React.SetStateAction<number>>;
   taskRef: ReturnType<typeof useRef<HTMLDivElement | null>>;
   timelineRef: React.RefObject<HTMLDivElement | null>;
@@ -35,6 +39,8 @@ export function useTaskCardControl({
   hasDraggedRef,
   setTaskLength,
   setTaskPosition,
+  setStartTime,
+  setEndTime,
   taskRef,
   timelineRef,
 }: UseTaskCardControlProps) {
@@ -46,6 +52,7 @@ export function useTaskCardControl({
     editDraftTask,
     deleteDraftTasks,
     handleDraftAction,
+    editIsDragging,
   } = useTasksContext();
   const { tasks } = useTasksContext();
   const timeLine = timelineRef.current;
@@ -53,7 +60,6 @@ export function useTaskCardControl({
   let currentTaskRef = useRef<Task>(task);
   let currentTasksRef = useRef<Task[]>(draftTasks ? draftTasks : []);
   let isDragging = false;
-  let animationFrameId: number | null = null;
   const timelineHeight = 1680;
   const [startHours, startMinutes, endHours, endMinutes] = splitTimeHHMM(
     currentTaskRef.current
@@ -70,8 +76,8 @@ export function useTaskCardControl({
   useEffect(() => {
     if (draftAction === "cancel") {
       handleCancel();
-    } else if (draftAction === "save") {
-      handleSave();
+    } else if (draftAction === "save" || draftAction === "saveTimeline") {
+      handleSave(draftAction);
     }
   }, [draftAction]);
 
@@ -86,9 +92,14 @@ export function useTaskCardControl({
     setTaskLength(taskLength);
   }
 
-  function handleSave() {
-    draftTasks && saveTasks(draftTasks);
-    deleteDraftTasks;
+  function handleSave(type: "save" | "saveTimeline") {
+    if (!draftTasks) return;
+    if (type === "save") {
+      saveTasks(draftTasks);
+    } else if (type === "saveTimeline") {
+      saveTasks(draftTasks?.filter((task) => task.preview === false));
+    }
+    deleteDraftTasks();
     handleDraftAction(null);
   }
 
@@ -99,6 +110,7 @@ export function useTaskCardControl({
     e.stopPropagation();
     let difference = 0;
     isDragging = true;
+    editIsDragging(true);
     hasDraggedRef.current = false;
     const mousePrevY = e.pageY;
     let currentTask = currentTaskRef.current;
@@ -114,60 +126,48 @@ export function useTaskCardControl({
     window.addEventListener("mousemove", onMouseMove);
 
     function onMouseMove(event: MouseEvent) {
+      currentTask = currentTaskRef.current;
+      const mouseCurrentY = event.pageY;
+      difference = mouseCurrentY - mousePrevY;
+      const cardLength = calculateLength(startHours, startMinutes, endHours, endMinutes);
+      const newLength = cardLength + difference;
+      const differenceMinutes = convertLengthToMinutes(difference);
+      const movementNotWithinInterval =
+        type === "move" && differenceMinutes % TIME_INTERVAL !== 0;
       const sortedTasks = getSortedTasks(
         currentTaskRef.current.date,
         currentTasksRef.current
       );
-      document.body.style.cursor = "grabbing";
-      currentTask = currentTaskRef.current;
-      const mouseCurrentY = event.pageY;
-      difference = mouseCurrentY - mousePrevY;
       const selectedIndex = sortedTasks.findIndex((t) => t.id === task.id);
-      const mouseStartTime = convertLengthToTime(difference, startHours, startMinutes);
-      let cardLength = calculateLength(startHours, startMinutes, endHours, endMinutes);
-      const newLength = cardLength + difference;
 
-      if (type === "move") {
-        const { hasCollided, setStart, setEnd, direction } = collisionCheck(
-          selectedIndex,
-          sortedTasks,
+      if (movementNotWithinInterval) return;
+      const { hasCollided, setStart, setEnd, direction } = collisionCheck(
+        selectedIndex,
+        sortedTasks,
+        difference,
+        task
+      );
+      const collidedTimes = hasCollided
+        ? getCollisionTime(hasCollided, direction, currentTask, setStart, setEnd)
+        : null;
+
+      if (type === "move")
+        handleMoveType(
+          collidedTimes,
+          direction,
+          currentTask,
           difference,
-          task
+          cardLength,
+          startPosition,
+          event.pageY
         );
-
-        if (hasCollided) {
-          const newTime = {
-            startTime:
-              direction === "next"
-                ? getSnappedTimesFromCollision(currentTask, setStart, "next")
-                : setEnd,
-            endTime:
-              direction === "prev"
-                ? getSnappedTimesFromCollision(currentTask, setEnd, "prev")
-                : setStart,
-          };
-
-          if (!newTime?.startTime || !newTime?.endTime) return;
-          handleMove({
-            currentTask,
-            setStartTime: newTime.startTime,
-            setEndTime: newTime.endTime,
-          });
-          handleCollided(direction, currentTask, cardLength, mouseStartTime, event.pageY);
-        } else {
-          handleMove({ currentTask, difference, startPosition });
-          handleSetPreviewTask(null);
-          previewTaskRef.current = null;
-        }
-      }
-
-      if (type === "resize") {
-        handleResize(newLength, currentTask, startPosition);
-      }
+      if (type === "resize")
+        handleResizeType(differenceMinutes, newLength, type, currentTask, startPosition);
     }
 
     function onMouseUp() {
       isDragging = false;
+      editIsDragging(false);
       if (previewTaskRef.current) {
         const newStartTime = previewTaskRef.current.startTime;
         const newEndTime = previewTaskRef.current.endTime;
@@ -177,6 +177,7 @@ export function useTaskCardControl({
           setEndTime: newEndTime,
         });
       }
+      editDraftTask(currentTaskRef.current);
       setTimeout(() => {
         handleSetPreviewTask(null);
         previewTaskRef.current = null;
@@ -185,6 +186,20 @@ export function useTaskCardControl({
       window.removeEventListener("mouseup", onMouseUp);
       window.removeEventListener("mousemove", onMouseMove);
     }
+  }
+
+  function handleResizeType(
+    differenceMinutes: number,
+    newLength: number,
+    type: string,
+    currentTask: Task,
+    startPosition: number
+  ) {
+    const resizeNotWithinInterval =
+      type === "resize" && differenceMinutes % TIME_INTERVAL !== 0;
+
+    if (resizeNotWithinInterval) return;
+    handleResize(newLength, currentTask, startPosition);
   }
 
   function handleResize(newLength: number, currentTask: Task, startPosition: number) {
@@ -199,28 +214,55 @@ export function useTaskCardControl({
     const validHeightAndSpace =
       taskRef.current && newLength > 5.83 && startPosition + newLength < timelineHeight;
     let height: number | null = null;
-
     if (nextTaskTime) {
       if (hasDraggedEnough) hasDraggedRef.current = true;
     }
     if (hasReachedNextTask) {
-      height = nextTaskTime - startPosition + 1;
+      height = Math.round(nextTaskTime) - startPosition;
     } else if (overflowTimeLine) {
       height = timelineHeight - startPosition;
     } else if (validHeightAndSpace) {
       height = newLength;
     }
 
-    if (height) {
+    if (height && currentTaskRef?.current) {
       applyResize(
         height,
         startHours,
         startMinutes,
         currentTask,
-        animationFrameId,
-        editDraftTask,
-        setTaskLength
+        currentTaskRef,
+        setTaskLength,
+        setEndTime
       );
+    }
+  }
+
+  function handleMoveType(
+    collidedTimes: {
+      startTime: string;
+      endTime: string;
+    } | null,
+    direction: string | undefined,
+    currentTask: Task,
+    difference: number,
+    cardLength: number,
+    startPosition: number,
+    mouseY: number
+  ) {
+    if (collidedTimes && direction) {
+      if (!collidedTimes?.startTime || !collidedTimes?.endTime) return;
+      handleMove({
+        currentTask,
+        setStartTime: collidedTimes.startTime,
+        setEndTime: collidedTimes.endTime,
+      });
+      const mouseStartTime = convertLengthToTime(difference, startHours, startMinutes);
+      handleCollided(direction, currentTask, cardLength, mouseStartTime, mouseY);
+    } else {
+      handleMove({ currentTask, difference, startPosition });
+      handleSetPreviewTask(null);
+      previewTaskRef.current = null;
     }
   }
 
@@ -252,11 +294,12 @@ export function useTaskCardControl({
       t.id === newTask.id ? newTask : t
     );
 
-    animationFrameId = requestAnimationFrame(() => {
-      setTaskPosition(position);
+    if (params.type === "date") {
       editDraftTask(newTask);
-      animationFrameId = null;
-    });
+    }
+    setTaskPosition(position);
+    setStartTime(convert24To12HourTime(newTask.startTime));
+    setEndTime(convert24To12HourTime(newTask.endTime));
   }
 
   function handleCollided(
@@ -338,45 +381,15 @@ export function useTaskCardControl({
   function handleChangeDay(direction: "prev" | "next") {
     let currentTask = { ...currentTaskRef.current };
     currentTask.date = setDayOfDate(currentTask.date, direction, 1);
-
-    const tasksArray = currentTasksRef.current.map((task) => {
-      return task.id === currentTask.id ? currentTask : task;
-    });
-    const sortedTaskIncludingCurrent = getSortedTasks(currentTask.date, tasksArray);
-    const taskIndex = sortedTaskIncludingCurrent.findIndex(
-      (t) => currentTask.id === t.id
-    );
-    const sortedTasks = sortedTaskIncludingCurrent.filter(
-      (taskB) => task.id !== taskB.id
-    );
-
-    const hasSpace = checkSpace(sortedTaskIncludingCurrent, taskIndex);
-    if (hasSpace) {
-      handleMove({
-        currentTask,
-        setStartTime: currentTask.startTime,
-        setEndTime: currentTask.endTime,
-      });
-      return;
-    }
-    const availableSpaces = findAllSpaces(sortedTasks);
-    const newTimes = findClosestSpace(availableSpaces, currentTask);
-
+    const newTimes = calculateChangeDateTimes(currentTask, currentTasksRef.current);
     if (newTimes) {
       handleMove({
         currentTask,
         setStartTime: newTimes.startTime,
         setEndTime: newTimes.endTime,
+        type: "date",
       });
     }
-  }
-
-  function getSortedTasks(date: Date, tasks: Task[]) {
-    return [...tasks]
-      .sort((t1, t2) => {
-        return convertHHMMToMinutes(t1.startTime) - convertHHMMToMinutes(t2.startTime);
-      })
-      .filter((t) => isSameDate(t.date, date));
   }
 
   return { onMouseDown, handleChangeDay };

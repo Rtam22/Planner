@@ -2,3 +2,26 @@
   margin-top: 30px;
   padding: 0 10px;
 }
+
+.task-form fieldset {
+  gap: 8px;
+}
+
+.horizontal.time {
+  gap: 17px;
+  display: flex;
+  align-items: center;
+}
+
+.horizontal.time p {
+  min-width: 20px;
+}
+
+.task-form label {
+  font-size: 14px;
+}
+
+.time-input .horizontal.time {
+  display: flex;
+  justify-content: space-between;
+}

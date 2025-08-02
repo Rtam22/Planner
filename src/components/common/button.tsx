@@ -6,9 +6,14 @@ type ButtonProps = {
   children?: string | React.ReactNode;
   className: string;
   type?: "submit" | "button";
-  color?: string;
+  backgroundColor?: string;
   onClick?: ((e: React.MouseEvent<any>) => void) | (() => void);
   onMouseDown?: (e: React.MouseEvent<any>) => void;
+  width?: string;
+  height?: string;
+  minHeight?: string;
+  border?: string;
+  color?: string;
 };
 
 function Button({
@@ -17,7 +22,12 @@ function Button({
   type,
   onClick,
   onMouseDown,
+  backgroundColor,
+  width,
+  height,
+  border,
   color,
+  minHeight,
 }: ButtonProps) {
   const [isHovered, setIsHovered] = useState<boolean>(false);
 
@@ -25,10 +35,15 @@ function Button({
     <button
       style={{
         backgroundColor: isHovered
-          ? color
-            ? adjustColor(color, -20)
-            : color
-          : color,
+          ? backgroundColor
+            ? adjustColor(backgroundColor, -20)
+            : backgroundColor
+          : backgroundColor,
+        width: width && width + "px",
+        height: height && height + "px",
+        border: border ? border : undefined,
+        color: color && color,
+        minHeight: minHeight && minHeight + "px",
       }}
       type={type}
       onClick={(e) => onClick?.(e)}

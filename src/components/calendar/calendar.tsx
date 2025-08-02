@@ -17,6 +17,8 @@ export type calendarProps = {
   highlightSecondary?: Date[];
   showToday?: boolean;
   showTaskInCell?: Task[];
+  height?: string;
+  width?: string;
 };
 
 function Calendar({
@@ -25,6 +27,8 @@ function Calendar({
   highlightSecondary,
   showToday = true,
   showTaskInCell,
+  height,
+  width,
 }: calendarProps) {
   const [dateView, setDateView] = useState(new Date());
   const days = ["M", "T", "W", "T", "F", "S", "S"];
@@ -45,7 +49,7 @@ function Calendar({
       newDate.setMonth(newDate.getMonth() + 1);
     }
     newDate.setDate(selectDay);
-    handleSelectDate(new Date(newDate));
+    handleSelectDate(newDate);
   }
 
   function handleDateChange(e: React.MouseEvent<HTMLDivElement>) {
@@ -201,7 +205,14 @@ function Calendar({
   }
 
   return (
-    <div data-testid="calendar" className="calendar">
+    <div
+      data-testid="calendar"
+      className="calendar"
+      style={{
+        height: height ? height + "px" : undefined,
+        width: width ? width + "px" : undefined,
+      }}
+    >
       <div className="cal-header">
         <Button type="button" className="btn-plain" onClick={handleDateChange}>
           ‹

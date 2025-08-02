@@ -9,6 +9,8 @@ import { convertTimeString24To12 } from "../../utils/dateUtils";
 import React, { useEffect, useRef, useState } from "react";
 import { useTaskCardControl } from "../../hooks/taskCardControl/useTaskCardControl";
 import Button from "../common/button";
+import { useTasksContext } from "../../context/taskContext";
+import { convert24To12HourTime } from "../../utils/timeUtils";
 
 type calendarTaskCardProps = {
   title: string;
@@ -16,7 +18,7 @@ type calendarTaskCardProps = {
   task: Task;
   isEditing: boolean;
   timelineRef: React.RefObject<HTMLDivElement | null>;
-  type?: "preview";
+  preview: boolean;
 };
 
 function TaskCard({
@@ -25,16 +27,19 @@ function TaskCard({
   task,
   isEditing,
   timelineRef,
+  preview,
 }: calendarTaskCardProps) {
+  const { draftTasks } = useTasksContext();
   const taskRef = useRef<HTMLDivElement | null>(null);
-  const [startHours, startMinutes] = task.startTime.split(":").map(Number);
-  const [endHours, endMinutes] = task.endTime.split(":").map(Number);
+  let [startHours, startMinutes] = task.startTime.split(":").map(Number);
+  let [endHours, endMinutes] = task.endTime.split(":").map(Number);
   const startPosition = calculateStartingPosition(startHours, startMinutes);
   const timelineHeight = 1680;
-  const startTime = convertTimeString24To12(task.startTime);
-  const endTime = convertTimeString24To12(task.endTime);
+  const [startTime, setStartTime] = useState<string>(
+    convertTimeString24To12(task.startTime)
+  );
+  const [endTime, setEndTime] = useState<string>(convertTimeString24To12(task.endTime));
   let cardLength = calculateLength(startHours, startMinutes, endHours, endMinutes);
-
   const [taskLength, setTaskLength] = useState<number>(cardLength);
   const [taskPosition, setTaskPosition] = useState<number>(startPosition);
   const hasDraggedRef = useRef(false);
@@ -51,9 +56,35 @@ function TaskCard({
     hasDraggedRef,
     setTaskLength,
     setTaskPosition,
+    setStartTime,
+    setEndTime,
     taskRef,
     timelineRef,
   });
+
+  useEffect(() => {
+    if (!draftTasks) {
+      initializeDataWithContext();
+    }
+  }, [task, draftTasks]);
+
+  useEffect(() => {
+    if (!draftTasks) return;
+    const previewTask = draftTasks.find((task) => task.preview === true);
+    if (!previewTask) return;
+    setTaskLength(calculateLength(startHours, startMinutes, endHours, endMinutes));
+    setTaskPosition(calculateStartingPosition(startHours, startMinutes));
+  }, [draftTasks]);
+
+  function initializeDataWithContext() {
+    setStartTime(convert24To12HourTime(task.startTime));
+    setEndTime(convert24To12HourTime(task.endTime));
+    [startHours, startMinutes] = task.startTime.split(":").map(Number);
+    [endHours, endMinutes] = task.endTime.split(":").map(Number);
+    cardLength = calculateLength(startHours, startMinutes, endHours, endMinutes);
+    setTaskLength(cardLength);
+    setTaskPosition(calculateStartingPosition(startHours, startMinutes));
+  }
 
   function handleClick(e: React.MouseEvent<HTMLDivElement>) {
     if (!onClick) return;
@@ -62,21 +93,15 @@ function TaskCard({
       e.stopPropagation();
       return;
     }
-
     onClick(task.id);
   }
-
-  useEffect(() => {
-    setTaskLength(cardLength);
-    setTaskPosition;
-  }, [task]);
 
   return (
     <div
       ref={taskRef}
       data-testid="calendar-task-card"
       onMouseDown={isEditing ? handleMouseDown : undefined}
-      className="calendar-task-card"
+      className={`calendar-task-card ${preview ? "preview" : ""}`}
       style={{
         top: taskPosition,
         height: `${taskLength}px`,
@@ -87,29 +112,33 @@ function TaskCard({
       {isEditing && (
         <>
           <Button
-            color={task.tag?.color}
-            className="btn-move-left"
+            backgroundColor={task.tag?.color}
+            className={`btn-move-left ${preview ? "preview" : ""}`}
             onClick={() => handleChangeDay("prev")}
+            minHeight={taskLength < 18 ? "16" : ""}
           >
             ‹
           </Button>
           <Button
-            color={task.tag?.color}
-            className="btn-move-right"
+            backgroundColor={task.tag?.color}
+            className={`btn-move-right ${preview ? "preview" : ""}`}
             onClick={() => handleChangeDay("next")}
+            minHeight={taskLength < 18 ? "16" : ""}
           >
             ›
           </Button>
           <Button
-            className="btn-resize"
-            color={adjustColor(task.tag?.color ?? "#ccc", -20)}
+            className={`btn-resize ${preview ? "preview" : ""}`}
+            backgroundColor={
+              preview ? "#BCBBBB" : adjustColor(task.tag?.color ?? "#646464", -20)
+            }
             onMouseDown={(e) => onMouseDown(e, "resize")}
             onClick={(e) => e.stopPropagation()}
           ></Button>
         </>
       )}
 
-      <div className="container">
+      <div className="container" style={{ paddingTop: taskLength < 50 ? ".3%" : "3%" }}>
         <h3>{title}</h3>
         <p>{`${startTime} - ${endTime}`}</p>
       </div>

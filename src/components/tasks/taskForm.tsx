@@ -1,23 +1,26 @@
-import { useState } from "react";
 import "./taskForm.css";
 import Button from "../common/button";
-import { useTasksContext } from "../../context/taskContext";
-import { v4 as uuidv4 } from "uuid";
 import Select from "react-select";
 import type { StylesConfig } from "react-select";
 import type { Task } from "../../types/taskTypes";
+import { useTaskForm, type TagOption } from "../../hooks/taskform/useTaskForm";
 
-type createTaskModal = {
+type CreateTaskModal = {
   handleSelectDate: (newDate: Date) => void;
-  handleSetPreview: (task: Task | null) => void;
+  handleCreateSave: () => void;
+  selectedDate: Date;
+  tasks: Task[];
 };
 
-type TagOption = {
+export type TimeOption = {
   label: string;
   value: string;
+  isDisabled?: boolean;
+  highlight?: boolean;
+  endHighlight?: boolean;
 };
 
-const customStyles: StylesConfig<TagOption, false> = {
+export const customStyles: StylesConfig<TagOption, false> = {
   control: (base, state) => ({
     ...base,
     borderRadius: "2px",
@@ -27,7 +30,9 @@ const customStyles: StylesConfig<TagOption, false> = {
       borderColor: "black",
       cursor: "text",
     },
-    height: "30px",
+    height: "25px",
+    minWidth: "140px",
+    border: "1px, solid,rgb(83, 83, 83)",
   }),
   valueContainer: (base) => ({
     ...base,
@@ -39,84 +44,69 @@ const customStyles: StylesConfig<TagOption, false> = {
     fontFamily: '"Inter", "Segoe UI", sans-serif',
     color: "black",
   }),
-  option: (base, state) => ({
+  option: (base, state) => {
+    const { highlight, endHighlight } = state.data;
+    const isDisabled = state.isDisabled;
+    const isSelected = state.isSelected;
+    const isFocused = state.isFocused && !isDisabled;
+    let backgroundColor = "white";
+    if (isDisabled) {
+      backgroundColor = "rgb(245, 245, 245)";
+    } else if (isSelected) {
+      backgroundColor = "rgb(221, 227, 252)";
+    } else if (endHighlight) {
+      backgroundColor = "rgb(221, 227, 252)";
+    } else if (highlight) {
+      backgroundColor = "rgb(255, 245, 231)";
+    }
+
+    if (isFocused) {
+      if (highlight) backgroundColor = "rgb(237, 240, 253)";
+      else backgroundColor = "rgb(237, 240, 255)";
+    }
+
+    return {
+      ...base,
+      backgroundColor,
+      color: isDisabled ? "#999" : "black",
+      fontSize: "14px",
+      fontFamily: '"Inter", "Segoe UI", sans-serif',
+      padding: "10px 12px",
+      borderLeft: endHighlight
+        ? "2px solid rgb(90, 165, 240)"
+        : highlight
+        ? "2px solid rgb(237, 180, 100)"
+        : isSelected
+        ? "2px solid rgb(90, 165, 240)"
+        : "2px solid transparent",
+    };
+  },
+  menuPortal: (base) => ({
     ...base,
-    backgroundColor: state.isSelected
-      ? "#E5EAFF"
-      : state.isFocused
-      ? "#F3F5FF"
-      : "white",
-    color: state.isSelected ? "black" : "black",
-    padding: "10px 12px",
-    fontSize: "14px",
-    fontFamily: '"Inter", "Segoe UI", sans-serif',
+    zIndex: 9999,
   }),
 };
 
-function CreateTaskModal({
-  handleSelectDate,
-  handleSetPreview,
-}: createTaskModal) {
-  const [title, setTitle] = useState<string>("");
-  const [description, setDscription] = useState<string>("");
-  const [tag, setTag] = useState<TagOption | null>();
-  const [date, setDate] = useState<string>("");
-  const [startTime, setStartTime] = useState<string>("");
-  const [endTime, setEndTime] = useState<string>("");
-  const [repeat, setRepeat] = useState<string>("");
-
-  const { addTask, tags } = useTasksContext();
-  const tagOptions = tags.map((tag) => {
-    return { label: tag.label, value: tag.label.toLowerCase() };
-  });
-
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    const [year, month, day] = date.split("-");
-    const getTag = tags.find(
-      (t) => t.label.toLowerCase() === tag?.value.toLowerCase()
-    );
-
-    e.preventDefault();
-    const newTask = {
-      id: uuidv4(),
-      title: title,
-      description: description,
-      tag: getTag,
-      date: new Date(Number(year), Number(month) - 1, Number(day)),
-      startTime: startTime,
-      endTime: endTime,
-      repeat: repeat,
-    };
-    handleSetPreview(null);
-    addTask(newTask);
-  }
-
-  function handlePreview() {
-    if (date === "" && startTime === "" && endTime === "") {
-      return;
-    }
-
-    if (startTime === endTime) {
-      return;
-    }
-    const [year, month, day] = date.split("-");
-    const previewDate = new Date(Number(year), Number(month) - 1, Number(day));
-    const getTag = tags.find(
-      (t) => t.label.toLowerCase() === tag?.value.toLowerCase()
-    );
-    handleSelectDate(previewDate);
-    const previewTask = {
-      id: uuidv4(),
-      title: title,
-      description: description,
-      tag: getTag,
-      date: new Date(Number(year), Number(month) - 1, Number(day)),
-      startTime: startTime,
-      endTime: endTime,
-      repeat: repeat,
-    };
-    handleSetPreview(previewTask);
-  }
+function TaskForm({ handleCreateSave }: CreateTaskModal) {
+  const {
+    title,
+    description,
+    tag,
+    repeat,
+    date,
+    startTime,
+    endTime,
+    startTimeOptionsAll,
+    tagOptions,
+    endTimeOptions,
+    handleSetDate,
+    handleSubmit,
+    handleSetTitle,
+    handleSetDescription,
+    handleSetTime,
+    handleSetRepeat,
+    handleSetTag,
+  } = useTaskForm({ editTimelineMode: true, currentTask: null, handleCreateSave });
 
   return (
     <form
@@ -132,7 +122,7 @@ function CreateTaskModal({
           id="title"
           name="title"
           value={title}
-          onChange={(e) => setTitle(e.currentTarget.value)}
+          onChange={(e) => handleSetTitle(e.currentTarget.value)}
           required
         />
       </fieldset>
@@ -142,7 +132,7 @@ function CreateTaskModal({
           id="description"
           name="description"
           value={description}
-          onChange={(e) => setDscription(e.currentTarget.value)}
+          onChange={(e) => handleSetDescription(e.currentTarget.value)}
         />
       </fieldset>
       <fieldset>
@@ -151,9 +141,11 @@ function CreateTaskModal({
           styles={customStyles}
           id="tag"
           options={tagOptions}
+          placeholder="Select..."
           name="tag"
+          isClearable
           value={tag}
-          onChange={(selected) => setTag(selected)}
+          onChange={(selected) => handleSetTag(selected)}
         />
       </fieldset>
       <fieldset>
@@ -163,37 +155,44 @@ function CreateTaskModal({
           id="date"
           name="date"
           value={date?.toString()}
-          onChange={(e) => setDate(e.currentTarget.value)}
+          onChange={(e) => handleSetDate(e.currentTarget.value)}
           required
         />
       </fieldset>
-      <fieldset>
+      <fieldset className="time-input">
         <label htmlFor="time">Time</label>
         <div className="horizontal time">
-          <input
-            type="time"
-            id="time"
-            name="time"
-            value={startTime?.toString()}
-            onChange={(e) => setStartTime(e.currentTarget.value)}
+          <Select
+            styles={customStyles}
+            id="startTime"
+            options={startTimeOptionsAll}
+            placeholder="Select..."
+            name="startTime"
+            value={
+              startTimeOptionsAll.find((option) => option.value === startTime?.value) ||
+              startTime
+            }
             required
+            onChange={(selected) => {
+              selected && handleSetTime("start", selected);
+            }}
           />
           <p>to</p>
-          <input
-            type="time"
-            name="time"
-            id="time"
-            value={endTime?.toString()}
-            onChange={(e) => setEndTime(e.currentTarget.value)}
+          <Select
             required
+            styles={customStyles}
+            id="endTime"
+            options={endTimeOptions}
+            placeholder="Select..."
+            name="endTime"
+            isDisabled={!startTime}
+            value={
+              endTimeOptions.find((option) => option.value === endTime?.value) || endTime
+            }
+            onChange={(selected) => {
+              selected && handleSetTime("end", selected);
+            }}
           />
-          <Button
-            type="button"
-            className="btn-secondary"
-            onClick={handlePreview}
-          >
-            Preview
-          </Button>
         </div>
       </fieldset>
       <fieldset>
@@ -202,7 +201,7 @@ function CreateTaskModal({
           id="repeat"
           name="repeat"
           value={repeat}
-          onChange={(e) => setRepeat(e.currentTarget.value)}
+          onChange={(e) => handleSetRepeat(e.currentTarget.value)}
         >
           <option value="None">None</option>
           <option value="Daily">Daily</option>
@@ -219,4 +218,4 @@ function CreateTaskModal({
   );
 }
 
-export default CreateTaskModal;
+export default TaskForm;

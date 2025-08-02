@@ -12,6 +12,7 @@ export const initialTasks: Task[] = [
     startTime: "09:00",
     endTime: "10:30",
     repeat: "None",
+    preview: false,
   },
   {
     id: uuidv4(),
@@ -22,6 +23,7 @@ export const initialTasks: Task[] = [
     startTime: "06:30",
     endTime: "08:00",
     repeat: "None",
+    preview: false,
   },
   {
     id: uuidv4(),
@@ -32,6 +34,7 @@ export const initialTasks: Task[] = [
     startTime: "11:00",
     endTime: "12:00",
     repeat: "Weekly",
+    preview: false,
   },
   {
     id: uuidv4(),
@@ -42,6 +45,7 @@ export const initialTasks: Task[] = [
     startTime: "15:00",
     endTime: "16:30",
     repeat: "None",
+    preview: false,
   },
 
   {
@@ -53,6 +57,7 @@ export const initialTasks: Task[] = [
     startTime: "13:00",
     endTime: "14:30",
     repeat: "None",
+    preview: false,
   },
   {
     id: uuidv4(),
@@ -63,6 +68,7 @@ export const initialTasks: Task[] = [
     startTime: "10:00",
     endTime: "11:30",
     repeat: "Bi-weekly",
+    preview: false,
   },
   {
     id: uuidv4(),
@@ -73,6 +79,7 @@ export const initialTasks: Task[] = [
     startTime: "15:00",
     endTime: "16:00",
     repeat: "None",
+    preview: false,
   },
   {
     id: uuidv4(),
@@ -83,6 +90,7 @@ export const initialTasks: Task[] = [
     startTime: "08:00",
     endTime: "08:30",
     repeat: "Weekly",
+    preview: false,
   },
   {
     id: uuidv4(),
@@ -93,6 +101,7 @@ export const initialTasks: Task[] = [
     startTime: "17:00",
     endTime: "18:00",
     repeat: "None",
+    preview: false,
   },
   {
     id: uuidv4(),
@@ -103,6 +112,7 @@ export const initialTasks: Task[] = [
     startTime: "18:00",
     endTime: "19:00",
     repeat: "Weekly",
+    preview: false,
   },
 
   {
@@ -114,6 +124,7 @@ export const initialTasks: Task[] = [
     startTime: "12:00",
     endTime: "13:30",
     repeat: "None",
+    preview: false,
   },
   {
     id: uuidv4(),
@@ -124,6 +135,7 @@ export const initialTasks: Task[] = [
     startTime: "10:00",
     endTime: "11:00",
     repeat: "Bi-weekly",
+    preview: false,
   },
   {
     id: uuidv4(),
@@ -134,6 +146,7 @@ export const initialTasks: Task[] = [
     startTime: "09:00",
     endTime: "10:00",
     repeat: "None",
+    preview: false,
   },
   {
     id: uuidv4(),
@@ -144,6 +157,7 @@ export const initialTasks: Task[] = [
     startTime: "18:00",
     endTime: "19:00",
     repeat: "None",
+    preview: false,
   },
   {
     id: uuidv4(),
@@ -154,6 +168,7 @@ export const initialTasks: Task[] = [
     startTime: "07:00",
     endTime: "07:45",
     repeat: "None",
+    preview: false,
   },
   {
     id: uuidv4(),
@@ -164,6 +179,7 @@ export const initialTasks: Task[] = [
     startTime: "13:00",
     endTime: "14:00",
     repeat: "None",
+    preview: false,
   },
   {
     id: uuidv4(),
@@ -174,6 +190,7 @@ export const initialTasks: Task[] = [
     startTime: "20:00",
     endTime: "21:30",
     repeat: "None",
+    preview: false,
   },
   {
     id: uuidv4(),
@@ -184,10 +201,15 @@ export const initialTasks: Task[] = [
     startTime: "10:00",
     endTime: "11:30",
     repeat: "Monthly",
+    preview: false,
   },
 ];
 
 export const initialTags: Tag[] = [
+  {
+    label: "General",
+    color: "#646464",
+  },
   {
     label: "Project",
     color: "#A89DFF",
