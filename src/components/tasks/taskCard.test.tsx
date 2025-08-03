@@ -1,10 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { expect, test, vi } from "vitest";
 import CalendarTaskCard from "./taskCard";
-import {
-  calculateLength,
-  calculateStartingPosition,
-} from "../../utils/timelineUtils";
+import { calculateLength, calculateStartingPosition } from "../../utils/timelineUtils";
 import userEvent from "@testing-library/user-event";
 import { TasksProvider } from "../../context/taskContext";
 import { useRef } from "react";
@@ -20,6 +17,7 @@ function renderComponent() {
     startTime: "07:00",
     endTime: "07:45",
     repeat: "Sat",
+    preview: true,
   };
   const [startHours, startMinutes] = task.startTime.split(":").map(Number);
   const [endHours, endMinutes] = task.endTime.split(":").map(Number);
@@ -34,6 +32,7 @@ function renderComponent() {
         task={task}
         isEditing={isEditing}
         timelineRef={timelineRef}
+        preview={true}
       />{" "}
     </TasksProvider>
   );
@@ -61,12 +60,7 @@ test("Component displays the correct values and color", async () => {
 test("Task card height and starting position is correct based on time", () => {
   const { startHours, startMinutes, endMinutes, endHours } = renderComponent();
   const startingPosition = calculateStartingPosition(startHours, startMinutes);
-  const taskHeight = calculateLength(
-    startHours,
-    startMinutes,
-    endHours,
-    endMinutes
-  );
+  const taskHeight = calculateLength(startHours, startMinutes, endHours, endMinutes);
 
   const taskCard = screen.getByTestId("calendar-task-card");
   expect(taskCard).toHaveStyle({ height: `${taskHeight}px` });
