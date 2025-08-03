@@ -30,8 +30,8 @@ export const customStyles: StylesConfig<TagOption, false> = {
       borderColor: "black",
       cursor: "text",
     },
+
     height: "25px",
-    minWidth: "140px",
     border: "1px, solid,rgb(83, 83, 83)",
   }),
   valueContainer: (base) => ({
@@ -162,37 +162,42 @@ function TaskForm({ handleCreateSave }: CreateTaskModal) {
       <fieldset className="time-input">
         <label htmlFor="time">Time</label>
         <div className="horizontal time">
-          <Select
-            styles={customStyles}
-            id="startTime"
-            options={startTimeOptionsAll}
-            placeholder="Select..."
-            name="startTime"
-            value={
-              startTimeOptionsAll.find((option) => option.value === startTime?.value) ||
-              startTime
-            }
-            required
-            onChange={(selected) => {
-              selected && handleSetTime("start", selected);
-            }}
-          />
+          <div style={{ width: "100%" }}>
+            <Select
+              styles={customStyles}
+              id="startTime"
+              options={startTimeOptionsAll}
+              placeholder="Select..."
+              name="startTime"
+              value={
+                startTimeOptionsAll.find((option) => option.value === startTime?.value) ||
+                startTime
+              }
+              required
+              onChange={(selected) => {
+                selected && handleSetTime("start", selected);
+              }}
+            />
+          </div>
           <p>to</p>
-          <Select
-            required
-            styles={customStyles}
-            id="endTime"
-            options={endTimeOptions}
-            placeholder="Select..."
-            name="endTime"
-            isDisabled={!startTime}
-            value={
-              endTimeOptions.find((option) => option.value === endTime?.value) || endTime
-            }
-            onChange={(selected) => {
-              selected && handleSetTime("end", selected);
-            }}
-          />
+          <div style={{ width: "100%" }}>
+            <Select
+              required
+              styles={customStyles}
+              id="endTime"
+              options={endTimeOptions}
+              placeholder="Select..."
+              name="endTime"
+              isDisabled={!startTime}
+              value={
+                endTimeOptions.find((option) => option.value === endTime?.value) ||
+                endTime
+              }
+              onChange={(selected) => {
+                selected && handleSetTime("end", selected);
+              }}
+            />
+          </div>
         </div>
       </fieldset>
       <fieldset>

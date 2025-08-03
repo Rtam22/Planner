@@ -1,7 +1,7 @@
 .calendar {
   border: 1px solid rgb(145, 145, 145);
   width: 100%;
-  height: 300px;
+  min-height: 280px;
   padding: 5px;
   display: flex;
   flex-direction: column;

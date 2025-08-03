@@ -183,7 +183,7 @@ function CalendarPage() {
             position="right"
             setClose={handleCancelModal}
             backDrop={false}
-            width="400"
+            width="400px"
             modalType="create"
           >
             <TaskForm

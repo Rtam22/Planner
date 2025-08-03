@@ -60,6 +60,10 @@ function TaskView({ task, onCancel, onDelete }: TaskViewProps) {
     }
   }, []);
 
+  useEffect(() => {
+    handleTextAreaSizing();
+  }, [description]);
+
   const currentTaskDate = task?.date ? [task.date] : [];
 
   function handleSave(e: React.MouseEvent<any>) {
@@ -78,10 +82,12 @@ function TaskView({ task, onCancel, onDelete }: TaskViewProps) {
     handleSetDate(formatDateToYYYYMMDD(date));
   }
 
-  function handleTextAreaSizing(e: React.FormEvent<HTMLTextAreaElement>) {
-    const textarea = e.currentTarget;
-    textarea.style.height = "auto";
-    textarea.style.height = `${textarea.scrollHeight}px`;
+  function handleTextAreaSizing() {
+    if (textAreaRef.current) {
+      const textarea = textAreaRef.current;
+      textarea.style.height = "auto";
+      textarea.style.height = `${textarea.scrollHeight}px`;
+    }
   }
 
   task === null && <div>Task not found</div>;
