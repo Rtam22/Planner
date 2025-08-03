@@ -4,7 +4,6 @@
   z-index: 20;
   box-shadow: -3px 0 5px rgba(0, 0, 0, 0.2);
   gap: 10px;
-  padding: 15px;
   border-radius: 5px;
   position: relative;
 }
@@ -15,6 +14,10 @@
   position: relative;
   height: 100%;
   position: absolute;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+  transition: width 0.2s ease-in-out;
 }
 
 .modal.middle {
@@ -27,6 +30,7 @@
   overflow-y: auto;
   height: auto;
   width: auto;
+  padding: 15px;
 }
 
 .back-drop {
@@ -35,6 +39,8 @@
   height: 100vh;
   background-color: rgba(0, 0, 0, 0.502);
   z-index: 19;
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
 }
 
 .back-drop.right {
@@ -49,8 +55,12 @@
   justify-content: space-between;
 }
 
-.hidden {
-  display: none;
+.modal.right.hidden {
+  width: 0px !important;
+}
+
+.back-drop.hidden {
+  opacity: 0;
 }
 
 .header-color {
@@ -66,15 +76,9 @@
   margin-top: 15px;
 }
 
-@media (min-width: 1000px) {
-  .modal.right {
-    width: 400px;
-  }
-}
-
-@media (min-width: 900px) {
+@media (min-width: 600px) {
   .modal {
-    padding: 15px 15px 20px 15px;
+    padding: 15px 0 20px 0;
   }
 }
 
@@ -84,5 +88,17 @@
   }
   .modal.right {
     position: relative;
+  }
+}
+
+@media (max-width: 610px) {
+  .modal.right {
+    transition: none !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .modal.right {
+    width: 100% !important;
   }
 }

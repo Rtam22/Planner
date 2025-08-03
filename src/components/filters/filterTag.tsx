@@ -10,9 +10,7 @@ type FilterTagProps = {
 
 function FilterTag({ tag, setTags, selectedTags }: FilterTagProps) {
   function handleClick() {
-    const tagIndex = selectedTags.findIndex(
-      (selectedtag) => selectedtag === tag.label
-    );
+    const tagIndex = selectedTags.findIndex((selectedtag) => selectedtag === tag.label);
 
     if (tagIndex === -1) {
       setTags([...selectedTags, tag.label]);
@@ -24,11 +22,10 @@ function FilterTag({ tag, setTags, selectedTags }: FilterTagProps) {
     <div className="filter-tag horizontal">
       <Button
         className={`btn-filter ${
-          selectedTags.find((selectedTag) => selectedTag === tag.label)
-            ? "selected"
-            : ""
+          selectedTags.find((selectedTag) => selectedTag === tag.label) ? "selected" : ""
         }`}
         onClick={handleClick}
+        width="280"
       >
         <div style={{ backgroundColor: tag.color }} className="tag-color"></div>
         <p>{tag.label}</p>

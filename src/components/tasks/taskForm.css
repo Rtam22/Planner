@@ -1,6 +1,7 @@
 .task-form {
   margin-top: 30px;
   padding: 0 10px;
+  width: 370px;
 }
 
 .task-form fieldset {
@@ -24,4 +25,14 @@
 .time-input .horizontal.time {
   display: flex;
   justify-content: space-between;
+}
+
+@media (max-width: 600px) {
+  .task-form {
+    width: 100%;
+  }
+
+  .horizontal.time {
+    flex-direction: column;
+  }
 }

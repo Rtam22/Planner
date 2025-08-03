@@ -1,13 +1,20 @@
 .filter-bar {
   display: none;
-  min-width: 300px;
+  width: 315px;
   height: 100vh;
   flex-shrink: 0;
-  border-right: 1px solid rgb(185, 185, 185);
   flex-direction: column;
-  padding: 25px 10px;
+  padding: 25px 5px 25px 15px;
   gap: 35px;
-  background-color: #f9fafd;
+  overflow: hidden;
+  overflow-y: auto;
+}
+
+.filter-container {
+  border-right: 1px solid rgb(185, 185, 185);
+  display: none;
+  position: relative;
+  transition: width 0.2s ease-in-out, background-color 0.2s ease-in-out;
 }
 
 .filter-bar h4 {
@@ -21,13 +28,17 @@
 .filter-section {
   display: flex;
   flex-direction: column;
-  width: 299px;
+  width: 280px;
   gap: 5px;
 }
 
 @media (min-width: 1000px) {
   .filter-bar {
     display: flex;
-    align-items: center;
+  }
+
+  .filter-container {
+    display: flex;
+    position: relative;
   }
 }

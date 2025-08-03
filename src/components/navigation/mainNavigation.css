@@ -14,8 +14,8 @@
 @media (min-width: 1000px) {
   .main-navigation {
     height: 100vh;
-    min-width: 60px;
-    max-width: 60px;
+    min-width: 40px;
+    max-width: 40px;
   }
 
   .mobile-menu-button {
