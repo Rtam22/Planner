@@ -126,6 +126,7 @@ export function useTaskCardControl({
     window.addEventListener("mousemove", onMouseMove);
 
     function onMouseMove(event: MouseEvent) {
+      if (!isDragging) return;
       currentTask = currentTaskRef.current;
       const mouseCurrentY = event.pageY;
       difference = mouseCurrentY - mousePrevY;
