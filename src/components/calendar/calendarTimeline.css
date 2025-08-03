@@ -100,8 +100,6 @@
   place-items: center;
 }
 
-.calendar-day-display::after {
-}
 .calendar-day {
   width: 100%;
   display: flex;

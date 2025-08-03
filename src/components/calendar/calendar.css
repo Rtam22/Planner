@@ -96,8 +96,8 @@
 .cal-cell.today {
   background-color: rgb(208, 218, 255) !important;
   border-radius: 100px;
-  width: 80%;
-  height: 80%;
+  width: 85%;
+  height: 95%;
 }
 
 .cal-cell.today:hover {

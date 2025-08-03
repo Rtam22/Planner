@@ -50,7 +50,7 @@ function FilterBar({
     <div
       className="filter-container"
       style={{
-        width: show === true ? "500px" : "15px",
+        width: show === true ? "315px" : "15px",
       }}
     >
       <Button className="btn-filter-circle" onClick={() => handleSetShow(!show)}>
