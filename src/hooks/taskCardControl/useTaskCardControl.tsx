@@ -8,7 +8,6 @@ import {
   convertDifferenceLength,
   convertLengthToMinutes,
   convertLengthToTime,
-  convertMinutesToLength,
   getLengthFromTask,
   getPostionFromTask,
   getSortedTasks,
