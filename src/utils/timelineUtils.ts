@@ -18,20 +18,13 @@ export function calculateLength(
   return (endTotalMinutes - startTotalMinutes) * pixelsPerMinute;
 }
 
-export function calculateStartingPosition(
-  startHours: number,
-  startMinutes: number
-) {
+export function calculateStartingPosition(startHours: number, startMinutes: number) {
   const pixelsPerMinute = 70 / 60;
   const startingPosition = startHours * 70 + startMinutes * pixelsPerMinute;
   return startingPosition;
 }
 
-export function convertLengthToTime(
-  difference: number,
-  hours: number,
-  minutes: number
-) {
+export function convertLengthToTime(difference: number, hours: number, minutes: number) {
   const time = difference / 70;
   const hoursDiff = Math.floor(time);
   const minutesDiff = Math.round((time - hoursDiff) * 60);
@@ -42,9 +35,10 @@ export function convertLengthToTime(
 
   const totalHours = hours + hoursDiff + extraHours;
 
-  return `${String(totalHours).padStart(2, "0")}:${String(
-    normalizedMinutes
-  ).padStart(2, "0")}`;
+  return `${String(totalHours).padStart(2, "0")}:${String(normalizedMinutes).padStart(
+    2,
+    "0"
+  )}`;
 }
 
 export function getHoursAndMinutes(task: Task) {
@@ -76,7 +70,7 @@ export function adjustColor(hex: string, amount: number = 30): string {
 }
 
 export function adjustAlpha(color: string, alpha: number): string {
-  alpha = Math.max(0, Math.min(1, alpha)); // clamp between 0 and 1
+  alpha = Math.max(0, Math.min(1, alpha));
   if (color.startsWith("#")) {
     const hex = color.replace("#", "");
     if (hex.length === 6) {
@@ -97,6 +91,11 @@ export function adjustAlpha(color: string, alpha: number): string {
     );
   }
   return color;
+}
+
+export function convertDifferenceLength(minutes: number): number {
+  const pixelsPerMinute = 70 / 60;
+  return Math.round(minutes * pixelsPerMinute);
 }
 
 export function convertLengthToMinutes(lengthPx: number): number {
@@ -133,9 +132,7 @@ export function calculateLengthBetweenTasks(timeA: string, timeB: string) {
 export function getSortedTasks(date: Date, tasks: Task[]) {
   return [...tasks]
     .sort((t1, t2) => {
-      return (
-        convertHHMMToMinutes(t1.startTime) - convertHHMMToMinutes(t2.startTime)
-      );
+      return convertHHMMToMinutes(t1.startTime) - convertHHMMToMinutes(t2.startTime);
     })
     .filter((t) => isSameDate(t.date, date));
 }

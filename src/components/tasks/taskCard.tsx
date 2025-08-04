@@ -5,7 +5,7 @@ import {
   calculateLength,
   calculateStartingPosition,
 } from "../../utils/timelineUtils";
-import { convertTimeString24To12 } from "../../utils/dateUtils";
+import {} from "../../utils/dateUtils";
 import React, { useEffect, useRef, useState } from "react";
 import { useTaskCardControl } from "../../hooks/taskCardControl/useTaskCardControl";
 import Button from "../common/button";
@@ -36,9 +36,9 @@ function TaskCard({
   const startPosition = calculateStartingPosition(startHours, startMinutes);
   const timelineHeight = 1680;
   const [startTime, setStartTime] = useState<string>(
-    convertTimeString24To12(task.startTime)
+    convert24To12HourTime(task.startTime)
   );
-  const [endTime, setEndTime] = useState<string>(convertTimeString24To12(task.endTime));
+  const [endTime, setEndTime] = useState<string>(convert24To12HourTime(task.endTime));
   let cardLength = calculateLength(startHours, startMinutes, endHours, endMinutes);
   const [taskLength, setTaskLength] = useState<number>(cardLength);
   const [taskPosition, setTaskPosition] = useState<number>(startPosition);
@@ -71,9 +71,11 @@ function TaskCard({
   useEffect(() => {
     if (!draftTasks) return;
     const previewTask = draftTasks.find((task) => task.preview === true);
-    if (!previewTask) return;
+    if (!previewTask || !task.preview) return;
     setTaskLength(calculateLength(startHours, startMinutes, endHours, endMinutes));
     setTaskPosition(calculateStartingPosition(startHours, startMinutes));
+    setStartTime(convert24To12HourTime(previewTask.startTime));
+    setEndTime(convert24To12HourTime(previewTask.endTime));
   }, [draftTasks]);
 
   function initializeDataWithContext() {

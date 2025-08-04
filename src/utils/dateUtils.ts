@@ -68,13 +68,6 @@ export function parseYYYYMMDDToDate(date: string): Date {
   return new Date(year, month - 1, day);
 }
 
-export function convertTimeString24To12(time: string) {
-  const [h, m] = time.split(":").map(Number);
-  const hour = h % 12 === 0 ? 12 : h % 12;
-  const period = h < 12 ? "AM" : "PM";
-  return `${hour}:${m.toString().padStart(2, "0")} ${period}`;
-}
-
 export function setMonthOfDate(
   date: Date,
   type: "prev" | "next",

@@ -5,6 +5,7 @@ import { setDayOfDate } from "../../utils/dateUtils";
 import {
   calculateLength,
   calculateStartingPosition,
+  convertDifferenceLength,
   convertLengthToMinutes,
   convertLengthToTime,
   getLengthFromTask,
@@ -131,21 +132,20 @@ export function useTaskCardControl({
       const mouseCurrentY = event.pageY;
       difference = mouseCurrentY - mousePrevY;
       const cardLength = calculateLength(startHours, startMinutes, endHours, endMinutes);
-      const newLength = cardLength + difference;
       const differenceMinutes = convertLengthToMinutes(difference);
-      const movementNotWithinInterval =
-        type === "move" && differenceMinutes % TIME_INTERVAL !== 0;
+      const snappedMinutes = convertDifferenceLength(
+        Math.round(differenceMinutes / TIME_INTERVAL) * TIME_INTERVAL
+      );
+      const newLength = cardLength + snappedMinutes;
       const sortedTasks = getSortedTasks(
         currentTaskRef.current.date,
         currentTasksRef.current
       );
       const selectedIndex = sortedTasks.findIndex((t) => t.id === task.id);
-
-      if (movementNotWithinInterval) return;
       const { hasCollided, setStart, setEnd, direction } = collisionCheck(
         selectedIndex,
         sortedTasks,
-        difference,
+        snappedMinutes,
         task
       );
       const collidedTimes = hasCollided
@@ -157,13 +157,12 @@ export function useTaskCardControl({
           collidedTimes,
           direction,
           currentTask,
-          difference,
+          snappedMinutes,
           cardLength,
           startPosition,
           event.pageY
         );
-      if (type === "resize")
-        handleResizeType(differenceMinutes, newLength, type, currentTask, startPosition);
+      if (type === "resize") handleResize(newLength, currentTask, startPosition);
     }
 
     function onMouseUp() {
@@ -187,20 +186,6 @@ export function useTaskCardControl({
       window.removeEventListener("mouseup", onMouseUp);
       window.removeEventListener("mousemove", onMouseMove);
     }
-  }
-
-  function handleResizeType(
-    differenceMinutes: number,
-    newLength: number,
-    type: string,
-    currentTask: Task,
-    startPosition: number
-  ) {
-    const resizeNotWithinInterval =
-      type === "resize" && differenceMinutes % TIME_INTERVAL !== 0;
-
-    if (resizeNotWithinInterval) return;
-    handleResize(newLength, currentTask, startPosition);
   }
 
   function handleResize(newLength: number, currentTask: Task, startPosition: number) {

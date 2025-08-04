@@ -191,6 +191,7 @@ function CalendarPage() {
               handleCreateSave={handleCreateSave}
               selectedDate={selectedDate}
               tasks={tasks}
+              showModal={showModal}
             />
           </Modal>
         </div>

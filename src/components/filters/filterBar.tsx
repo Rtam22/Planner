@@ -56,29 +56,31 @@ function FilterBar({
       <Button className="btn-filter-circle" onClick={() => handleSetShow(!show)}>
         <FontAwesomeIcon icon={faBars} style={{ height: "20px", fontSize: "10px" }} />
       </Button>
-      <div className="filter-bar">
-        <Calendar
-          selectedDate={selectedDate}
-          handleSelectDate={handleSelectDate}
-          highlightSecondary={highlightSecondary}
-          showTaskInCell={filteredTasks ? filteredTasks : tasks}
-          width="280"
-          height="280"
-        />
-        <Search onSearch={setSearchQuery} useButton={false} width="280" />
+      <div className="filter-bar-wrapper">
+        <div className="filter-bar">
+          <Calendar
+            selectedDate={selectedDate}
+            handleSelectDate={handleSelectDate}
+            highlightSecondary={highlightSecondary}
+            showTaskInCell={filteredTasks ? filteredTasks : tasks}
+            width="280"
+            height="280"
+          />
+          <Search onSearch={setSearchQuery} useButton={false} width="280" />
 
-        <div className="filter-section">
-          <h4>Tags</h4>
-          {tags.map((tag, index) => {
-            return (
-              <FilterTag
-                key={index}
-                selectedTags={selectedTags}
-                tag={tag}
-                setTags={setSelectedTags}
-              />
-            );
-          })}
+          <div className="filter-section">
+            <h4>Tags</h4>
+            {tags.map((tag, index) => {
+              return (
+                <FilterTag
+                  key={index}
+                  selectedTags={selectedTags}
+                  tag={tag}
+                  setTags={setSelectedTags}
+                />
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>
