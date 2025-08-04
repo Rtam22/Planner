@@ -4,12 +4,14 @@ import Select from "react-select";
 import type { StylesConfig } from "react-select";
 import type { Task } from "../../types/taskTypes";
 import { useTaskForm, type TagOption } from "../../hooks/taskform/useTaskForm";
+import { useEffect } from "react";
 
 type CreateTaskModal = {
   handleSelectDate: (newDate: Date) => void;
   handleCreateSave: () => void;
   selectedDate: Date;
   tasks: Task[];
+  showModal: "none" | "view" | "create";
 };
 
 export type TimeOption = {
@@ -87,7 +89,7 @@ export const customStyles: StylesConfig<TagOption, false> = {
   }),
 };
 
-function TaskForm({ handleCreateSave }: CreateTaskModal) {
+function TaskForm({ handleCreateSave, showModal }: CreateTaskModal) {
   const {
     title,
     description,
@@ -106,8 +108,12 @@ function TaskForm({ handleCreateSave }: CreateTaskModal) {
     handleSetTime,
     handleSetRepeat,
     handleSetTag,
+    handleClear,
   } = useTaskForm({ editTimelineMode: true, currentTask: null, handleCreateSave });
 
+  useEffect(() => {
+    if (showModal !== "create") handleClear();
+  });
   return (
     <form
       className="task-form"

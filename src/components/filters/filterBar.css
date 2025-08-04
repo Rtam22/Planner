@@ -6,7 +6,6 @@
   flex-direction: column;
   padding: 25px 5px 25px 15px;
   gap: 35px;
-  overflow: hidden;
   overflow-y: auto;
 }
 
@@ -15,6 +14,10 @@
   display: none;
   position: relative;
   transition: width 0.2s ease-in-out, background-color 0.2s ease-in-out;
+}
+
+.filter-bar-wrapper {
+  overflow: hidden;
 }
 
 .filter-bar h4 {

@@ -95,6 +95,19 @@ export function useTaskForm({
     );
   }, [startTime, endTime, endTimeOptionsAll]);
 
+  function handleClear() {
+    id.current = uuidv4();
+    setTitle("");
+    setDescription("");
+    setTag(null);
+    setStartTime(null);
+    setDate(() => {
+      return formatDateToYYYYMMDD(new Date());
+    });
+    setEndTime(null);
+    setRepeat("");
+  }
+
   const draftPreview = useMemo(() => {
     if (!isDragging && editTimeline) {
       return draftTasks?.find((task) => task.id === id.current);
@@ -265,7 +278,6 @@ export function useTaskForm({
       ? getTaskDetails(true, startPrev, endPrev, undefined, titleInput)
       : getTaskDetails(true, startPrev, endPrev);
     const taskExists = checkTaskExist(id.current, draftTasks ? draftTasks : taskArray);
-
     if (!previewTask) return;
     if (previewTask && taskExists) {
       editDraftTask(previewTask);
@@ -327,5 +339,6 @@ export function useTaskForm({
     handleSetDescription,
     handleSetRepeat,
     handleSetTag,
+    handleClear,
   };
 }
