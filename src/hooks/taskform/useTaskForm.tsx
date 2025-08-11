@@ -64,14 +64,15 @@ export function useTaskForm({
   }, [draftTasks ?? taskArray]);
 
   const startTimeOptionsAll = useMemo(() => {
+    if (!draftTasks) return [];
     return getAllTimeOptions(
       parseYYYYMMDDToDate(date),
-      draftTasks ? draftTasks : taskArray,
+      draftTasks,
       "start",
-      startTime ? startTime.value : undefined,
-      endTime ? endTime.value : undefined
+      startTime?.value,
+      endTime?.value
     );
-  }, [startTime, endTime, date, isDragging, taskDates]);
+  }, [startTime, endTime, date, isDragging, taskDates, draftTasks]);
 
   const endTimeOptionsAll = useMemo(() => {
     const source = draftTasks ? draftTasks : tasks;
@@ -170,7 +171,7 @@ export function useTaskForm({
     setDate(newDate);
     const newTask = getTaskDetails(false, undefined, undefined, newDate);
     if (!newTask) return;
-
+    console.log(newTask.tag);
     const newTimes = calculateChangeDateTimes(
       newTask,
       editTimelineMode ? draftTasks ?? tasks : tasks
