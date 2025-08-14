@@ -114,6 +114,7 @@ function TaskForm({ handleCreateSave, showModal }: CreateTaskModal) {
   useEffect(() => {
     if (showModal !== "create") handleClear();
   });
+
   return (
     <form
       className="task-form"
@@ -213,6 +214,7 @@ function TaskForm({ handleCreateSave, showModal }: CreateTaskModal) {
           name="repeat"
           value={repeat}
           onChange={(e) => handleSetRepeat(e.currentTarget.value)}
+          disabled
         >
           <option value="None">None</option>
           <option value="Daily">Daily</option>

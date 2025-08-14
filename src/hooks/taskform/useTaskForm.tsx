@@ -149,9 +149,11 @@ export function useTaskForm({
     titleInput?: string
   ) {
     const [year, month, day] = dateInput ? dateInput.split("-") : date.split("-");
-    const getTag = tags.find((t) => t.label.toLowerCase() === tag?.value.toLowerCase());
+    let getTag = tags.find((t) => t.label.toLowerCase() === tag?.value.toLowerCase());
+    if (getTag === undefined) getTag = tags[0];
     const resolvedStartTime = startPrev ? startPrev : startTime?.value;
     const resolvedEndTime = endPrev ? endPrev : endTime?.value;
+
     if (!resolvedStartTime || !resolvedEndTime) return;
     return {
       id: id.current,
