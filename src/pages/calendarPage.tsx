@@ -1,5 +1,5 @@
 import "./calendarPage.css";
-import MainNavigation from "../components/navigation/mainNavigation";
+import MainNavigation from "../components/navigation/navigationBar";
 import TopBar from "../components/navigation/topBar";
 import FilterBar from "../components/filters/filterBar";
 import { useMemo, useState } from "react";
@@ -146,7 +146,6 @@ function CalendarPage() {
           </Confirmation>
         </Modal>
       )}
-      <MainNavigation />
 
       <FilterBar
         tasks={tasks}
