@@ -1,0 +1,13 @@
+.date-navigator {
+  display: flex;
+  align-items: center;
+}
+.back-button,
+.next-button {
+  font-size: 23px;
+  width: 22px;
+  height: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

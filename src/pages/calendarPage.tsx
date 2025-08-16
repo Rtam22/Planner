@@ -13,6 +13,8 @@ import type { modalType } from "../types/modalTypes";
 import TaskView from "../components/tasks/taskView";
 import { useFilters } from "../hooks/useFilters";
 import Confirmation from "../components/common/confirmation";
+import DateNavigator from "../components/calendar/dateNavigator";
+import EditControls from "../components/calendar/editControls";
 
 function CalendarPage() {
   const {
@@ -147,14 +149,22 @@ function CalendarPage() {
 
         <div className="content">
           <TopBar
-            selectedDate={selectedDate}
-            handleSelectDate={handleSelectDate}
-            handleShowModal={handleShowModal}
-            showModal={showModal}
-            isEditing={isEditing}
-            setIsEditing={setIsEditing}
-            handleDraftAction={handleDraftAction}
-            enableEditMode={enableEditMode}
+            left={
+              <DateNavigator
+                selectedDate={selectedDate}
+                handleSelectDate={handleSelectDate}
+              />
+            }
+            right={
+              <EditControls
+                handleShowModal={handleShowModal}
+                showModal={showModal}
+                isEditing={isEditing}
+                setIsEditing={setIsEditing}
+                handleDraftAction={handleDraftAction}
+                enableEditMode={enableEditMode}
+              />
+            }
           />
           <div className="horizontal">
             <CalendarTimeline
