@@ -1,5 +1,4 @@
 import "./calendarPage.css";
-import MainNavigation from "../components/navigation/navigationBar";
 import TopBar from "../components/navigation/topBar";
 import FilterBar from "../components/filters/filterBar";
 import { useMemo, useState } from "react";
@@ -12,7 +11,6 @@ import Modal from "../components/common/modal";
 import { getDayAndDayNumber, getSecondaryDates } from "../utils/dateUtils";
 import type { modalType } from "../types/modalTypes";
 import TaskView from "../components/tasks/taskView";
-import type { FilterProps } from "../hooks/useFilters";
 import { useFilters } from "../hooks/useFilters";
 import Confirmation from "../components/common/confirmation";
 
@@ -28,18 +26,12 @@ function CalendarPage() {
   } = useTasksContext();
   const [selectedDate, setselectedDate] = useState<Date>(new Date());
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const { applyFilter } = useFilters();
+  const { applyFilter, handleFilter, filters } = useFilters();
   const [showModal, setShowModal] = useState<"none" | "view" | "create">("none");
   const [showConfirmation, setShowConfirmation] = useState<"none" | "confirmation">(
     "none"
   );
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [filters, setFilters] = useState<FilterProps>({
-    filters: {
-      search: "",
-      tags: [],
-    },
-  });
   const dates: CalendarDayProps[] = getDayAndDayNumber(selectedDate);
   const secondaryDates = getSecondaryDates(selectedDate, "forwards", 7);
   const filteredTasks = useMemo(() => {
@@ -76,10 +68,6 @@ function CalendarPage() {
     setShowModal("view");
   }
 
-  function handleFilterTasks(filters: FilterProps) {
-    setFilters(filters);
-  }
-
   function handleCreateSave() {
     setShowModal("none");
     handleDraftAction("save");
@@ -105,97 +93,99 @@ function CalendarPage() {
   }
 
   return (
-    <div className="calendar-page">
-      {showModal === "view" && (
-        <Modal
-          showModal={showModal}
-          position="middle"
-          setClose={handleShowModal}
-          backDrop={true}
-          width="1000px"
-          height="auto"
-          modalType="view"
-        >
-          <TaskView
-            task={selectedTask}
-            onCancel={handleShowModal}
-            onDelete={deleteTask}
-          />
-        </Modal>
-      )}
-
-      {showConfirmation === "confirmation" && (
-        <Modal
-          showModal={showConfirmation}
-          position="middle"
-          setClose={handleShowConfirmation}
-          backDrop={true}
-          removeCloseButton={true}
-          zIndexInput={21}
-          width="300px"
-          height="120px"
-          modalType="confirmation"
-        >
-          <Confirmation
-            buttonConfirmTitle="Save"
-            buttonCancelTitle="Cancel"
-            onClickConfirm={handleConfirmationSave}
-            onClickCancel={handleShowConfirmation}
-          >
-            Save changes to the timeline?
-          </Confirmation>
-        </Modal>
-      )}
-
+    <>
       <FilterBar
         tasks={tasks}
         tags={tags}
-        handleFilter={handleFilterTasks}
+        handleFilter={handleFilter}
         selectedDate={selectedDate}
         handleSelectDate={handleSelectDate}
         highlightSecondary={secondaryDates}
         filteredTasks={filteredTasks}
       />
-      <div className="content">
-        <TopBar
-          selectedDate={selectedDate}
-          handleSelectDate={handleSelectDate}
-          handleShowModal={handleShowModal}
-          showModal={showModal}
-          isEditing={isEditing}
-          setIsEditing={setIsEditing}
-          handleDraftAction={handleDraftAction}
-          enableEditMode={enableEditMode}
-        />
-        <div className="horizontal">
-          <CalendarTimeline
-            dates={dates}
-            tasks={filteredTasks}
-            selectedDate={selectedDate}
-            previewTask={previewTask}
-            onClick={handleTaskClick}
-            isEditing={isEditing}
-          />
-
+      <div className="calendar-page">
+        {showModal === "view" && (
           <Modal
             showModal={showModal}
-            position="right"
-            setClose={handleCancelModal}
-            backDrop={false}
-            width="400px"
-            modalType="create"
+            position="middle"
+            setClose={handleShowModal}
+            backDrop={true}
+            width="1000px"
+            height="auto"
+            modalType="view"
           >
-            <TaskForm
-              handleSelectDate={handleSelectDate}
-              handleCreateSave={handleCreateSave}
-              selectedDate={selectedDate}
-              tasks={tasks}
-              showModal={showModal}
+            <TaskView
+              task={selectedTask}
+              onCancel={handleShowModal}
+              onDelete={deleteTask}
             />
           </Modal>
+        )}
+
+        {showConfirmation === "confirmation" && (
+          <Modal
+            showModal={showConfirmation}
+            position="middle"
+            setClose={handleShowConfirmation}
+            backDrop={true}
+            removeCloseButton={true}
+            zIndexInput={21}
+            width="300px"
+            height="120px"
+            modalType="confirmation"
+          >
+            <Confirmation
+              buttonConfirmTitle="Save"
+              buttonCancelTitle="Cancel"
+              onClickConfirm={handleConfirmationSave}
+              onClickCancel={handleShowConfirmation}
+            >
+              Save changes to the timeline?
+            </Confirmation>
+          </Modal>
+        )}
+
+        <div className="content">
+          <TopBar
+            selectedDate={selectedDate}
+            handleSelectDate={handleSelectDate}
+            handleShowModal={handleShowModal}
+            showModal={showModal}
+            isEditing={isEditing}
+            setIsEditing={setIsEditing}
+            handleDraftAction={handleDraftAction}
+            enableEditMode={enableEditMode}
+          />
+          <div className="horizontal">
+            <CalendarTimeline
+              dates={dates}
+              tasks={filteredTasks}
+              selectedDate={selectedDate}
+              previewTask={previewTask}
+              onClick={handleTaskClick}
+              isEditing={isEditing}
+            />
+
+            <Modal
+              showModal={showModal}
+              position="right"
+              setClose={handleCancelModal}
+              backDrop={false}
+              width="400px"
+              modalType="create"
+            >
+              <TaskForm
+                handleSelectDate={handleSelectDate}
+                handleCreateSave={handleCreateSave}
+                selectedDate={selectedDate}
+                tasks={tasks}
+                showModal={showModal}
+              />
+            </Modal>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

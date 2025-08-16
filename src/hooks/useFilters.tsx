@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { Task } from "../types/taskTypes";
 
 export type FilterProps = {
@@ -8,6 +9,13 @@ export type FilterProps = {
 };
 
 export function useFilters() {
+  const [filters, setFilters] = useState<FilterProps>({
+    filters: {
+      search: "",
+      tags: [],
+    },
+  });
+
   function createTaskFilter({ filters }: FilterProps) {
     return (task: Task) => {
       const searchResult = filters.search
@@ -23,9 +31,13 @@ export function useFilters() {
     };
   }
 
+  function handleFilter(filters: FilterProps) {
+    setFilters(filters);
+  }
+
   function applyFilter(tasks: Task[], filters: FilterProps) {
     const args = createTaskFilter(filters);
     return tasks.filter(args);
   }
-  return { applyFilter };
+  return { applyFilter, handleFilter, filters };
 }
