@@ -1,0 +1,45 @@
+.main-navigation {
+  min-height: 40px;
+  width: 100%;
+  background-color: #d3d7e5;
+  padding: 10px 20px;
+}
+
+.main-navigation a:hover:not(.active) {
+  background-color: #babfd0;
+}
+
+.main-navigation .active {
+  background-color: #afbefe;
+}
+
+.nav-icon {
+  font-size: 20px;
+  color: rgb(88, 88, 95);
+}
+
+.main-navigation .navigation-container {
+  display: none;
+}
+
+.mobile-menu-button {
+  display: flex;
+  align-items: center;
+}
+
+@media (min-width: 1000px) {
+  .main-navigation {
+    height: 100vh;
+    min-width: 40px;
+    max-width: 40px;
+    padding: 20px 20px;
+  }
+
+  .main-navigation .navigation-container {
+    display: flex;
+  }
+
+  .mobile-menu-button {
+    display: none;
+  }
+}

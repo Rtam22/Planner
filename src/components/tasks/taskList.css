@@ -1,0 +1,13 @@
+.task-list {
+  width: 70%;
+  min-width: 600px;
+  max-width: 1000px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.task-header {
+  margin-bottom: 15px;
+}

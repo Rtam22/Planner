@@ -138,7 +138,7 @@ button.warn {
   border-radius: 100px;
   border: 1px solid rgb(108, 108, 108);
   right: -20px;
-  z-index: 12;
+  z-index: 40;
   top: 505px;
   background-color: white;
   display: flex;

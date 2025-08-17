@@ -46,6 +46,7 @@ div {
 
 .horizontal {
   display: flex;
+  width: 100%;
   gap: 5px;
 }
 
@@ -115,6 +116,21 @@ textarea {
 hr {
   border: 0;
   border-top: 1px solid rgb(140, 140, 140);
+}
+
+.content {
+  width: 100%;
+  height: 100%;
+  flex-grow: 1;
+  min-width: 0;
+  height: 100vh;
+  display: flex;
+}
+
+.divider {
+  width: 100%;
+  height: 100%;
+  background-color: rgb(255, 255, 255);
 }
 
 @media (min-width: 600px) {

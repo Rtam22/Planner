@@ -7,12 +7,12 @@ type modalProps = {
   showModal: "none" | "view" | "create" | "confirmation";
   setClose: (type: any) => void;
   backDrop: boolean;
-  closeOnBackDrop?: boolean;
   width?: string;
   height?: string;
   removeCloseButton?: boolean;
   zIndexInput?: number;
   modalType: string;
+  hover?: boolean;
 };
 
 function Modal({
@@ -23,15 +23,15 @@ function Modal({
   backDrop,
   width,
   height,
-  closeOnBackDrop,
   removeCloseButton,
   zIndexInput,
   modalType,
+  hover,
 }: modalProps) {
   return (
     <div
       onClick={() => {
-        if (closeOnBackDrop) setClose("none");
+        setClose("none");
       }}
       className={`${backDrop ? "back-drop" : ""} ${
         showModal === modalType ? "" : "hidden"
@@ -40,7 +40,11 @@ function Modal({
     >
       <div
         className={`modal ${position} ${showModal === modalType ? "" : "hidden"}`}
-        style={{ height: height, width: width ? width : "" }}
+        style={{
+          height: height,
+          width: width ? width : "",
+          position: hover ? "absolute" : "relative",
+        }}
         onClick={(e) => e.stopPropagation()}
       >
         {showModal === "create" && <div className="header-color"></div>}

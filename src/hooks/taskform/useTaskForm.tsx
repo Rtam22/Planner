@@ -25,16 +25,26 @@ type TaskFormProps = {
   editTimelineMode: boolean;
   currentTask: Task | null;
   handleCreateSave?: () => void;
+  hasDraft?: boolean;
 };
 
 export function useTaskForm({
   editTimelineMode,
   currentTask,
   handleCreateSave,
+  hasDraft,
 }: TaskFormProps) {
   const editTimeline = editTimelineMode;
-  const { addDraftTask, editDraftTask, editTask, tags, draftTasks, isDragging, tasks } =
-    useTasksContext();
+  const {
+    addTask,
+    addDraftTask,
+    editDraftTask,
+    editTask,
+    tags,
+    draftTasks,
+    isDragging,
+    tasks,
+  } = useTasksContext();
   const id = useRef(!currentTask ? uuidv4() : currentTask.id);
   const tagOptions = tags.map((tag) => {
     return { label: tag.label, value: tag.label.toLowerCase() };
@@ -64,10 +74,9 @@ export function useTaskForm({
   }, [draftTasks ?? taskArray]);
 
   const startTimeOptionsAll = useMemo(() => {
-    if (!draftTasks) return [];
     return getAllTimeOptions(
       parseYYYYMMDDToDate(date),
-      draftTasks,
+      draftTasks ? draftTasks : tasks.filter((task) => task.id !== currentTask?.id),
       "start",
       startTime?.value,
       endTime?.value
@@ -255,12 +264,15 @@ export function useTaskForm({
     } else {
       if (!startTime || !endTime || !handleCreateSave) return;
       e.preventDefault();
-
-      if (!newTask) return;
-      if (draftPreview) {
-        editDraftTask(newTask);
+      if (hasDraft) {
+        if (!newTask) return;
+        if (draftPreview) {
+          editDraftTask(newTask);
+        } else {
+          addDraftTask(newTask);
+        }
       } else {
-        addDraftTask(newTask);
+        addTask(newTask);
       }
       handleCreateSave();
     }
@@ -273,14 +285,16 @@ export function useTaskForm({
     titleInput?: string
   ) {
     if (!dateInput) {
-      if (!date) return;
+      if (!date || !hasDraft) return;
     }
+
     const previewTask = dateInput
       ? getTaskDetails(true, startPrev, endPrev, dateInput)
       : titleInput
       ? getTaskDetails(true, startPrev, endPrev, undefined, titleInput)
       : getTaskDetails(true, startPrev, endPrev);
     const taskExists = checkTaskExist(id.current, draftTasks ? draftTasks : taskArray);
+    console.log(id.current);
     if (!previewTask) return;
     if (previewTask && taskExists) {
       editDraftTask(previewTask);

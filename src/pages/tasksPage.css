@@ -1,0 +1,31 @@
+.tasks-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: calc(100vh - 55px);
+}
+
+.tasks-page .content {
+  background-color: #f3f7fd;
+  justify-content: center;
+}
+
+.tasks-page .content {
+  overflow-x: scroll;
+  justify-content: space-between;
+}
+
+.tasks-page .center {
+  padding-top: 100px;
+}
+.center {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+@media (min-width: 1000px) {
+  .tasks-page {
+    height: 100vh;
+  }
+}

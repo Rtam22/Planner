@@ -8,6 +8,7 @@ import FilterTag from "./filterTag";
 import Button from "../common/button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars } from "@fortawesome/free-solid-svg-icons";
+import useLocalStorage from "../../hooks/useLocalStorage";
 
 type filterBarProps = {
   tasks: Task[];
@@ -30,7 +31,11 @@ function FilterBar({
 }: filterBarProps) {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [show, setShow] = useState<boolean>(true);
+  /*   const [show, setShow] = useState<boolean>(true); */
+  const [show, setShow] = useLocalStorage<boolean>({
+    key: "filter:modal",
+    initialValue: true,
+  });
 
   function handleSetShow(boolean: boolean) {
     setShow(boolean);

@@ -12,6 +12,7 @@ type CreateTaskModal = {
   selectedDate: Date;
   tasks: Task[];
   showModal: "none" | "view" | "create";
+  hasDraft: boolean;
 };
 
 export type TimeOption = {
@@ -89,7 +90,7 @@ export const customStyles: StylesConfig<TagOption, false> = {
   }),
 };
 
-function TaskForm({ handleCreateSave, showModal }: CreateTaskModal) {
+function TaskForm({ handleCreateSave, showModal, hasDraft }: CreateTaskModal) {
   const {
     title,
     description,
@@ -109,7 +110,12 @@ function TaskForm({ handleCreateSave, showModal }: CreateTaskModal) {
     handleSetRepeat,
     handleSetTag,
     handleClear,
-  } = useTaskForm({ editTimelineMode: true, currentTask: null, handleCreateSave });
+  } = useTaskForm({
+    editTimelineMode: true,
+    currentTask: null,
+    handleCreateSave,
+    hasDraft,
+  });
 
   useEffect(() => {
     if (showModal !== "create") handleClear();
