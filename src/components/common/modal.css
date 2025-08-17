@@ -5,15 +5,13 @@
   box-shadow: -3px 0 5px rgba(0, 0, 0, 0.2);
   gap: 10px;
   border-radius: 5px;
-  position: relative;
+  /*   position: fixed; */
 }
 
 .modal.right {
   width: 100%;
   right: 0;
-  position: relative;
-  height: 100%;
-  position: absolute;
+  height: calc(100vh - 70px);
   display: flex;
   justify-content: center;
   overflow: hidden;

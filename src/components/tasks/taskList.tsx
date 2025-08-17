@@ -13,7 +13,7 @@ function TaskList({ tasks, onClick }: taskListProps) {
       <div className="task-header">
         <div>Title</div>
         <div>Start Time</div>
-        <div>Due Time</div>
+        <div>End Time</div>
         <div>Status</div>
       </div>
       {tasks.map((task) => {

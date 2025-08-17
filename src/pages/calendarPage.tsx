@@ -191,6 +191,7 @@ function CalendarPage() {
                 selectedDate={selectedDate}
                 tasks={tasks}
                 showModal={showModal}
+                hasDraft={true}
               />
             </Modal>
           </div>

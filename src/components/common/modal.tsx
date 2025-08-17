@@ -12,6 +12,7 @@ type modalProps = {
   removeCloseButton?: boolean;
   zIndexInput?: number;
   modalType: string;
+  hover?: boolean;
 };
 
 function Modal({
@@ -25,6 +26,7 @@ function Modal({
   removeCloseButton,
   zIndexInput,
   modalType,
+  hover,
 }: modalProps) {
   return (
     <div
@@ -38,7 +40,11 @@ function Modal({
     >
       <div
         className={`modal ${position} ${showModal === modalType ? "" : "hidden"}`}
-        style={{ height: height, width: width ? width : "" }}
+        style={{
+          height: height,
+          width: width ? width : "",
+          position: hover ? "absolute" : "relative",
+        }}
         onClick={(e) => e.stopPropagation()}
       >
         {showModal === "create" && <div className="header-color"></div>}

@@ -94,6 +94,7 @@ export function useTaskCardControl({
   }
 
   function handleSave(type: "save" | "saveTimeline") {
+    console.log(draftTasks);
     if (!draftTasks) return;
     if (type === "save") {
       saveTasks(draftTasks);
