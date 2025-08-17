@@ -64,10 +64,9 @@ export function useTaskForm({
   }, [draftTasks ?? taskArray]);
 
   const startTimeOptionsAll = useMemo(() => {
-    if (!draftTasks) return [];
     return getAllTimeOptions(
       parseYYYYMMDDToDate(date),
-      draftTasks,
+      draftTasks ? draftTasks : tasks.filter((task) => task.id !== currentTask?.id),
       "start",
       startTime?.value,
       endTime?.value

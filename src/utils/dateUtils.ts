@@ -15,9 +15,9 @@ export function getFirstDayOfMonth(year: number, month: number) {
   return result[date.getDay()];
 }
 
-export function addSixToDays(date: Date) {
+export function addNumberToDays(date: Date, number: number) {
   const futureDate = new Date(date);
-  futureDate.setDate(date.getDate() + 6);
+  futureDate.setDate(date.getDate() + number);
   return futureDate.getDate();
 }
 

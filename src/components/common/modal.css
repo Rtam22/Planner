@@ -35,10 +35,12 @@
 
 .back-drop {
   width: 100vw;
-  position: absolute;
+  position: fixed;
+  left: 0px;
+  right: 0px;
   height: 100vh;
   background-color: rgba(0, 0, 0, 0.502);
-  z-index: 19;
+  z-index: 1000;
   opacity: 1;
   transition: opacity 0.3s ease-in-out;
 }

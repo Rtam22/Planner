@@ -8,6 +8,7 @@ export type Task = {
   endTime: string;
   repeat: string;
   preview: boolean;
+  status?: "completed" | "overdue" | "current" | null;
 };
 
 export type Tag = {

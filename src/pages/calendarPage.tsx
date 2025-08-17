@@ -46,6 +46,7 @@ function CalendarPage() {
   }
 
   function handleShowModal(type: modalType) {
+    console.log(type);
     if (type === "create") {
       setIsEditing(true);
     }
@@ -146,26 +147,26 @@ function CalendarPage() {
             </Confirmation>
           </Modal>
         )}
-
+        <TopBar
+          left={
+            <DateNavigator
+              selectedDate={selectedDate}
+              handleSelectDate={handleSelectDate}
+              amountOfDays={6}
+            />
+          }
+          right={
+            <EditControls
+              handleShowModal={handleShowModal}
+              showModal={showModal}
+              isEditing={isEditing}
+              setIsEditing={setIsEditing}
+              handleDraftAction={handleDraftAction}
+              enableEditMode={enableEditMode}
+            />
+          }
+        />
         <div className="content">
-          <TopBar
-            left={
-              <DateNavigator
-                selectedDate={selectedDate}
-                handleSelectDate={handleSelectDate}
-              />
-            }
-            right={
-              <EditControls
-                handleShowModal={handleShowModal}
-                showModal={showModal}
-                isEditing={isEditing}
-                setIsEditing={setIsEditing}
-                handleDraftAction={handleDraftAction}
-                enableEditMode={enableEditMode}
-              />
-            }
-          />
           <div className="horizontal">
             <CalendarTimeline
               dates={dates}

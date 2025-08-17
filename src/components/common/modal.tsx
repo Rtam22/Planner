@@ -7,7 +7,6 @@ type modalProps = {
   showModal: "none" | "view" | "create" | "confirmation";
   setClose: (type: any) => void;
   backDrop: boolean;
-  closeOnBackDrop?: boolean;
   width?: string;
   height?: string;
   removeCloseButton?: boolean;
@@ -23,7 +22,6 @@ function Modal({
   backDrop,
   width,
   height,
-  closeOnBackDrop,
   removeCloseButton,
   zIndexInput,
   modalType,
@@ -31,7 +29,7 @@ function Modal({
   return (
     <div
       onClick={() => {
-        if (closeOnBackDrop) setClose("none");
+        setClose("none");
       }}
       className={`${backDrop ? "back-drop" : ""} ${
         showModal === modalType ? "" : "hidden"
