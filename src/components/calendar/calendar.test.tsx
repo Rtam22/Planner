@@ -16,7 +16,7 @@ function renderComponent() {
   const firstOfMonth = new Date(year, monthIndex, 1);
   const startingDay = firstOfMonth.getDay() === 0 ? 7 : firstOfMonth.getDay();
   const utils = render(
-    <Calendar selectedDate={date} handleSelectDate={mockFn} />
+    <Calendar size="small" selectedDate={date} onCellClick={mockFn} />
   );
 
   return {
@@ -32,8 +32,7 @@ function renderComponent() {
 }
 
 test("Initial values are correct and shows current date on load", () => {
-  let { calendarRegex, year, month, day, startingDay, date } =
-    renderComponent();
+  let { calendarRegex, year, month, day, startingDay, date } = renderComponent();
   const selectedDate = screen.getByText(calendarRegex);
   const dayCells = screen.getAllByText(/^([1-9]|[12][0-9]|3[01])$/);
   const allCells = screen.getAllByTestId("cal-cell");
@@ -81,7 +80,7 @@ test("Clicking on a date highlights it and calls the selectdate functions", asyn
   let newDate = new Date(date.getFullYear(), date.getMonth(), testSelect);
   expect(mockFn).toHaveBeenCalledWith(newDate);
 
-  rerender(<Calendar selectedDate={newDate} handleSelectDate={mockFn} />);
+  rerender(<Calendar size="small" selectedDate={newDate} onCellClick={mockFn} />);
 
   expect(dayCells[testSelect + numberOfDays - 1]).toHaveClass("active");
 });

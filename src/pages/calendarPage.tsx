@@ -15,19 +15,27 @@ import { useFilters } from "../hooks/useFilters";
 import Confirmation from "../components/common/confirmation";
 import DateNavigator from "../components/calendar/dateNavigator";
 import EditControls from "../components/calendar/editControls";
+import type { ViewOptions } from "../components/filters/viewSelect";
+import Calendar from "../components/calendar/calendar";
 
 function CalendarPage() {
   const {
     tasks,
+    isEditing,
     draftTasks,
     tags,
     previewTask,
     deleteTask,
     enableEditMode,
     handleDraftAction,
+    setIsEditing,
+    saveTasks,
+    deleteDraftTasks,
   } = useTasksContext();
+
+  const [view, setView] = useState<"Calendar" | "Timeline">("Calendar");
   const [selectedDate, setselectedDate] = useState<Date>(new Date());
-  const [isEditing, setIsEditing] = useState<boolean>(false);
+
   const { applyFilter, handleFilter, filters } = useFilters();
   const [showModal, setShowModal] = useState<"none" | "view" | "create">("none");
   const [showConfirmation, setShowConfirmation] = useState<"none" | "confirmation">(
@@ -37,17 +45,21 @@ function CalendarPage() {
   const dates: CalendarDayProps[] = getDayAndDayNumber(selectedDate);
   const secondaryDates = getSecondaryDates(selectedDate, "forwards", 7);
   const filteredTasks = useMemo(() => {
-    const baseTasks = isEditing && draftTasks ? draftTasks : tasks;
+    const baseTasks = draftTasks ? draftTasks : tasks;
     return applyFilter(baseTasks, filters);
   }, [tasks, draftTasks, isEditing, filters]);
+  const viewOptions: ViewOptions[] = ["Calendar", "Timeline"];
 
   function handleSelectDate(newDate: Date) {
     setselectedDate(newDate);
   }
 
+  function handleSetView(type: "Calendar" | "Timeline") {
+    setView(type);
+  }
+
   function handleShowModal(type: modalType) {
-    console.log(type);
-    if (type === "create") {
+    if (type === "create" && view === "Timeline") {
       setIsEditing(true);
     }
     setShowModal(type);
@@ -72,11 +84,14 @@ function CalendarPage() {
   }
 
   function handleCreateSave() {
+    if (isEditing) {
+      console.log("");
+      handleDraftAction("save");
+      setTimeout(() => {
+        setIsEditing(false);
+      }, 80);
+    }
     setShowModal("none");
-    handleDraftAction("save");
-    setTimeout(() => {
-      setIsEditing(false);
-    }, 80);
   }
 
   function handleShowConfirmation() {
@@ -98,6 +113,7 @@ function CalendarPage() {
   return (
     <>
       <FilterBar
+        viewSelect={{ view: view, setView: handleSetView, options: viewOptions }}
         tasks={tasks}
         tags={tags}
         handleFilter={handleFilter}
@@ -168,14 +184,23 @@ function CalendarPage() {
         />
         <div className="content">
           <div className="horizontal">
-            <CalendarTimeline
-              dates={dates}
-              tasks={filteredTasks}
-              selectedDate={selectedDate}
-              previewTask={previewTask}
-              onClick={handleTaskClick}
-              isEditing={isEditing}
-            />
+            {view === "Timeline" && (
+              <CalendarTimeline
+                dates={dates}
+                tasks={filteredTasks}
+                selectedDate={selectedDate}
+                previewTask={previewTask}
+                onClick={handleTaskClick}
+                isEditing={isEditing}
+              />
+            )}
+            {view === "Calendar" && (
+              <Calendar
+                showTaskInCell={filteredTasks}
+                onClickTask={handleTaskClick}
+                size="large"
+              />
+            )}
 
             <Modal
               showModal={showModal}

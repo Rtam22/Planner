@@ -11,6 +11,7 @@ type TasksContextType = {
   previewTask: Task | null;
   draftAction: "save" | "cancel" | "saveTimeline" | null;
   isDragging: boolean;
+  isEditing: boolean;
   addTask: (selectedTask: Task) => void;
   addDraftTask: (selectedTask: Task) => void;
   deleteTask: (selectedTask: Task) => void;
@@ -24,11 +25,13 @@ type TasksContextType = {
   handleDraftAction: (action: "save" | "cancel" | "saveTimeline" | null) => void;
   saveTasks: (tasks: Task[]) => void;
   editIsDragging: (boolean: boolean) => void;
+  setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const TasksContext = createContext<TasksContextType | null>(null);
 
 export function TasksProvider({ children }: { children: React.ReactNode }) {
+  const [isEditing, setIsEditing] = useState<boolean>(false);
   const [tasks, setTasks] = useLocalStorage<Task[]>({
     key: "tasks",
     initialValue: initialTasks,
@@ -115,6 +118,7 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
         draftTasks,
         draftAction,
         isDragging,
+        isEditing,
         addTask,
         addDraftTask,
         deleteTask,
@@ -128,6 +132,7 @@ export function TasksProvider({ children }: { children: React.ReactNode }) {
         handleDraftAction,
         saveTasks,
         editIsDragging,
+        setIsEditing,
       }}
     >
       {children}

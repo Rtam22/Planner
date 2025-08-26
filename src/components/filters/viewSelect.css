@@ -1,0 +1,27 @@
+.view-select {
+  display: flex;
+  position: relative;
+  height: 30px;
+  align-items: center;
+}
+
+.view-select .drop-down {
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 30px;
+  border: 1px solid rgb(166, 166, 166);
+  width: 280px;
+  border-radius: 5px;
+  gap: 2px;
+  z-index: 2000;
+}
+
+.view-select p {
+  font-size: 18px;
+}
+
+.view-select .container {
+  padding: 0 10px;
+}

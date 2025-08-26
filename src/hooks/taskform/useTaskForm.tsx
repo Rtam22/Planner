@@ -24,7 +24,7 @@ export type TagOption = {
 type TaskFormProps = {
   editTimelineMode: boolean;
   currentTask: Task | null;
-  handleCreateSave?: () => void;
+  handleCreateSave: () => void;
   hasDraft?: boolean;
 };
 
@@ -40,10 +40,13 @@ export function useTaskForm({
     addDraftTask,
     editDraftTask,
     editTask,
+    saveTasks,
+    deleteDraftTasks,
     tags,
     draftTasks,
     isDragging,
     tasks,
+    isEditing,
   } = useTasksContext();
   const id = useRef(!currentTask ? uuidv4() : currentTask.id);
   const tagOptions = tags.map((tag) => {
@@ -61,6 +64,7 @@ export function useTaskForm({
   const [startTime, setStartTime] = useState<{ label: string; value: string } | null>(
     null
   );
+  const draftTasksRef = useRef(draftTasks);
   const [endTime, setEndTime] = useState<{ label: string; value: string } | null>(null);
   const [repeat, setRepeat] = useState<string>("");
   let allTasksRef = useRef<Task[]>(tasks);
@@ -182,7 +186,6 @@ export function useTaskForm({
     setDate(newDate);
     const newTask = getTaskDetails(false, undefined, undefined, newDate);
     if (!newTask) return;
-    console.log(newTask.tag);
     const newTimes = calculateChangeDateTimes(
       newTask,
       editTimelineMode ? draftTasks ?? tasks : tasks
@@ -256,23 +259,32 @@ export function useTaskForm({
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     const newTask = getTaskDetails(false);
-
+    draftTasksRef.current = draftTasks;
     if (!newTask) return;
-
     if (currentTask && !editTimelineMode) {
       editTask(newTask);
     } else {
-      if (!startTime || !endTime || !handleCreateSave) return;
+      if (!startTime || !endTime) return;
       e.preventDefault();
       if (hasDraft) {
         if (!newTask) return;
         if (draftPreview) {
           editDraftTask(newTask);
+          if (draftTasksRef.current)
+            draftTasksRef.current = draftTasksRef.current.map((task) => {
+              return task.id === newTask.id ? newTask : task;
+            });
         } else {
           addDraftTask(newTask);
+          if (draftTasksRef.current)
+            draftTasksRef.current = [...draftTasksRef.current, newTask];
         }
       } else {
         addTask(newTask);
+      }
+      if (!isEditing && draftTasksRef.current) {
+        saveTasks(draftTasksRef.current);
+        deleteDraftTasks();
       }
       handleCreateSave();
     }
@@ -294,7 +306,7 @@ export function useTaskForm({
       ? getTaskDetails(true, startPrev, endPrev, undefined, titleInput)
       : getTaskDetails(true, startPrev, endPrev);
     const taskExists = checkTaskExist(id.current, draftTasks ? draftTasks : taskArray);
-    console.log(id.current);
+
     if (!previewTask) return;
     if (previewTask && taskExists) {
       editDraftTask(previewTask);

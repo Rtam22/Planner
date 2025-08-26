@@ -10,46 +10,71 @@ import {
   compareDateArrayToDate,
 } from "../../utils/dateUtils";
 import type { Task } from "../../types/taskTypes";
+import { adjustColor } from "../../utils/timelineUtils";
 
-export type calendarProps = {
-  selectedDate: Date;
-  handleSelectDate: (newDate: Date) => void;
+export type CalendarBaseProps = {
+  selectedDate?: Date;
+  onCellClick?: (newDate: Date) => void;
   highlightSecondary?: Date[];
   showToday?: boolean;
-  showTaskInCell?: Task[];
   height?: string;
   width?: string;
 };
 
+type CalendarSmall = CalendarBaseProps & {
+  size: "small";
+  showTaskInCell?: Task[];
+  onClickTask?: never;
+};
+
+type CalendarLarge = CalendarBaseProps & {
+  size: "large";
+  showTaskInCell: Task[];
+  onClickTask: (taskId: string) => void;
+};
+
+type CalendarLargeNoTasks = CalendarBaseProps & {
+  size: "large";
+  showTaskInCell?: undefined;
+  onClickTask?: never;
+};
+
+export type CalendarProps = CalendarSmall | CalendarLarge | CalendarLargeNoTasks;
+
 function Calendar({
+  size,
   selectedDate,
-  handleSelectDate,
+  onCellClick,
   highlightSecondary,
   showToday = true,
   showTaskInCell,
+  onClickTask,
   height,
   width,
-}: calendarProps) {
+}: CalendarProps) {
   const [dateView, setDateView] = useState(new Date());
   const days = ["M", "T", "W", "T", "F", "S", "S"];
   const taskList = showTaskInCell ? showTaskInCell : null;
+
   useEffect(() => {
-    setDateView(selectedDate);
+    if (selectedDate) setDateView(selectedDate);
   }, [selectedDate]);
 
   function handleSelect(
     event: React.MouseEvent<HTMLDivElement>,
     type: "prev" | "current" | "next"
   ) {
-    const selectDay = Number(event.currentTarget.id);
-    let newDate = new Date(dateView.getFullYear(), dateView.getMonth(), 1);
-    if (type === "prev") {
-      newDate.setMonth(newDate.getMonth() - 1);
-    } else if (type === "next") {
-      newDate.setMonth(newDate.getMonth() + 1);
+    if (onCellClick) {
+      const selectDay = Number(event.currentTarget.id);
+      let newDate = new Date(dateView.getFullYear(), dateView.getMonth(), 1);
+      if (type === "prev") {
+        newDate.setMonth(newDate.getMonth() - 1);
+      } else if (type === "next") {
+        newDate.setMonth(newDate.getMonth() + 1);
+      }
+      newDate.setDate(selectDay);
+      onCellClick(newDate);
     }
-    newDate.setDate(selectDay);
-    handleSelectDate(newDate);
   }
 
   function handleDateChange(e: React.MouseEvent<HTMLDivElement>) {
@@ -86,7 +111,7 @@ function Calendar({
           id={numberOfDaysPrev.toString()}
           data-testid="cal-cell"
           className={`cal-cell is-outside-month ${
-            isSameDate(selectedDate, prevMonthActive) ? "active" : ""
+            selectedDate && isSameDate(selectedDate, prevMonthActive) ? "active" : ""
           } ${
             compareDateArrayToDate(highlightSecondary, nextMonthSelected) === true
               ? "secondary"
@@ -115,7 +140,7 @@ function Calendar({
           key={`cells${i}`}
           id={date.toString()}
           className={`cal-cell ${
-            isSameDate(selectedDate, calendarDate) ? "active" : ""
+            selectedDate && isSameDate(selectedDate, calendarDate) ? "active" : ""
           } ${
             compareDateArrayToDate(highlightSecondary, calendarDate) === true
               ? "secondary"
@@ -124,17 +149,30 @@ function Calendar({
            `}
           onClick={(e: React.MouseEvent<HTMLDivElement>) => handleSelect(e, "current")}
         >
-          {date}
+          <div className="date-container">{date}</div>
           <div className="container">
             {showTaskInCell
-              ? taskList?.map((task, index) => {
+              ? taskList?.map((task) => {
                   if (isSameDate(task.date, calendarDate)) {
                     return (
                       <div
-                        key={index}
+                        onClick={() => {
+                          onClickTask && onClickTask(task.id);
+                        }}
+                        key={task.id}
                         className="task-box"
-                        style={{ backgroundColor: task.tag?.color }}
-                      ></div>
+                        style={
+                          {
+                            ["--task-bg" as any]: task.tag?.color ?? "#888",
+                            ["--task-bg-hover" as any]: adjustColor(
+                              task.tag?.color ?? "#888",
+                              -30
+                            ),
+                          } as React.CSSProperties
+                        }
+                      >
+                        {size === "large" && task.title}
+                      </div>
                     );
                   }
                 })
@@ -157,7 +195,7 @@ function Calendar({
           key={"suffix" + i}
           data-testid="cal-cell"
           className={`cal-cell is-outside-month ${
-            isSameDate(selectedDate, nextMonth) ? "active" : ""
+            selectedDate && isSameDate(selectedDate, nextMonth) ? "active" : ""
           } ${
             compareDateArrayToDate(highlightSecondary, nextMonth) === true
               ? "secondary"
@@ -207,7 +245,7 @@ function Calendar({
   return (
     <div
       data-testid="calendar"
-      className="calendar"
+      className={`calendar ${size}`}
       style={{
         height: height ? height + "px" : undefined,
         width: width ? width + "px" : undefined,

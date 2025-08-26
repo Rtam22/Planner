@@ -9,8 +9,10 @@ import Button from "../common/button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars } from "@fortawesome/free-solid-svg-icons";
 import useLocalStorage from "../../hooks/useLocalStorage";
+import ViewSelect, { type ViewSelectProps } from "./viewSelect";
 
 type filterBarProps = {
+  viewSelect?: ViewSelectProps;
   tasks: Task[];
   tags: Tag[];
   selectedDate: Date;
@@ -21,6 +23,7 @@ type filterBarProps = {
 };
 
 function FilterBar({
+  viewSelect,
   tasks,
   tags,
   handleFilter,
@@ -63,9 +66,18 @@ function FilterBar({
       </Button>
       <div className="filter-bar-wrapper">
         <div className="filter-bar">
+          {viewSelect && (
+            <ViewSelect
+              view={viewSelect.view}
+              setView={viewSelect.setView}
+              options={viewSelect.options}
+            />
+          )}
+
           <Calendar
+            size="small"
             selectedDate={selectedDate}
-            handleSelectDate={handleSelectDate}
+            onCellClick={handleSelectDate}
             highlightSecondary={highlightSecondary}
             showTaskInCell={filteredTasks ? filteredTasks : tasks}
             width="280"
