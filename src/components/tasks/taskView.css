@@ -1,6 +1,7 @@
 .task-view {
   width: 100%;
   padding: 0 10px 0 10px;
+  margin-top: 10px;
 }
 
 .task-view .container {
@@ -131,6 +132,16 @@ hr.full-width-horizontal {
 
 .task-view select:hover {
   cursor: pointer;
+}
+
+.tag-container {
+  position: absolute;
+  top: 13px;
+  width: auto;
+}
+
+.tag-container .horizontal {
+  width: auto;
 }
 
 @media (max-width: 300px) {

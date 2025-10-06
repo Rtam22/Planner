@@ -46,7 +46,6 @@ export function useTaskCardControl({
   timelineRef,
 }: UseTaskCardControlProps) {
   const {
-    isEditing,
     draftTasks,
     draftAction,
     saveTasks,
@@ -76,7 +75,6 @@ export function useTaskCardControl({
   }, [draftTasks]);
 
   useEffect(() => {
-    if (!isEditing) return;
     if (draftAction === "cancel") {
       handleCancel();
     } else if (draftAction === "save" || draftAction === "saveTimeline") {
@@ -96,6 +94,7 @@ export function useTaskCardControl({
   }
 
   function handleSave(type: "save" | "saveTimeline") {
+    console.log(draftTasks);
     if (!draftTasks) return;
     if (type === "save") {
       saveTasks(draftTasks);

@@ -17,6 +17,7 @@ import DateNavigator from "../components/calendar/dateNavigator";
 import EditControls from "../components/calendar/editControls";
 import type { ViewOptions } from "../components/filters/viewSelect";
 import Calendar from "../components/calendar/calendar";
+import Button from "../components/common/button";
 
 function CalendarPage() {
   const {
@@ -29,8 +30,6 @@ function CalendarPage() {
     enableEditMode,
     handleDraftAction,
     setIsEditing,
-    saveTasks,
-    deleteDraftTasks,
   } = useTasksContext();
 
   const [view, setView] = useState<"Calendar" | "Timeline">("Calendar");
@@ -65,9 +64,14 @@ function CalendarPage() {
     setShowModal(type);
   }
 
+  function handleCloseModal() {
+    setShowModal("none");
+  }
+
   function handleCancelModal(type: modalType) {
     const draft = draftTasks?.filter((task) => task.preview === false);
-    if (JSON.stringify(draft) !== JSON.stringify(tasks)) {
+    const hasMadeChanges = JSON.stringify(draft) !== JSON.stringify(tasks);
+    if (hasMadeChanges) {
       setShowConfirmation("confirmation");
       setShowModal(type);
     } else {
@@ -85,7 +89,6 @@ function CalendarPage() {
 
   function handleCreateSave() {
     if (isEditing) {
-      console.log("");
       handleDraftAction("save");
       setTimeout(() => {
         setIsEditing(false);
@@ -183,6 +186,18 @@ function CalendarPage() {
           }
         />
         <div className="content">
+          {/*           <Modal
+            position="absolute"
+            showModal={showModal}
+            setClose={handleCloseModal}
+            backDrop={false}
+            modalType="create"
+            hover={true}
+            left="0"
+            top="0"
+          >
+            <Button className="btn-plain">fdsfgsdg</Button>
+          </Modal> */}
           <div className="horizontal">
             {view === "Timeline" && (
               <CalendarTimeline

@@ -7,12 +7,15 @@ import { convert24To12HourTime } from "../../utils/timeUtils";
 import {
   checkStartTimeJumpPrevTask,
   checkTaskExist,
-  filterOutPreviewTask,
   getAdjustedEndTime,
-  getAllTimeOptions,
   getEndTimesAfterStart,
 } from "./taskFormUtils";
 import { calculateChangeDateTimes } from "../../hooks/taskCardControl/dayChangeUtils";
+import {
+  getEndTimeOptions,
+  getEndTimeOptionsAll,
+  getStartTimeOptionsAll,
+} from "./timeSelectUtils";
 
 export type TagOption = {
   label: string;
@@ -76,36 +79,37 @@ export function useTaskForm({
         .map((task) => task.date.toISOString()) ?? []
     );
   }, [draftTasks ?? taskArray]);
-
+  console.log(startTime);
   const startTimeOptionsAll = useMemo(() => {
-    return getAllTimeOptions(
-      parseYYYYMMDDToDate(date),
-      draftTasks ? draftTasks : tasks.filter((task) => task.id !== currentTask?.id),
-      "start",
-      startTime?.value,
-      endTime?.value
+    return getStartTimeOptionsAll(
+      tasks,
+      date,
+      id.current,
+      startTime ? startTime : undefined,
+      endTime ? endTime : undefined,
+      draftTasks ? draftTasks : undefined
     );
   }, [startTime, endTime, date, isDragging, taskDates, draftTasks]);
 
   const endTimeOptionsAll = useMemo(() => {
-    const source = draftTasks ? draftTasks : tasks;
-    if (!isDragging) {
-      return getAllTimeOptions(
-        parseYYYYMMDDToDate(date),
-        source ? filterOutPreviewTask(source, id.current) : taskArray,
-        "end"
-      );
-    }
-    return [];
+    return getEndTimeOptionsAll(
+      tasks,
+      date,
+      id.current,
+      true,
+      draftTasks ? draftTasks : undefined,
+      isDragging
+    );
   }, [isDragging, date, taskDates]);
 
   const endTimeOptions = useMemo(() => {
-    return getEndTimesAfterStart(
-      startTime ? startTime.label : "12:00am",
+    return getEndTimeOptions(
+      tasks,
+      date,
+      id.current,
+      startTime ? startTime : undefined,
       endTimeOptionsAll,
-      parseYYYYMMDDToDate(date),
-      draftTasks ? draftTasks : taskArray,
-      id.current
+      draftTasks
     );
   }, [startTime, endTime, endTimeOptionsAll]);
 

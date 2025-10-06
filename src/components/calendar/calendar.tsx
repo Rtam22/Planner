@@ -19,6 +19,7 @@ export type CalendarBaseProps = {
   showToday?: boolean;
   height?: string;
   width?: string;
+  modalChildren?: React.ReactNode;
 };
 
 type CalendarSmall = CalendarBaseProps & {
@@ -242,6 +243,8 @@ function Calendar({
     return cells;
   }
 
+  function handleClose() {}
+
   return (
     <div
       data-testid="calendar"
@@ -267,6 +270,7 @@ function Calendar({
           <p key={i}>{day}</p>
         ))}
       </div>
+
       <div className="cal-cell-container">{generateCells(dateView)}</div>
     </div>
   );

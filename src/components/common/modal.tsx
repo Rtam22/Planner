@@ -1,9 +1,8 @@
 import Button from "./button";
 import "./modal.css";
 
-type modalProps = {
+type BaseModalProps = {
   children: React.ReactNode;
-  position: "right" | "middle" | "left";
   showModal: "none" | "view" | "create" | "confirmation";
   setClose: (type: any) => void;
   backDrop: boolean;
@@ -11,9 +10,22 @@ type modalProps = {
   height?: string;
   removeCloseButton?: boolean;
   zIndexInput?: number;
-  modalType: string;
+  modalType: "view" | "create" | "confirmation";
+};
+
+type AbsoluteModalProps = BaseModalProps & {
+  position: "absolute";
+  hover: true;
+  left: "auto" | string;
+  top: "auto" | string;
+};
+
+type OtherModalProps = BaseModalProps & {
+  position: "right" | "middle" | "left";
   hover?: boolean;
 };
+
+export type ModalProps = AbsoluteModalProps | OtherModalProps;
 
 function Modal({
   children,
@@ -27,7 +39,7 @@ function Modal({
   zIndexInput,
   modalType,
   hover,
-}: modalProps) {
+}: ModalProps) {
   return (
     <div
       onClick={() => {
@@ -49,12 +61,11 @@ function Modal({
       >
         {showModal === "create" && <div className="header-color"></div>}
         {!removeCloseButton && (
-          <Button
-            className="btn-plain btn-ext btn-right"
-            onClick={() => setClose("none")}
-          >
-            X
-          </Button>
+          <div className="top-button-container">
+            <Button className="btn-plain btn-ext " onClick={() => setClose("none")}>
+              X
+            </Button>
+          </div>
         )}
 
         {children}
