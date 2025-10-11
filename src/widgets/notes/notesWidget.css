@@ -1,0 +1,8 @@
+.notes-widget {
+}
+
+@media (max-width: 400px) {
+  .notes-widget {
+    min-width: 240px;
+  }
+}

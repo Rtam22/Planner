@@ -1,0 +1,22 @@
+.tabs-container .button-container {
+  border: "1px solid #6973A7";
+  background-color: white;
+  border: solid 1px #6973a7;
+  border-radius: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tabs-container .button-container.active {
+  color: white;
+  background-color: #6973a7;
+}
+
+.tabs-container .button-container:hover {
+  background-color: #eff1faff;
+}
+
+.tabs-container .button-container.active .btn:hover {
+  cursor: text !important;
+}

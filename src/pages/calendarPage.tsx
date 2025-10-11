@@ -17,7 +17,6 @@ import DateNavigator from "../components/calendar/dateNavigator";
 import EditControls from "../components/calendar/editControls";
 import type { ViewOptions } from "../components/filters/viewSelect";
 import Calendar from "../components/calendar/calendar";
-import Button from "../components/common/button";
 
 function CalendarPage() {
   const {
@@ -64,9 +63,9 @@ function CalendarPage() {
     setShowModal(type);
   }
 
-  function handleCloseModal() {
+  /*  function handleCloseModal() {
     setShowModal("none");
-  }
+  } */
 
   function handleCancelModal(type: modalType) {
     const draft = draftTasks?.filter((task) => task.preview === false);

@@ -78,7 +78,7 @@ function Calendar({
     }
   }
 
-  function handleDateChange(e: React.MouseEvent<HTMLDivElement>) {
+  function handleDateChange(e: React.MouseEvent<HTMLButtonElement>) {
     const button = e.currentTarget.textContent;
     const newDate = new Date(dateView.getFullYear(), dateView.getMonth(), 1);
 
@@ -243,7 +243,7 @@ function Calendar({
     return cells;
   }
 
-  function handleClose() {}
+  /*   function handleClose() {} */
 
   return (
     <div

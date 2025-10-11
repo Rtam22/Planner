@@ -4,6 +4,9 @@ button {
   border-radius: 5px;
 }
 
+.btn {
+  padding: 0 5px;
+}
 .btn-main {
   background-color: #506ffc;
   padding: 12px 25px;
@@ -144,4 +147,13 @@ button.warn {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.btn-plain-border {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid rgb(161, 161, 161);
+  height: 26px;
+  padding: 5px 24px;
 }

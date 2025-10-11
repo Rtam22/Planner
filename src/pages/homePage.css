@@ -1,0 +1,23 @@
+.dashboard {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.weather-container {
+  height: 100px;
+  background-color: aliceblue;
+}
+
+.dashboard .split-container {
+  padding: 10px 10px 0 10px;
+  width: 95%;
+}
+
+.tabs-container {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}

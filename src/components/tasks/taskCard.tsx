@@ -117,7 +117,7 @@ function TaskCard({
             backgroundColor={task.tag?.color}
             className={`btn-move-left ${preview ? "preview" : ""}`}
             onClick={() => handleChangeDay("prev")}
-            minHeight={taskLength < 18 ? "16" : ""}
+            minHeight={taskLength < 18 ? "16px" : undefined}
           >
             ‹
           </Button>
@@ -125,7 +125,7 @@ function TaskCard({
             backgroundColor={task.tag?.color}
             className={`btn-move-right ${preview ? "preview" : ""}`}
             onClick={() => handleChangeDay("next")}
-            minHeight={taskLength < 18 ? "16" : ""}
+            minHeight={taskLength < 18 ? "16px" : undefined}
           >
             ›
           </Button>

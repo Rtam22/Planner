@@ -133,6 +133,11 @@ hr {
   background-color: rgb(255, 255, 255);
 }
 
+.split-container {
+  display: flex;
+  justify-content: space-between;
+}
+
 @media (min-width: 600px) {
   .col-right {
     width: 50%;
