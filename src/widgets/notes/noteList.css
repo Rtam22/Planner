@@ -5,22 +5,48 @@
   border-radius: 5px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: 5px;
+  gap: 5px;
+  padding: 10px;
   box-sizing: border-box;
+  overflow-y: scroll;
+  overflow-x: hidden;
 }
 
 .note-item {
+  display: flex;
+  align-items: center;
   width: 100%;
-  background-color: var(--note-color-darker);
-  height: 30px;
+  background-color: var(--note-color);
+  height: 40px;
   line-height: 28px;
   padding: 0 5px;
   font-size: 14px;
+  border-radius: 4px;
+  position: relative;
+}
+
+.note-item:hover {
+  background-color: var(--note-color-hover);
+}
+
+.color-box {
+  position: absolute;
+  width: 6px;
+  height: 100%;
+  background-color: var(--note-color-darker);
+  left: 0;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+
+.note-item p {
+  padding: 0 7px;
+  flex: 1 1 auto;
+  width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  border-radius: 4px;
+  font-size: 14px;
 }
 
 .note-item:hover {

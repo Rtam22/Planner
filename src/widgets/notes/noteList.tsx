@@ -12,7 +12,8 @@ function NoteList({ notes, handleClick }: NoteListProps) {
       {notes.map((note) => {
         return (
           <div className="note-item" key={note.id} onClick={() => handleClick(note.id)}>
-            {note.content}
+            <div className="color-box"></div>
+            <p>{note.content}</p>
           </div>
         );
       })}

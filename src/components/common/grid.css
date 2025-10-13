@@ -7,17 +7,19 @@
   width: 95%;
   border-radius: 5px;
   place-items: center;
+  padding: 40px;
 }
 
 @media (max-width: 1200px) {
   .grid {
-    padding: 10px 5px;
+    padding: 30px;
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 600px) {
   .grid {
+    padding: 10px;
     grid-template-columns: repeat(1, 1fr);
   }
 }

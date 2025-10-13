@@ -9,4 +9,5 @@ export const baseLayout: CSSProperties = {
   flexDirection: "column",
   alignItems: "stretch",
   overflow: "hidden",
+  borderRadius: "10px",
 };

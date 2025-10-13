@@ -1,6 +1,7 @@
 :root {
   --note-color: rgb(252, 236, 215);
-  --note-color-darker: rgb(247, 219, 185);
+  --note-color-darker: rgb(255, 207, 136);
+  --note-color-hover: rgb(253, 230, 199);
 }
 
 .note {

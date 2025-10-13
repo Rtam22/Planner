@@ -58,27 +58,30 @@ function NotesWidget() {
 
   return (
     <div style={baseLayout} className="notes-widget">
-      <div className="split-container">
-        <div>
-          {selectedNote && (
+      {!selectedNote ? (
+        <div className="centered">
+          <Button
+            className="btn"
+            style={{ fontSize: 18, transform: "translateY(-3px)" }}
+            onClick={handleCreate}
+          >
+            +
+          </Button>
+        </div>
+      ) : (
+        <div className="split-container">
+          <div>
             <Button className="btn-plain" onClick={handleBack}>
               Back
             </Button>
-          )}
-        </div>
-        <div className="button-container">
-          {selectedNote ? (
-            <Button className="btn-plain" onClick={handleDelete}>
+          </div>
+          <div className="button-container">
+            <Button className="btn-plain" color="red" onClick={handleDelete}>
               Delete
             </Button>
-          ) : (
-            <Button className="btn-plain" onClick={handleCreate}>
-              New
-            </Button>
-          )}
+          </div>
         </div>
-      </div>
-
+      )}
       {selectedNote ? (
         <Note handleSave={handleSave} note={selectedNote} />
       ) : (
