@@ -1,12 +1,23 @@
 import "./noteList.css";
-import type { Note } from "./notesWidget";
+import type { NoteType } from "./notesWidget";
 
 type NoteListProps = {
-  notes: Note[];
+  notes: NoteType[];
+  handleClick: (id: string) => void;
 };
 
-function NoteList({ notes }: NoteListProps) {
-  return <div className="note-list"></div>;
+function NoteList({ notes, handleClick }: NoteListProps) {
+  return (
+    <div className="note-list">
+      {notes.map((note) => {
+        return (
+          <div className="note-item" key={note.id} onClick={() => handleClick(note.id)}>
+            {note.content}
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 export default NoteList;

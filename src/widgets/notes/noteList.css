@@ -1,6 +1,28 @@
 .note-list {
-  width: 95%;
+  width: 100%;
   border: solid 1px rgb(185, 185, 185);
   height: 350px;
   border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 5px;
+  box-sizing: border-box;
+}
+
+.note-item {
+  width: 100%;
+  background-color: var(--note-color-darker);
+  height: 30px;
+  line-height: 28px;
+  padding: 0 5px;
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border-radius: 4px;
+}
+
+.note-item:hover {
+  cursor: pointer;
 }

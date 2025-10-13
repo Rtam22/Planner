@@ -76,8 +76,12 @@ function HomePage() {
         </div>
       </div>
       <Grid>
-        {selectedBoard.widgets?.map((widget) => {
-          return renderWidget(widget);
+        {selectedBoard.widgets?.map((widget, index) => {
+          return (
+            <div style={{ width: "100%", height: "100%" }} key={index}>
+              {renderWidget(widget)}
+            </div>
+          );
         })}
       </Grid>
     </div>

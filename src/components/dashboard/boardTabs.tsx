@@ -50,6 +50,7 @@ function boardTabs({ boards, selectedBoard, onSelect, onAdd, onRename }: BoardTa
         const isThisEditing = isEditing && editingTitle?.id === board.id;
         return (
           <div
+            key={board.id}
             onClick={() => isActive && handleRename({ title: board.title, id: board.id })}
             className={`button-container ${isActive ? "active" : ""}`}
           >

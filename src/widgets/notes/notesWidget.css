@@ -1,4 +1,7 @@
 .notes-widget {
+  padding: 5px;
+  width: 100%;
+  max-width: 100%;
 }
 
 @media (max-width: 400px) {
