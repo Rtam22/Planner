@@ -10,4 +10,6 @@ export const baseLayout: CSSProperties = {
   alignItems: "stretch",
   overflow: "hidden",
   borderRadius: "10px",
+  padding: "10px",
+  minWidth: "0",
 };
