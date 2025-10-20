@@ -138,6 +138,18 @@ hr {
   justify-content: space-between;
 }
 
+input[type="checkbox"] {
+  width: 18px;
+}
+
+input[type="checkbox"]:hover {
+  cursor: pointer;
+}
+
+.widget .split-container {
+  width: 100% !important;
+}
+
 @media (min-width: 600px) {
   .col-right {
     width: 50%;

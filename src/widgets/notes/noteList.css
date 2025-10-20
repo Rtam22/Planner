@@ -1,15 +1,14 @@
 .note-list {
   width: 100%;
   border: solid 1px rgb(185, 185, 185);
-  height: 350px;
+  height: 100%;
   border-radius: 5px;
   display: flex;
   flex-direction: column;
   gap: 5px;
   padding: 10px;
   box-sizing: border-box;
-  overflow-y: scroll;
-  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .note-item {
@@ -17,7 +16,8 @@
   align-items: center;
   width: 100%;
   background-color: var(--note-color);
-  height: 40px;
+  min-height: 40px;
+  max-height: 40px;
   line-height: 28px;
   padding: 0 5px;
   font-size: 14px;

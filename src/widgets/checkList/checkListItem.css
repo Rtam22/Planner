@@ -4,3 +4,20 @@
   gap: 10px;
   font-size: 14px;
 }
+
+.checklist-item.completed .input-text {
+  color: rgb(206, 206, 206);
+  text-decoration: line-through;
+}
+
+.checklist-item .input-text {
+  border: 1px solid transparent;
+  background-color: transparent;
+  border-radius: 5px;
+  width: 100%;
+  border-bottom: solid 1px rgb(169, 168, 168);
+}
+
+.checklist-item .input-text:focus {
+  border-bottom: solid 1px rgb(251, 125, 35);
+}

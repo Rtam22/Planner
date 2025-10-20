@@ -35,29 +35,29 @@ function NotesWidget() {
 
   function handleBack() {
     if (selectedNote && selectedNote.content === "") {
-      setNotes(notes.filter((n) => n.id !== selectedNote.id));
+      setNotes((prev) => prev.filter((n) => n.id !== selectedNote.id));
     }
     setSelectedNote(null);
   }
 
   function handleCreate() {
     const newNote = { id: uuidv4(), title: "", content: "" };
-    setNotes([...notes, newNote]);
+    setNotes((prev) => [...prev, newNote]);
     setSelectedNote(newNote);
   }
 
   function handleSave(note: NoteType) {
     setSelectedNote(note);
-    setNotes(notes.map((n) => (n.id === note.id ? note : n)));
+    setNotes((prev) => prev.map((n) => (n.id === note.id ? note : n)));
   }
 
   function handleDelete() {
-    if (selectedNote) setNotes(notes.filter((n) => n.id !== selectedNote.id));
+    if (selectedNote) setNotes((prev) => prev.filter((n) => n.id !== selectedNote.id));
     setSelectedNote(null);
   }
 
   return (
-    <div style={baseLayout} className="notes-widget">
+    <div style={baseLayout} className="widget">
       {!selectedNote ? (
         <div className="centered">
           <Button

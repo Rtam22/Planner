@@ -1,6 +1,8 @@
 .checklist-list {
   width: 100%;
-  background-color: aliceblue;
+  border: solid 1px rgb(186, 185, 185);
   height: 100%;
   padding: 10px;
+  border-radius: 5px;
+  overflow-x: auto;
 }

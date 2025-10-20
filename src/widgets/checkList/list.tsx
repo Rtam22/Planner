@@ -4,13 +4,22 @@ import "./list.css";
 
 type ListProps = {
   items: ListItem[];
+  handleSave: (newItem: ListItem) => void;
+  handleDelete: (item: ListItem) => void;
 };
 
-function List({ items }: ListProps) {
+function List({ items, handleSave, handleDelete }: ListProps) {
   return (
     <div className="checklist-list">
       {items.map((item) => {
-        return <CheckListItem item={item} />;
+        return (
+          <CheckListItem
+            key={item.id}
+            item={item}
+            handleSave={handleSave}
+            handleDelete={handleDelete}
+          />
+        );
       })}
     </div>
   );
