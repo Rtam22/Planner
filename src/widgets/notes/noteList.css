@@ -1,16 +1,3 @@
-.note-list {
-  width: 100%;
-  border: solid 1px rgb(185, 185, 185);
-  height: 100%;
-  border-radius: 5px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  padding: 10px;
-  box-sizing: border-box;
-  overflow-y: auto;
-}
-
 .note-item {
   display: flex;
   align-items: center;

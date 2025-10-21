@@ -37,7 +37,7 @@ function CheckListItem({ item, handleSave, handleDelete }: CheckListItemProps) {
         value={currentItem.content}
         onBlur={handleBlurSave}
         onChange={(e) => setCurrentItem({ ...currentItem, content: e.target.value })}
-      ></input>
+      />
       <Button onClick={() => handleDelete(currentItem)} className="btn">
         dsa
       </Button>

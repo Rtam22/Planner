@@ -1,3 +1,4 @@
+import { innerContainer } from "../widgetConsts";
 import CheckListItem from "./checkListItem";
 import type { ListItem } from "./checkListWidget";
 import "./list.css";
@@ -10,7 +11,7 @@ type ListProps = {
 
 function List({ items, handleSave, handleDelete }: ListProps) {
   return (
-    <div className="checklist-list">
+    <div style={innerContainer}>
       {items.map((item) => {
         return (
           <CheckListItem

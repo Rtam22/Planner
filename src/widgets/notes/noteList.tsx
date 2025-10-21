@@ -1,3 +1,4 @@
+import { innerContainer } from "../widgetConsts";
 import "./noteList.css";
 import type { NoteType } from "./notesWidget";
 
@@ -8,7 +9,7 @@ type NoteListProps = {
 
 function NoteList({ notes, handleClick }: NoteListProps) {
   return (
-    <div className="note-list">
+    <div style={innerContainer}>
       {notes.map((note) => {
         return (
           <div className="note-item" key={note.id} onClick={() => handleClick(note.id)}>

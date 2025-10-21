@@ -3,12 +3,16 @@ import Grid from "../components/common/grid";
 import TopBar from "../components/navigation/topBar";
 import "./homePage.css";
 import Button from "../components/common/button";
-import NotesWidget from "../widgets/notes/notesWidget";
+import NotesWidget, { type NoteType } from "../widgets/notes/notesWidget";
 import BoardTabs, { type EditTitle } from "../components/dashboard/boardTabs";
 import { v4 as uuidv4 } from "uuid";
-import CheckListWidget from "../widgets/checkList/checkListWidget";
+import CheckListWidget, { type ListItem } from "../widgets/checkList/checkListWidget";
+import CountdownWidget from "../widgets/countdown/countdownWidget";
 
-type Widgets = "notes" | "checkList";
+type Widgets = {
+  type: "notes" | "checkList" | "countdown";
+  savedContent: NoteType | ListItem | null;
+};
 
 export type Board = {
   id: string;
@@ -20,7 +24,11 @@ function HomePage() {
     {
       id: uuidv4(),
       title: "General",
-      widgets: ["notes", "checkList"],
+      widgets: [
+        { type: "notes", savedContent: null },
+        { type: "checkList", savedContent: null },
+        { type: "countdown", savedContent: null },
+      ],
     },
     { id: uuidv4(), title: "Notes", widgets: null },
   ]);
@@ -38,11 +46,13 @@ function HomePage() {
   }
 
   function renderWidget(widget: Widgets) {
-    switch (widget) {
+    switch (widget.type) {
       case "notes":
         return <NotesWidget />;
       case "checkList":
         return <CheckListWidget />;
+      case "countdown":
+        return <CountdownWidget />;
     }
   }
 

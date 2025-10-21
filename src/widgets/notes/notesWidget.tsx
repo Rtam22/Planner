@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Button from "../../components/common/button";
-import { baseLayout } from "../widgetConsts";
+import { baseLayout, centeredContainer, splitContainer } from "../widgetConsts";
 import NoteList from "./noteList";
 import "./notesWidget.css";
 import Note from "./note";
@@ -27,6 +27,7 @@ function NotesWidget() {
     },
   ]);
   const [selectedNote, setSelectedNote] = useState<NoteType | null>(null);
+  const [selectedColor, setSelectedColor] = useState<string>();
 
   function handleSelectNote(id: string) {
     const newNote = notes.find((note) => note.id === id);
@@ -59,7 +60,10 @@ function NotesWidget() {
   return (
     <div style={baseLayout} className="widget">
       {!selectedNote ? (
-        <div className="centered">
+        <div
+          className="centered"
+          style={{ ...centeredContainer, backgroundColor: selectedColor }}
+        >
           <Button
             className="btn"
             style={{ fontSize: 18, transform: "translateY(-3px)" }}
@@ -69,7 +73,7 @@ function NotesWidget() {
           </Button>
         </div>
       ) : (
-        <div className="split-container">
+        <div style={splitContainer}>
           <div>
             <Button className="btn-plain" onClick={handleBack}>
               Back

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Button from "../../components/common/button";
-import { baseLayout } from "../widgetConsts";
+import { baseLayout, centeredContainer } from "../widgetConsts";
 import "./checkListWidget.css";
 import List from "./list";
 import { v4 as uuidv4 } from "uuid";
@@ -34,7 +34,7 @@ function checkListWidget() {
   }
   return (
     <div style={baseLayout} className="widget">
-      <div className="centered">
+      <div style={centeredContainer}>
         <Button
           className="btn"
           style={{ fontSize: 18, transform: "translateY(-3px)" }}
