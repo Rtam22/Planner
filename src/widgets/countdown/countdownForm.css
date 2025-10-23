@@ -1,0 +1,13 @@
+.time-form-container {
+  height: 120px;
+  width: 100%;
+  display: flex;
+  padding: 0 10px;
+  flex-direction: column;
+  gap: 5px;
+  justify-content: center;
+}
+
+.time-form-container input {
+  width: 100%;
+}

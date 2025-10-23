@@ -27,7 +27,7 @@ function NotesWidget() {
     },
   ]);
   const [selectedNote, setSelectedNote] = useState<NoteType | null>(null);
-  const [selectedColor, setSelectedColor] = useState<string>();
+  // const [selectedColor, setSelectedColor] = useState<string>();
 
   function handleSelectNote(id: string) {
     const newNote = notes.find((note) => note.id === id);
@@ -62,7 +62,7 @@ function NotesWidget() {
       {!selectedNote ? (
         <div
           className="centered"
-          style={{ ...centeredContainer, backgroundColor: selectedColor }}
+          style={{ ...centeredContainer /*  backgroundColor: selectedColor  */ }}
         >
           <Button
             className="btn"
