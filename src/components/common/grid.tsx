@@ -5,7 +5,7 @@ type GridProps = {
   gap?: number;
 };
 
-function Grid({ children, gap = 20 }: GridProps) {
+function Grid({ children, gap = 50 }: GridProps) {
   return (
     <div
       className="grid"

@@ -26,6 +26,7 @@ function CountdownWidget() {
   );
 
   const intervalRef = useRef<number | null>(null);
+
   useEffect(() => {
     if (!selectedTime) return;
     if (intervalRef.current !== null) return;
@@ -40,6 +41,7 @@ function CountdownWidget() {
   function startInterval() {
     if (!selectedTime) return;
     if (intervalRef.current !== null) return;
+    setTime(calculateTimeleft(selectedTime));
     intervalRef.current = window.setInterval(intervalTicks, 1000);
   }
 
@@ -64,8 +66,11 @@ function CountdownWidget() {
     const minutes = Math.floor((difference / 1000 / 60) % 60);
     const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
     const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-
-    return { days: days, hours: hours, minutes: minutes, seconds: seconds };
+    if (seconds <= 0 && minutes <= 0 && hours <= 0 && days)
+      return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+    else {
+      return { days: days, hours: hours, minutes: minutes, seconds: seconds };
+    }
   }
 
   return (
