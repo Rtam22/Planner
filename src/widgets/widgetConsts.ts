@@ -1,5 +1,9 @@
 import type { CSSProperties } from "react";
 
+export type AllWidgetTypes = "notes" | "countdown" | "checklist";
+export type WidgetArray = AllWidgetTypes[];
+export const allWidgetTitles = ["notes", "countdown", "checklist"] as const;
+
 export const baseLayout: CSSProperties = {
   backgroundColor: "white",
   width: "100%",

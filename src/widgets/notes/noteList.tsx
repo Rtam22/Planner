@@ -1,6 +1,6 @@
 import { innerContainer } from "../widgetConsts";
+import type { NoteType } from "../widgetTypes";
 import "./noteList.css";
-import type { NoteType } from "./notesWidget";
 
 type NoteListProps = {
   notes: NoteType[];

@@ -1,0 +1,7 @@
+.drop-down {
+  position: absolute;
+  background-color: aliceblue;
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+}

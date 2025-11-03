@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 
 type BoardTabsProps = {
   boards: Board[] | null;
-  selectedBoard: Board;
+  selectedBoardId: string;
   onSelect: (board: Board) => void;
   onAdd: () => void;
   onRename: (toEdit: EditTitle) => void;
@@ -16,7 +16,13 @@ export type EditTitle = {
   id: string;
 };
 
-function boardTabs({ boards, selectedBoard, onSelect, onAdd, onRename }: BoardTabsProps) {
+function boardTabs({
+  boards,
+  selectedBoardId,
+  onSelect,
+  onAdd,
+  onRename,
+}: BoardTabsProps) {
   const [editingTitle, setEditingTitle] = useState<EditTitle | null>();
   const [isEditing, setIsEditing] = useState<Boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -46,7 +52,7 @@ function boardTabs({ boards, selectedBoard, onSelect, onAdd, onRename }: BoardTa
   return (
     <div className="tabs-container">
       {boards?.map((board) => {
-        const isActive = selectedBoard.id === board.id;
+        const isActive = selectedBoardId === board.id;
         const isThisEditing = isEditing && editingTitle?.id === board.id;
         return (
           <div

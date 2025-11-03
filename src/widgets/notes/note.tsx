@@ -1,6 +1,5 @@
-import { useState } from "react";
 import "./note.css";
-import type { NoteType } from "./notesWidget";
+import type { NoteType } from "../widgetTypes";
 
 type NoteProps = {
   note: NoteType;
@@ -8,14 +7,11 @@ type NoteProps = {
 };
 
 function Note({ note, handleSave }: NoteProps) {
-  const [selectedNote, setSelectedNote] = useState<NoteType>(note);
-
   return (
     <div className="note">
       <textarea
-        onBlur={() => handleSave(selectedNote)}
-        value={selectedNote.content}
-        onChange={(e) => setSelectedNote({ ...selectedNote, content: e.target.value })}
+        value={note.content}
+        onChange={(e) => handleSave({ ...note, content: e.target.value })}
       />
     </div>
   );

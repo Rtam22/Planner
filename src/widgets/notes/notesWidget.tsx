@@ -5,28 +5,12 @@ import NoteList from "./noteList";
 import "./notesWidget.css";
 import Note from "./note";
 import { v4 as uuidv4 } from "uuid";
+import type { NotesWidgetProps, NoteType } from "../widgetTypes";
 
-export type NoteType = {
-  id: string;
-  content: string;
-};
-
-function NotesWidget() {
-  const [notes, setNotes] = useState<NoteType[]>([
-    {
-      id: uuidv4(),
-      content: "ddsajd ioas jdoias jdoiasj doiasj doiasj dioasjd asoidjas oi",
-    },
-    {
-      id: uuidv4(),
-      content: "ddsajd ioas jdoias jdsj dioasjd asoidjas oi",
-    },
-    {
-      id: uuidv4(),
-      content: "ddsajd s jdoias jdoiasj doiasj doiasj dioasjd asoidjas oi",
-    },
-  ]);
+function NotesWidget({ handleSaveNotes, savedNotes }: NotesWidgetProps) {
+  const [notes, setNotes] = useState<NoteType[]>(savedNotes ? savedNotes : []);
   const [selectedNote, setSelectedNote] = useState<NoteType | null>(null);
+  const [unsaved, setUnsaved] = useState<boolean>(false);
   // const [selectedColor, setSelectedColor] = useState<string>();
 
   function handleSelectNote(id: string) {
@@ -36,7 +20,7 @@ function NotesWidget() {
 
   function handleBack() {
     if (selectedNote && selectedNote.content === "") {
-      setNotes((prev) => prev.filter((n) => n.id !== selectedNote.id));
+      handleCompleteSave();
     }
     setSelectedNote(null);
   }
@@ -45,16 +29,25 @@ function NotesWidget() {
     const newNote = { id: uuidv4(), title: "", content: "" };
     setNotes((prev) => [...prev, newNote]);
     setSelectedNote(newNote);
+    setUnsaved(true);
   }
 
-  function handleSave(note: NoteType) {
+  function handleLocalSave(note: NoteType) {
     setSelectedNote(note);
     setNotes((prev) => prev.map((n) => (n.id === note.id ? note : n)));
+    setUnsaved(true);
   }
 
   function handleDelete() {
     if (selectedNote) setNotes((prev) => prev.filter((n) => n.id !== selectedNote.id));
     setSelectedNote(null);
+  }
+
+  function handleCompleteSave() {
+    setNotes((prev) => {
+      if (unsaved) handleSaveNotes(prev);
+      return prev;
+    });
   }
 
   return (
@@ -87,7 +80,7 @@ function NotesWidget() {
         </div>
       )}
       {selectedNote ? (
-        <Note handleSave={handleSave} note={selectedNote} />
+        <Note handleSave={handleLocalSave} note={selectedNote} />
       ) : (
         <NoteList notes={notes} handleClick={handleSelectNote} />
       )}
