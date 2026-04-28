@@ -9,7 +9,7 @@ import Button from "../common/button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars } from "@fortawesome/free-solid-svg-icons";
 import useLocalStorage from "../../hooks/useLocalStorage";
-import ViewSelect, { type ViewSelectProps } from "./viewSelect";
+import { type ViewSelectProps } from "./viewSelect";
 
 type filterBarProps = {
   viewSelect?: ViewSelectProps;
@@ -23,7 +23,6 @@ type filterBarProps = {
 };
 
 function FilterBar({
-  viewSelect,
   tasks,
   tags,
   handleFilter,
@@ -34,7 +33,6 @@ function FilterBar({
 }: filterBarProps) {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  /*   const [show, setShow] = useState<boolean>(true); */
   const [show, setShow] = useLocalStorage<boolean>({
     key: "filter:modal",
     initialValue: true,
@@ -64,16 +62,9 @@ function FilterBar({
       <Button className="btn-filter-circle" onClick={() => handleSetShow(!show)}>
         <FontAwesomeIcon icon={faBars} style={{ height: "20px", fontSize: "10px" }} />
       </Button>
+
       <div className="filter-bar-wrapper">
         <div className="filter-bar">
-          {viewSelect && (
-            <ViewSelect
-              view={viewSelect.view}
-              setView={viewSelect.setView}
-              options={viewSelect.options}
-            />
-          )}
-
           <Calendar
             size="small"
             selectedDate={selectedDate}

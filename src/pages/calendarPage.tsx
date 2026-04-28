@@ -15,8 +15,6 @@ import { useFilters } from "../hooks/useFilters";
 import Confirmation from "../components/common/confirmation";
 import DateNavigator from "../components/calendar/dateNavigator";
 import EditControls from "../components/calendar/editControls";
-import type { ViewOptions } from "../components/filters/viewSelect";
-import Calendar from "../components/calendar/calendar";
 
 function CalendarPage() {
   const {
@@ -31,13 +29,11 @@ function CalendarPage() {
     setIsEditing,
   } = useTasksContext();
 
-  const [view, setView] = useState<"Calendar" | "Timeline">("Calendar");
   const [selectedDate, setselectedDate] = useState<Date>(new Date());
-
   const { applyFilter, handleFilter, filters } = useFilters();
   const [showModal, setShowModal] = useState<"none" | "view" | "create">("none");
   const [showConfirmation, setShowConfirmation] = useState<"none" | "confirmation">(
-    "none"
+    "none",
   );
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const dates: CalendarDayProps[] = getDayAndDayNumber(selectedDate);
@@ -46,18 +42,12 @@ function CalendarPage() {
     const baseTasks = draftTasks ? draftTasks : tasks;
     return applyFilter(baseTasks, filters);
   }, [tasks, draftTasks, isEditing, filters]);
-  const viewOptions: ViewOptions[] = ["Calendar", "Timeline"];
-
   function handleSelectDate(newDate: Date) {
     setselectedDate(newDate);
   }
 
-  function handleSetView(type: "Calendar" | "Timeline") {
-    setView(type);
-  }
-
   function handleShowModal(type: modalType) {
-    if (type === "create" && view === "Timeline") {
+    if (type === "create") {
       setIsEditing(true);
     }
     setShowModal(type);
@@ -115,7 +105,6 @@ function CalendarPage() {
   return (
     <>
       <FilterBar
-        viewSelect={{ view: view, setView: handleSetView, options: viewOptions }}
         tasks={tasks}
         tags={tags}
         handleFilter={handleFilter}
@@ -185,36 +174,15 @@ function CalendarPage() {
           }
         />
         <div className="content">
-          {/*           <Modal
-            position="absolute"
-            showModal={showModal}
-            setClose={handleCloseModal}
-            backDrop={false}
-            modalType="create"
-            hover={true}
-            left="0"
-            top="0"
-          >
-            <Button className="btn-plain">fdsfgsdg</Button>
-          </Modal> */}
           <div className="horizontal">
-            {view === "Timeline" && (
-              <CalendarTimeline
-                dates={dates}
-                tasks={filteredTasks}
-                selectedDate={selectedDate}
-                previewTask={previewTask}
-                onClick={handleTaskClick}
-                isEditing={isEditing}
-              />
-            )}
-            {view === "Calendar" && (
-              <Calendar
-                showTaskInCell={filteredTasks}
-                onClickTask={handleTaskClick}
-                size="large"
-              />
-            )}
+            <CalendarTimeline
+              dates={dates}
+              tasks={filteredTasks}
+              selectedDate={selectedDate}
+              previewTask={previewTask}
+              onClick={handleTaskClick}
+              isEditing={isEditing}
+            />
 
             <Modal
               showModal={showModal}
