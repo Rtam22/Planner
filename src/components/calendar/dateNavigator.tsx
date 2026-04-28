@@ -15,7 +15,7 @@ function dateNavigator({
 }: dateNavigatorProps) {
   let newDate = new Date(selectedDate);
 
-  function handleDateChange(e: React.MouseEvent<HTMLDivElement>) {
+  function handleDateChange(e: React.MouseEvent<HTMLButtonElement>) {
     const button = e.currentTarget.textContent;
     if (button === "‹") {
       newDate.setDate(selectedDate.getDate() - 1);

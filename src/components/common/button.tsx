@@ -57,11 +57,11 @@ function Button({
       ? hoverColor
         ? hoverColor
         : backgroundColor
-        ? adjustColor(backgroundColor, -20)
-        : backgroundColor
+          ? adjustColor(backgroundColor, -20)
+          : backgroundColor
       : isActive
-      ? activeBackgroundColor
-      : backgroundColor;
+        ? activeBackgroundColor
+        : backgroundColor;
 
   return (
     <button

@@ -19,7 +19,7 @@ function NotesWidget({ handleSaveNotes, savedNotes }: NotesWidgetProps) {
   }
 
   function handleBack() {
-    if (selectedNote && selectedNote.content === "") {
+    if (selectedNote) {
       handleCompleteSave();
     }
     setSelectedNote(null);
@@ -39,15 +39,17 @@ function NotesWidget({ handleSaveNotes, savedNotes }: NotesWidgetProps) {
   }
 
   function handleDelete() {
-    if (selectedNote) setNotes((prev) => prev.filter((n) => n.id !== selectedNote.id));
+    if (selectedNote) {
+      const newNotes = notes.filter((n) => n.id !== selectedNote.id);
+      setNotes(newNotes);
+      handleSaveNotes(newNotes);
+    }
     setSelectedNote(null);
   }
 
   function handleCompleteSave() {
-    setNotes((prev) => {
-      if (unsaved) handleSaveNotes(prev);
-      return prev;
-    });
+    if (unsaved) handleSaveNotes(notes);
+    setUnsaved(false);
   }
 
   return (

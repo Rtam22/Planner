@@ -44,6 +44,7 @@ export function useTaskCardControl({
   setEndTime,
   taskRef,
   timelineRef,
+  
 }: UseTaskCardControlProps) {
   const {
     draftTasks,
