@@ -1,7 +1,7 @@
 import React from "react";
 import type { AllWidgetTypes, WidgetArray } from "../../widgets/widgetConsts";
 import Button from "./button";
-import "./dropdown.css";
+import "./dropDown.css";
 
 type DropDownProps = {
   items: WidgetArray;
@@ -11,7 +11,7 @@ type DropDownProps = {
 
 function DropDownInner(
   { items, styles, onClick }: DropDownProps,
-  ref: React.Ref<HTMLDivElement>
+  ref: React.Ref<HTMLDivElement>,
 ) {
   return (
     <div ref={ref} className="drop-down" style={{ ...styles }}>
